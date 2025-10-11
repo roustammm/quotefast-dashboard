@@ -2,9 +2,16 @@
 import Sidebar from "./components/Sidebar";
 import TopNav from "./components/TopNav";
 import { ThemeProvider, useTheme } from "../../contexts/ThemeContext";
+import { usePathname } from 'next/navigation';
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
+  const pathname = usePathname();
+  const isRootDashboard = pathname === '/dashboard';
+
+  if (isRootDashboard) {
+    return <>{children}</>;
+  }
   
   return (
     <div className={`flex h-screen transition-colors duration-300 relative ${

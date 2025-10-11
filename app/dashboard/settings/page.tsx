@@ -3,12 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { User, Bell, Shield, Key, Palette, Globe, Save, Eye, EyeOff, Copy, Trash2, Plus, Edit, Zap, Brain } from "lucide-react";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useAIPersonalization } from "../../../contexts/AIPersonalizationContext";
+import { useStandby } from "../../../contexts/StandbyContext";
 import { useState } from "react";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { onboardingData } = useAIPersonalization();
+  const { 
+    isStandbyEnabled, 
+    setStandbyEnabled, 
+    currentPin, 
+    setCurrentPin, 
+    inactivityTimeout, 
+    setInactivityTimeout 
+  } = useStandby();
   const [selectedTheme, setSelectedTheme] = useState(theme);
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+  const [activeTab, setActiveTab] = useState('Profile');
 
   const handleThemeChange = (newTheme: string) => {
     setSelectedTheme(newTheme as "light" | "dark" | "system");
@@ -33,8 +45,9 @@ export default function SettingsPage() {
         {["Profile", "Notifications", "Security", "API Keys", "Appearance", "AI Personalisatie", "System"].map((tab) => (
           <button
             key={tab}
+            onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              tab === "Profile" 
+              activeTab === tab 
                 ? "bg-blue-600 text-white" 
                 : "bg-white/10 hover:bg-white/20 text-gray-300"
             }`}
@@ -44,7 +57,7 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      {/* Profile Settings */}
+      {activeTab === 'Profile' && (
       <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
@@ -113,8 +126,9 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Notifications */}
+      {activeTab === 'Notifications' && (
       <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
@@ -149,8 +163,9 @@ export default function SettingsPage() {
           ))}
         </CardContent>
       </Card>
+      )}
 
-      {/* Security */}
+      {activeTab === 'Security' && (
       <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
@@ -159,42 +174,155 @@ export default function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
-            <div className="relative">
-              <input
-                type="password"
-                placeholder="Enter current password"
-                className="w-full px-3 py-2 pr-10 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <Eye className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          {/* Standby Mode Settings */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Sluimerstand Instellingen</h3>
+            
+            {/* Enable/Disable Standby */}
+            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+              <div>
+                <div className="text-white font-medium">Sluimerstand Activeren</div>
+                <div className="text-gray-400 text-sm">Automatisch vergrendelen na inactiviteit</div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={isStandbyEnabled}
+                  onChange={(e) => setStandbyEnabled(e.target.checked)}
+                  className="sr-only peer" 
+                  aria-label="Toggle standby mode"
+                />
+                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            {/* Inactivity Timeout */}
+            {isStandbyEnabled && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Inactiviteit Timeout (minuten)
+                </label>
+                <select 
+                  value={inactivityTimeout / (60 * 1000)}
+                  onChange={(e) => setInactivityTimeout(parseInt(e.target.value) * 60 * 1000)}
+                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label="Select inactivity timeout"
+                >
+                  <option value={1}>1 minuut</option>
+                  <option value={5}>5 minuten</option>
+                  <option value={10}>10 minuten</option>
+                  <option value={15}>15 minuten</option>
+                  <option value={30}>30 minuten</option>
+                  <option value={60}>1 uur</option>
+                </select>
+              </div>
+            )}
+
+            {/* PIN Code Settings */}
+            {isStandbyEnabled && (
+              <div className="space-y-4">
+                <h4 className="text-white font-medium">Pincode Instellingen</h4>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Huidige Pincode
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      {currentPin.split('').map((_, index) => (
+                        <div key={index} className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                      ))}
+                    </div>
+                    <span className="text-gray-400 text-sm">4 cijfers</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Nieuwe Pincode
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={4}
+                    value={newPin}
+                    onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Voer 4 cijfers in"
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Bevestig Nieuwe Pincode
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={4}
+                    value={confirmPin}
+                    onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Bevestig 4 cijfers"
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {newPin && confirmPin && newPin === confirmPin && newPin.length === 4 && (
+                  <button
+                    onClick={() => {
+                      setCurrentPin(newPin);
+                      setNewPin('');
+                      setConfirmPin('');
+                    }}
+                    className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                  >
+                    Pincode Bijwerken
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Password Settings */}
+          <div className="border-t border-white/10 pt-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Wachtwoord Instellingen</h3>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Enter current password"
+                  className="w-full px-3 py-2 pr-10 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <Eye className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">New Password</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Enter new password"
+                  className="w-full px-3 py-2 pr-10 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <EyeOff className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Confirm new password"
+                  className="w-full px-3 py-2 pr-10 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <EyeOff className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">New Password</label>
-            <div className="relative">
-              <input
-                type="password"
-                placeholder="Enter new password"
-                className="w-full px-3 py-2 pr-10 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <EyeOff className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
-            <div className="relative">
-              <input
-                type="password"
-                placeholder="Confirm new password"
-                className="w-full px-3 py-2 pr-10 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <EyeOff className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </div>
-          </div>
-
+          {/* Two-Factor Authentication */}
           <div className="flex items-center justify-between p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
             <div>
               <h4 className="text-yellow-400 font-medium">Two-Factor Authentication</h4>
@@ -206,8 +334,9 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* API Keys */}
+      {activeTab === 'API Keys' && (
       <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
@@ -259,8 +388,9 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Appearance */}
+      {activeTab === 'Appearance' && (
       <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
@@ -317,9 +447,9 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* AI Personalisatie Sectie */}
-      {onboardingData && (
+      {activeTab === 'AI Personalisatie' && onboardingData && (
         <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">

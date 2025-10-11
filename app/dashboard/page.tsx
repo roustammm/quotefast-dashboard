@@ -1,97 +1,101 @@
 "use client";
 import DashboardCard from "./components/DashboardCard";
 import LoadingCard from "./components/LoadingCard";
-import RevenueChart from "./components/RevenueChart";
-import OffersChart from "./components/OffersChart";
-import ConversionChart from "./components/ConversionChart";
-import CustomerActivityChart from "./components/CustomerActivityChart";
-import ActivityFeed from "./components/ActivityFeed";
-import ExportButton from "./components/ExportButton";
-import { Activity, FolderOpen, Users, Zap, FileText, Euro, Target, Clock, TrendingUp, DollarSign } from "lucide-react";
+import { Zap, FileText, Users, Euro, TrendingUp, Target, BarChart3, Sparkles, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
-import { useAIPersonalization } from "../../contexts/AIPersonalizationContext";
-import { getPersonalizedQuickActions } from "../../lib/aiPersonalization";
+import { customersApi, invoicesApi } from "../../lib/api-service";
+
+const AiSphere = () => (
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+    <div className="relative w-96 h-96">
+      <div className="absolute inset-0 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+      <div className="absolute inset-8 bg-gradient-to-br from-pink-500 to-indigo-500 rounded-full blur-3xl opacity-30 animate-pulse animation-delay-3000"></div>
+    </div>
+  </div>
+);
 
 export default function DashboardPage() {
   const { theme } = useTheme();
-  const { onboardingData, contextualHelp } = useAIPersonalization();
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Fallback: force show content after 2 seconds max
-  useEffect(() => {
-    const fallbackTimer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-    
-    return () => clearTimeout(fallbackTimer);
-  }, []);
+  const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState({
-    executions: 340,
-    projects: 12,
-    teamReviews: 5,
-    activeUsers: 1284,
-    revenue: "$45.2K",
-    conversion: "3.2%",
-    avgResponse: "1.2s",
-    // QuoteFast-specifieke metrics
-    offersSent: 127,
-    avgOfferValue: "€2,450",
-    acceptanceRate: "67%",
-    openOffers: 23,
-    activeCustomers: 89,
+    offersSent: 0,
+    avgOfferValue: "€0",
+    activeCustomers: 0,
     aiGenerations: 45
   });
 
   useEffect(() => {
-    // Simulate data loading - much faster
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-
-    // Real-time data simulation
-    const interval = setInterval(() => {
-      setData(prevData => ({
-        ...prevData,
-        executions: prevData.executions + Math.floor(Math.random() * 3),
-        offersSent: prevData.offersSent + Math.floor(Math.random() * 2),
-        activeUsers: prevData.activeUsers + Math.floor(Math.random() * 5),
-        aiGenerations: prevData.aiGenerations + Math.floor(Math.random() * 2)
-      }));
-    }, 5000);
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(interval);
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Haal klanten op
+        const customersResponse = await customersApi.getAll();
+        
+        // Haal facturen op
+        const invoicesResponse = await invoicesApi.getAll();
+        
+        // Controleer op fouten
+        if (customersResponse.error) {
+          setError(customersResponse.error);
+          setIsLoading(false);
+          return;
+        }
+        
+        if (invoicesResponse.error) {
+          setError(invoicesResponse.error);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Bereken dashboard metrics
+        const activeCustomers = customersResponse.data?.length || 0;
+        const invoices = invoicesResponse.data || [];
+        const offersSent = invoices.length;
+        
+        // Bereken gemiddelde factuurwaarde
+        let totalValue = 0;
+        invoices.forEach((invoice: any) => {
+          totalValue += invoice.total || 0;
+        });
+        
+        const avgValue = offersSent > 0 ? totalValue / offersSent : 0;
+        const formattedAvgValue = `€${avgValue.toFixed(0)}`;
+        
+        // Update state
+        setData({
+          offersSent,
+          avgOfferValue: formattedAvgValue,
+          activeCustomers,
+          aiGenerations: 45 // Dit is nog steeds hardcoded omdat we geen AI generaties API hebben
+        });
+        
+        setIsLoading(false);
+      } catch (err: any) {
+        console.error("Error fetching dashboard data:", err);
+        setError("Er is een fout opgetreden bij het ophalen van de dashboard gegevens");
+        setIsLoading(false);
+      }
     };
+    
+    fetchDashboardData();
+    
+    // Refresh data elke 30 seconden
+    const interval = setInterval(() => {
+      fetchDashboardData();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        {/* Loading skeleton for demo section */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
-            </div>
-            <div className="flex gap-2">
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Loading skeletons for cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <LoadingCard />
-          <LoadingCard />
-          <LoadingCard />
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-6xl px-4">
           <LoadingCard />
           <LoadingCard />
           <LoadingCard />
@@ -100,243 +104,177 @@ export default function DashboardPage() {
       </div>
     );
   }
-
-  return (
-    <div className="space-y-8">
-      {/* Dashboard Header with Export Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            Dashboard
-          </h1>
-          <p className={`mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            {onboardingData ? 
-              `Welkom ${onboardingData.companyName}! ${contextualHelp('dashboard')}` :
-              'Overzicht van je QuoteFast account'
-            }
-          </p>
-        </div>
-        <ExportButton />
-      </div>
-
-      {/* AI Quote Fast Advanced Layout Demo */}
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-800/50 dark:to-gray-700/50 rounded-lg p-6 border border-blue-200 dark:border-gray-600/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              🚀 AI Quote Fast Advanced Layout
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Ervaar de volgende generatie van offerte management met AI-powered features, custom cursors, en glassmorphism effecten
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link
-              href="/dashboard/advanced"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Zap className="h-4 w-4" />
-              Bekijk Demo
-            </Link>
-            <Link
-              href="/dashboard/examples"
-              className="flex items-center gap-2 px-4 py-2 border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700/50 transition-colors"
-            >
-              Voorbeelden
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <DashboardCard
-          title="Executions"
-          value={data.executions}
-          growth="204%"
-          icon={<Activity className="h-5 w-5" />}
-          progress={75}
-          trend="up"
-          delay={0}
-        />
-        <DashboardCard
-          title="Projects"
-          value={data.projects}
-          growth="18%"
-          icon={<FolderOpen className="h-5 w-5" />}
-          progress={60}
-          trend="up"
-          delay={100}
-        />
-        <DashboardCard
-          title="Team Reviews"
-          value={data.teamReviews}
-          icon={<Users className="h-5 w-5" />}
-          progress={40}
-          trend="down"
-          growth="-12%"
-          delay={200}
-        />
-      </div>
-      
-      {/* Additional Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <DashboardCard
-          title="Active Users"
-          value={data.activeUsers}
-          growth="8%"
-          progress={82}
-          delay={300}
-        />
-        <DashboardCard
-          title="Revenue"
-          value={data.revenue}
-          growth="32%"
-          progress={91}
-          delay={400}
-        />
-        <DashboardCard
-          title="Conversion"
-          value={data.conversion}
-          growth="-5%"
-          trend="down"
-          progress={28}
-          delay={500}
-        />
-        <DashboardCard
-          title="Avg. Response"
-          value={data.avgResponse}
-          growth="15%"
-          progress={67}
-          delay={600}
-        />
-      </div>
-
-      {/* QuoteFast-Specifieke Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-        <DashboardCard
-          title="Offertes Verstuurd"
-          value={data.offersSent}
-          growth="24%"
-          icon={<FileText className="h-5 w-5" />}
-          progress={76}
-          delay={700}
-        />
-        <DashboardCard
-          title="Gem. Offerte Waarde"
-          value={data.avgOfferValue}
-          growth="12%"
-          icon={<Euro className="h-5 w-5" />}
-          progress={68}
-          delay={800}
-        />
-        <DashboardCard
-          title="Acceptatie Ratio"
-          value={data.acceptanceRate}
-          growth="8%"
-          icon={<Target className="h-5 w-5" />}
-          progress={67}
-          delay={900}
-        />
-        <DashboardCard
-          title="Open Offertes"
-          value={data.openOffers}
-          growth="-3%"
-          trend="down"
-          icon={<Clock className="h-5 w-5" />}
-          progress={45}
-          delay={1000}
-        />
-        <DashboardCard
-          title="Klanten Actief"
-          value={data.activeCustomers}
-          growth="15%"
-          icon={<Users className="h-5 w-5" />}
-          progress={89}
-          delay={1100}
-        />
-        <DashboardCard
-          title="AI Generaties"
-          value={data.aiGenerations}
-          growth="42%"
-          icon={<Zap className="h-5 w-5" />}
-          progress={78}
-          delay={1200}
-        />
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <RevenueChart />
-        <OffersChart />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <ConversionChart />
-        <CustomerActivityChart />
-      </div>
-
-      {/* Activity Feed */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
-          <ActivityFeed />
-        </div>
-        <div className="xl:col-span-1">
-          {/* Personalized Quick Actions */}
-          <div className={`rounded-xl p-6 border ${
-            theme === 'dark' 
-              ? 'bg-gray-800/50 border-gray-700/30' 
-              : 'bg-white border-gray-200'
-          }`}>
-            <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Quick Actions
-            </h3>
-            <div className="space-y-3">
-              {onboardingData ? (
-                getPersonalizedQuickActions(onboardingData).map((action) => (
-                  <Link
-                    key={action.id}
-                    href={action.href}
-                    className={`w-full p-3 rounded-lg border transition-colors block text-left ${
-                      theme === 'dark' 
-                        ? 'bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30' 
-                        : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100'
-                    }`}
-                  >
-                    <div className="font-medium">{action.label}</div>
-                    <div className="text-sm opacity-75">{action.description}</div>
-                  </Link>
-                ))
-              ) : (
-                <>
-                  <button className={`w-full p-3 rounded-lg border transition-colors ${
-                    theme === 'dark' 
-                      ? 'bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30' 
-                      : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100'
-                  }`}>
-                    Nieuwe Offerte
-                  </button>
-                  <button className={`w-full p-3 rounded-lg border transition-colors ${
-                    theme === 'dark' 
-                      ? 'bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30' 
-                      : 'bg-green-50 border-green-200 text-green-600 hover:bg-green-100'
-                  }`}>
-                    Klant Toevoegen
-                  </button>
-                  <button className={`w-full p-3 rounded-lg border transition-colors ${
-                    theme === 'dark' 
-                      ? 'bg-purple-500/20 border-purple-500/30 text-purple-400 hover:bg-purple-500/30' 
-                      : 'bg-purple-50 border-purple-200 text-purple-600 hover:bg-purple-100'
-                  }`}>
-                    Rapport Genereren
-                  </button>
-                </>
-              )}
+  
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-4">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 max-w-2xl w-full backdrop-blur-sm">
+          <div className="flex items-start gap-4">
+            <AlertCircle className="h-6 w-6 text-red-500 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="text-lg font-semibold text-red-500 mb-2">Er is een fout opgetreden</h3>
+              <p className="text-gray-300 mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-md transition-colors duration-200"
+              >
+                Vernieuwen
+              </button>
             </div>
           </div>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full min-h-screen p-4 sm:p-6 md:p-8 flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+      <AiSphere />
+      
+      <div className="relative z-10 flex flex-col items-center text-center mb-10 mt-8 animate-fadeIn">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-md mb-4 shadow-lg hover:bg-white/10 transition-all duration-300">
+          <Sparkles className="h-4 w-4 text-purple-400" />
+          <span className="text-sm font-medium text-gray-300">AI-Powered Dashboard</span>
+        </div>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-purple-200 to-purple-400 mb-3">
+          QuoteFast Dashboard
+        </h1>
+        <p className="mt-2 text-lg text-gray-300 max-w-2xl leading-relaxed">
+          Visualiseer en plan je bedrijfsactiviteiten met AI-aangedreven inzichten en interactieve doelstellingen.
+        </p>
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl mb-10">
+        <EnhancedGlassCard 
+          icon={<FileText className="h-8 w-8 text-blue-400" />} 
+          title="Verstuurde Offertes" 
+          value={data.offersSent} 
+          description="Totaal aantal" 
+          trend="+12% deze maand"
+          color="blue"
+          href="/dashboard/offertes"
+        />
+        <EnhancedGlassCard 
+          icon={<Euro className="h-8 w-8 text-emerald-400" />} 
+          title="Gem. Offerte Waarde" 
+          value={data.avgOfferValue} 
+          description="Laatste 30 dagen" 
+          trend="+8% vs vorige maand"
+          color="emerald"
+          href="/dashboard/financials"
+        />
+        <EnhancedGlassCard 
+          icon={<Users className="h-8 w-8 text-purple-400" />} 
+          title="Actieve Klanten" 
+          value={data.activeCustomers} 
+          description="Leads en contacten" 
+          trend="+15 nieuwe deze week"
+          color="purple"
+          href="/dashboard/contactpersoon"
+        />
+        <EnhancedGlassCard 
+          icon={<Zap className="h-8 w-8 text-amber-400" />} 
+          title="AI Generaties" 
+          value={data.aiGenerations} 
+          description="Slimme content" 
+          trend="+3 vandaag"
+          color="amber"
+          href="/dashboard/ai-tools"
+        />
+      </div>
+
+      <div className="relative z-10 flex flex-col sm:flex-row gap-4 items-center">
+        <Link
+          href="/dashboard/offertes"
+          className="px-6 py-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-400/30 rounded-lg backdrop-blur-md text-white hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 font-medium shadow-lg hover:shadow-purple-500/25 hover:scale-105"
+        >
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Bekijk alle offertes
+          </div>
+        </Link>
+        <Link
+          href="/dashboard/contactpersoon"
+          className="px-6 py-3 bg-white/5 border border-white/20 rounded-lg backdrop-blur-md text-white hover:bg-white/10 transition-all duration-300 font-medium hover:scale-105"
+        >
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Klanten beheren
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }
+
+const EnhancedGlassCard = ({ icon, title, value, description, trend, color, href }) => {
+  const colorClasses = {
+    blue: "from-blue-500/10 to-cyan-500/10 border-blue-400/20 hover:border-blue-400/40",
+    emerald: "from-emerald-500/10 to-green-500/10 border-emerald-400/20 hover:border-emerald-400/40",
+    purple: "from-purple-500/10 to-violet-500/10 border-purple-400/20 hover:border-purple-400/40",
+    amber: "from-amber-500/10 to-yellow-500/10 border-amber-400/20 hover:border-amber-400/40"
+  };
+
+  const CardContent = () => (
+    <>
+      {/* Glassmorphic overlay */}
+      <div className="absolute inset-0 bg-white/5 rounded-2xl backdrop-blur-sm"></div>
+      
+      {/* Content */}
+      <div className="relative z-10 flex flex-col h-full">
+        <div className="flex items-center justify-between mb-4">
+          <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md">
+            {icon}
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-gray-400 font-medium">{trend}</div>
+          </div>
+        </div>
+        
+        <div className="flex-1 flex flex-col justify-center">
+          <h3 className="text-3xl font-bold text-white mb-2">{value}</h3>
+          <p className="text-sm font-semibold text-gray-200 mb-1">{title}</p>
+          <p className="text-xs text-gray-400">{description}</p>
+        </div>
+        
+        {href && (
+          <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="text-xs text-right text-gray-300 flex items-center justify-end">
+              <span>Meer details</span>
+              <TrendingUp className="h-3 w-3 ml-1" />
+            </div>
+          </div>
+        )}
+        
+        {/* Subtle glow effect */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      </div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={`relative group bg-gradient-to-br ${colorClasses[color]} border rounded-2xl p-6 backdrop-blur-xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105 min-h-[200px] cursor-pointer`}>
+        <CardContent />
+      </Link>
+    );
+  }
+
+  return (
+    <div className={`relative group bg-gradient-to-br ${colorClasses[color]} border rounded-2xl p-6 backdrop-blur-xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105 min-h-[200px]`}>
+      <CardContent />
+    </div>
+  );
+};
+
+const GlassCard = ({ icon, title, value, description }) => {
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-center backdrop-blur-lg shadow-lg hover:bg-white/10 transition-all duration-300 aspect-square">
+      <div className="mb-4">{icon}</div>
+      <h3 className="text-4xl font-bold text-white">{value}</h3>
+      <p className="text-sm text-gray-300 mt-1">{title}</p>
+      <p className="text-xs text-gray-500 mt-1">{description}</p>
+    </div>
+  );
+};
 
