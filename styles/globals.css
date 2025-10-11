@@ -1,0 +1,933 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #0f172a;
+  --background: #ffffff;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --border: #e2e8f0;
+  --input: #f1f5f9;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --ring: #3b82f6;
+  --radius: 0.5rem;
+}
+
+/* Enhanced Design Tokens for Dashboard Cards */
+:root {
+  /* Spacing System */
+  --space-xs: 0.5rem;   /* 8px */
+  --space-sm: 0.75rem;  /* 12px */
+  --space-md: 1rem;     /* 16px */
+  --space-lg: 1.5rem;   /* 24px */
+  --space-xl: 2rem;     /* 32px */
+  --space-2xl: 3rem;    /* 48px */
+  
+  /* Transition System */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 200ms ease-out;
+  --transition-slow: 300ms ease-out;
+  --transition-slower: 500ms ease-out;
+  
+  /* Enhanced Colors */
+  --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --accent-gradient-dark: linear-gradient(135deg, #60a5fa, #a78bfa);
+  --success-gradient: linear-gradient(135deg, #10b981, #34d399);
+  --warning-gradient: linear-gradient(135deg, #f59e0b, #fbbf24);
+  --error-gradient: linear-gradient(135deg, #ef4444, #f87171);
+  
+  /* Glass Effects */
+  --glass-light: rgba(255, 255, 255, 0.85);
+  --glass-light-subtle: rgba(255, 255, 255, 0.6);
+  --glass-dark: rgba(255, 255, 255, 0.08);
+  --glass-dark-subtle: rgba(255, 255, 255, 0.05);
+  
+  /* Shadow System */
+  --shadow-light-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-light-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-light-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-dark-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-dark-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-dark-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  
+  /* Hover Effects */
+  --hover-scale: scale(1.02);
+  --hover-lift: translateY(-2px);
+  --active-scale: scale(0.98);
+}
+
+.dark {
+  --foreground: #f8fafc;
+  --background: #0f172a;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
+  --border: #334155;
+  --input: #1e293b;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --ring: #3b82f6;
+}
+
+html, body {
+  color-scheme: light dark;
+}
+
+.backdrop-blur-xl {
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+/* Light theme glass effects */
+.bg-glass-light {
+  background-color: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bg-glass-light-subtle {
+  background-color: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Dark theme glass effects */
+.bg-glass-dark {
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bg-glass-dark-subtle {
+  background-color: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced contrast utilities */
+.text-contrast-high {
+  color: var(--foreground);
+}
+
+.text-contrast-medium {
+  color: var(--muted-foreground);
+}
+
+.bg-contrast-high {
+  background-color: var(--background);
+}
+
+.bg-contrast-medium {
+  background-color: var(--muted);
+}
+
+.border-contrast {
+  border-color: var(--border);
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { 
+  background: var(--muted); 
+  border-radius: 4px; 
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Enhanced z-index hierarchy for tooltips and overlays */
+.tooltip {
+  z-index: 60 !important;
+}
+
+.modal {
+  z-index: 70 !important;
+}
+
+.modal-tooltip {
+  z-index: 80 !important;
+}
+
+/* Ensure proper stacking context for dashboard elements */
+.dashboard-sidebar {
+  z-index: 40;
+}
+
+.dashboard-main {
+  z-index: 10;
+}
+
+.dashboard-nav {
+  z-index: 20;
+}
+
+.dashboard-card {
+  z-index: 10;
+}
+
+/* Enhanced tooltip styles with better backdrop blur */
+.tooltip-enhanced {
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.modal-tooltip-enhanced {
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Smooth pointer-events management for tooltips */
+.tooltip-pointer-events-none {
+  pointer-events: none;
+}
+
+/* Ensure animations work with z-index changes */
+.tooltip-transition {
+  transition: all 0.2s ease-in-out, opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Enhanced Dashboard Card Styles */
+.dashboard-card-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal) ease-out;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  min-height: 200px;
+}
+
+/* Glass Card Effects for Advanced Layout */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Dark theme glass card - optimized for dashboard colors */
+.dark .glass-card {
+  background: rgba(31, 41, 55, 0.6);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.dark .glass-card:hover {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(75, 85, 99, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+}
+
+.dashboard-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--transition-normal) ease-out;
+}
+
+.dashboard-card-enhanced:hover::before {
+  opacity: 0.6;
+}
+
+.dashboard-card-enhanced:hover {
+  transform: var(--hover-lift);
+}
+
+/* Light mode card enhancements */
+.light .dashboard-card-enhanced {
+  background: rgba(249, 250, 251, 0.9); /* bg-gray-50/90 */
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(156, 163, 175, 0.6); /* border-gray-400 with 60% opacity */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  min-height: 200px;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+}
+
+.light .dashboard-card-enhanced:hover {
+  background: rgba(243, 244, 246, 0.9); /* hover:bg-gray-100/90 */
+  box-shadow: var(--shadow-light-lg);
+  border-color: rgba(59, 130, 246, 0.3); /* Keep existing hover border for feedback */
+}
+
+/* Dark mode card enhancements */
+.dark .dashboard-card-enhanced {
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  min-height: 200px;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+}
+
+.dark .dashboard-card-enhanced:hover {
+  box-shadow: var(--shadow-dark-lg);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* Card glow effect on hover */
+.card-glow {
+  position: relative;
+}
+
+.card-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.3));
+  border-radius: inherit;
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.card-glow:hover::before {
+  opacity: 1;
+}
+
+/* Interactive button feedback */
+.interactive-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.interactive-button:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Enhanced value display */
+.value-display {
+  position: relative;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.value-display.glow {
+  text-shadow: 0 0 20px currentColor;
+}
+
+/* Growth indicator animations */
+.growth-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--space-sm);
+  font-weight: 500;
+  font-size: 0.75rem;
+  transition: all var(--transition-normal) ease-out;
+}
+
+.growth-indicator.positive {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.growth-indicator.positive:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.15));
+  transform: var(--hover-scale);
+}
+
+.growth-indicator.negative {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Progress bar enhancements */
+.progress-enhanced {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--space-lg);
+}
+
+.progress-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.progress-bar-animated {
+  transition: width var(--transition-slower) ease-out;
+  background: var(--accent-gradient);
+}
+
+.dark .progress-bar-animated {
+  background: var(--accent-gradient-dark);
+}
+
+/* Card content animations */
+.card-content-fade-in {
+  animation: cardFadeIn 0.6s ease-out;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Value count-up animation */
+.value-count-up {
+  animation: countUp 0.8s ease-out;
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Enhanced card hover effects */
+.card-hover-lift {
+  transition: all var(--transition-normal) ease-out;
+}
+
+.card-hover-lift:hover {
+  transform: var(--hover-lift) var(--hover-scale);
+}
+
+.card-hover-lift:active {
+  transform: var(--active-scale);
+}
+
+/* Icon enhancements */
+.card-icon-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .card-icon-gradient {
+  background: var(--accent-gradient-dark);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Loading states */
+.card-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-card-enhanced:hover {
+    transform: none;
+  }
+  
+  .growth-indicator {
+    font-size: 0.7rem;
+    padding: var(--space-xs) var(--space-xs);
+  }
+  
+  /* Mobile sidebar adjustments */
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .dashboard-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  
+  /* Mobile main content adjustments */
+  .dashboard-main {
+    margin-left: 0 !important;
+  }
+  
+  /* Mobile navigation adjustments */
+  .dashboard-nav {
+    padding: 1rem;
+    border-radius: 1rem;
+    margin: 0.5rem;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .dashboard-card-enhanced {
+    padding: 1rem;
+  }
+  
+  .value-display {
+    font-size: 2rem !important;
+  }
+  
+  .progress-enhanced {
+    height: 4px !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dashboard-sidebar {
+    width: 4rem;
+  }
+  
+  .dashboard-main {
+    margin-left: 4rem;
+  }
+}
+
+/* Makerkit-Inspired Dark Landing Page Styles */
+.container-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Makerkit Background Gradient */
+.bg-makerkit-gradient {
+  background: linear-gradient(135deg, rgb(14, 115, 204) 1.93%, rgb(98, 75, 187) 14.86%, #3b82f6 48.09%, #10b981 77.82%, #fbbf24 97.3%);
+}
+
+.bg-dark-bg {
+  background-color: rgb(3, 7, 18);
+}
+
+.glass {
+  background: rgba(24, 32, 42, 0.6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card {
+  background: rgba(24, 32, 42, 0.8);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: rgb(249, 250, 251);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(14, 115, 204, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-ghost {
+  background: rgba(24, 32, 42, 0.6);
+  color: rgb(249, 250, 251);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  background: rgba(24, 32, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 30px rgba(14, 115, 204, 0.3);
+}
+
+.shadow-glow-lg {
+  box-shadow: 0 0 50px rgba(14, 115, 204, 0.4);
+}
+
+.bg-neon {
+  background: linear-gradient(135deg, rgb(3, 7, 18) 0%, rgb(24, 32, 42) 50%, rgb(3, 7, 18) 100%);
+}
+
+/* Makerkit Brand colors */
+.text-brand-primary {
+  color: #3b82f6;
+}
+
+.text-brand-secondary {
+  color: #10b981;
+}
+
+.text-brand-accent {
+  color: #8b5cf6;
+}
+
+.text-brand-text {
+  color: rgb(249, 250, 251);
+}
+
+.text-brand-muted {
+  color: rgb(156, 163, 175);
+}
+
+.bg-brand-primary {
+  background-color: #3b82f6;
+}
+
+.bg-brand-secondary {
+  background-color: #10b981;
+}
+
+.bg-brand-accent {
+  background-color: #8b5cf6;
+}
+
+.bg-brand-dark {
+  background-color: rgb(3, 7, 18);
+}
+
+.bg-brand-card {
+  background-color: rgb(24, 32, 42);
+}
+
+/* Makerkit-style enhancements */
+.macos-window {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  border: 1px solid #334155;
+}
+
+.video-placeholder {
+  background: linear-gradient(135deg, 
+    rgba(14, 115, 204, 0.1) 0%, 
+    rgba(98, 75, 187, 0.1) 50%, 
+    rgba(14, 115, 204, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.video-placeholder:hover {
+  border-color: rgba(14, 115, 204, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(14, 115, 204, 0.2);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  background: rgba(24, 32, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(24, 32, 42, 1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Chart container styles */
+.chart-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.02) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Activity feed styles */
+.activity-feed {
+  position: relative;
+}
+
+.activity-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.activity-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.activity-item:hover::before {
+  left: 100%;
+}
+
+/* Ripple effect animation */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Enhanced card animations - Moved to avoid conflicts */
+
+/* Card hover lift effect */
+.card-hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Card glow effect */
+.card-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Content fade in animation */
+.card-content-fade-in {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Value display animations */
+.value-display {
+  position: relative;
+}
+
+.value-display.glow {
+  animation: valueGlow 0.8s ease-out;
+}
+
+@keyframes valueGlow {
+  0%, 100% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  }
+}
+
+/* Progress bar animations */
+.progress-enhanced {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-animated {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+  background-size: 200% 100%;
+  animation: progressShimmer 2s ease-in-out infinite;
+}
+
+@keyframes progressShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Growth indicator styles */
+.growth-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.growth-indicator.positive {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.growth-indicator.negative {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* Icon gradient effects */
+.card-icon-gradient {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive chart adjustments */
+@media (max-width: 768px) {
+  .chart-container {
+    padding: 1rem;
+  }
+  
+  .activity-feed {
+    max-height: 60vh;
+  }
+  
+  .dashboard-card-enhanced {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Dark mode specific enhancements */
+.dark .chart-container {
+  background: rgba(31, 41, 55, 0.5);
+}
+
+.dark .activity-item {
+  background: rgba(31, 41, 55, 0.3);
+}
+
+/* Loading skeleton improvements */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.dark .loading-skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

@@ -1,0 +1,14 @@
+
+
+#Ignore cursor AI rules
+.cursor/rules/codacy.mdc
+node_modules
+.next
+.env.local
+.env
+*.log
+.DS_Store
+.cursor/
+kilo-code-mcp-config*.json
+*.png
+scripts/config/
