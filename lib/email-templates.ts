@@ -570,8 +570,8 @@ export const emailTemplates = {
 // Email template helper functions
 export const emailHelpers = {
   // Get template by type
-  getTemplate(type: keyof typeof emailTemplates, ...args: any[]) {
-    return emailTemplates[type](...args);
+  getTemplate(type: keyof typeof emailTemplates) {
+    return emailTemplates[type];
   },
 
   // Send email using Resend (if configured)

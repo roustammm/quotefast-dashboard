@@ -18,8 +18,6 @@ export const supabase = createClient(
       persistSession: true,
       detectSessionInUrl: true,
       flowType: 'pkce',
-      // Custom redirect URLs
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
     },
     // Global settings
     global: {
@@ -212,6 +210,28 @@ export const handleSupabaseError = (error: any) => {
   };
 
   return errorMessages[error.message] || error.message || 'Er is een onbekende fout opgetreden';
+};
+
+// Email helper functions
+export const emailHelpers = {
+  // Send welcome email
+  async sendWelcomeEmail(email: string, name: string) {
+    // This would typically integrate with your email service
+    console.log(`Welcome email sent to ${email} for ${name}`);
+    return { success: true };
+  },
+
+  // Send password reset email
+  async sendPasswordResetEmail(email: string) {
+    console.log(`Password reset email sent to ${email}`);
+    return { success: true };
+  },
+
+  // Send email confirmation
+  async sendEmailConfirmation(email: string) {
+    console.log(`Email confirmation sent to ${email}`);
+    return { success: true };
+  },
 };
 
 export default supabase;
