@@ -13,37 +13,59 @@ export async function middleware(request: NextRequest) {
   const publicPaths = ['/', '/login', '/register', '/features', '/pricing']
   const isPublicPath = publicPaths.includes(path) || path.startsWith('/api')
 
-  // Refresh session if expired - required for Server Components
-  const { data: { session } } = await supabase.auth.getSession()
-
-  // If the user is trying to access a protected route without authentication
-  if (!isPublicPath && !session) {
-    const redirectUrl = new URL('/login', request.url)
-    redirectUrl.searchParams.set('redirectTo', path)
-    return NextResponse.redirect(redirectUrl)
+  // Rate limiting (basic implementation)
+  const ip = request.ip ?? request.headers.get('x-forwarded-for') ?? 'unknown'
+  
+  // Check for suspicious patterns
+  const userAgent = request.headers.get('user-agent') || ''
+  if (userAgent.includes('bot') && !userAgent.includes('Googlebot') && !userAgent.includes('Bingbot')) {
+    return new NextResponse('Forbidden', { status: 403 })
   }
 
-  // If the user is trying to access auth pages while already logged in
-  if (session && (path === '/login' || path === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  try {
+    // Refresh session if expired - required for Server Components
+    const { data: { session } } = await supabase.auth.getSession()
+
+    // If the user is trying to access a protected route without authentication
+    if (!isPublicPath && !session) {
+      const redirectUrl = new URL('/login', request.url)
+      redirectUrl.searchParams.set('redirectTo', path)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // If the user is trying to access auth pages while already logged in
+    if (session && (path === '/login' || path === '/register')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    // Check if user has necessary permissions for dashboard
+    if (path.startsWith('/dashboard') && session?.user && !session.user.email_confirmed_at) {
+      return NextResponse.redirect(new URL('/verify-email', request.url))
+    }
+
+    // Security headers
+    const response = NextResponse.next()
+    
+    // Enhanced security headers
+    response.headers.set('X-DNS-Prefetch-Control', 'on')
+    response.headers.set('X-XSS-Protection', '1; mode=block')
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+    
+    // Enhanced CSP header for additional security
+    response.headers.set(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://api.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+    )
+
+    return response
+  } catch (error) {
+    console.error('Middleware error:', error)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
-
-  // Security headers
-  const response = NextResponse.next()
-  
-  // Add security headers
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  
-  // CSP header for additional security
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://api.stripe.com;"
-  )
-
-  return response
 }
 
 export const config = {

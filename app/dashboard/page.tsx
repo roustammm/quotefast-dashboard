@@ -3,9 +3,10 @@ import DashboardCard from "./components/DashboardCard";
 import LoadingCard from "./components/LoadingCard";
 import { Zap, FileText, Users, Euro, TrendingUp, Target, BarChart3, Sparkles, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { customersApi, invoicesApi } from "../../lib/api-service";
+import { DashboardData, DashboardCardProps, Invoice } from "../../types/dashboard";
 
 const AiSphere = () => (
   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -20,77 +21,76 @@ export default function DashboardPage() {
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState({
+  const [data, setData] = useState<DashboardData>({
     offersSent: 0,
     avgOfferValue: "€0",
     activeCustomers: 0,
     aiGenerations: 45
   });
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        // Haal klanten op
-        const customersResponse = await customersApi.getAll();
-        
-        // Haal facturen op
-        const invoicesResponse = await invoicesApi.getAll();
-        
-        // Controleer op fouten
-        if (customersResponse.error) {
-          setError(customersResponse.error);
-          setIsLoading(false);
-          return;
-        }
-        
-        if (invoicesResponse.error) {
-          setError(invoicesResponse.error);
-          setIsLoading(false);
-          return;
-        }
-        
-        // Bereken dashboard metrics
-        const activeCustomers = customersResponse.data?.length || 0;
-        const invoices = invoicesResponse.data || [];
-        const offersSent = invoices.length;
-        
-        // Bereken gemiddelde factuurwaarde
-        let totalValue = 0;
-        invoices.forEach((invoice: any) => {
-          totalValue += invoice.total || 0;
-        });
-        
-        const avgValue = offersSent > 0 ? totalValue / offersSent : 0;
-        const formattedAvgValue = `€${avgValue.toFixed(0)}`;
-        
-        // Update state
-        setData({
-          offersSent,
-          avgOfferValue: formattedAvgValue,
-          activeCustomers,
-          aiGenerations: 45 // Dit is nog steeds hardcoded omdat we geen AI generaties API hebben
-        });
-        
-        setIsLoading(false);
-      } catch (err: any) {
-        console.error("Error fetching dashboard data:", err);
-        setError("Er is een fout opgetreden bij het ophalen van de dashboard gegevens");
-        setIsLoading(false);
-      }
-    };
+  // Memoized data fetching function
+  const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     
+    try {
+      // Parallel data fetching voor betere performance
+      const [customersResponse, invoicesResponse] = await Promise.all([
+        customersApi.getAll(),
+        invoicesApi.getAll()
+      ]);
+      
+      // Controleer op fouten
+      if (customersResponse.error) {
+        setError(customersResponse.error);
+        setIsLoading(false);
+        return;
+      }
+      
+      if (invoicesResponse.error) {
+        setError(invoicesResponse.error);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Bereken dashboard metrics
+      const activeCustomers = customersResponse.data?.length || 0;
+      const invoices = invoicesResponse.data || [];
+      const offersSent = invoices.length;
+      
+      // Bereken gemiddelde factuurwaarde met proper typing
+      const totalValue = invoices.reduce((sum: number, invoice: Invoice) => {
+        return sum + (invoice.total || 0);
+      }, 0);
+      
+      const avgValue = offersSent > 0 ? totalValue / offersSent : 0;
+      const formattedAvgValue = `€${avgValue.toFixed(0)}`;
+      
+      // Update state
+      setData({
+        offersSent,
+        avgOfferValue: formattedAvgValue,
+        activeCustomers,
+        aiGenerations: 45 // TODO: Implementeer AI generaties API
+      });
+      
+      setIsLoading(false);
+    } catch (err: unknown) {
+      console.error("Error fetching dashboard data:", err);
+      const errorMessage = err instanceof Error ? err.message : "Er is een fout opgetreden bij het ophalen van de dashboard gegevens";
+      setError(errorMessage);
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     fetchDashboardData();
     
-    // Refresh data elke 30 seconden
-    const interval = setInterval(() => {
-      fetchDashboardData();
-    }, 30000);
+    // Refresh data elke 30 seconden - alleen als component mounted is
+    const interval = setInterval(fetchDashboardData, 30000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchDashboardData]);
 
   if (isLoading) {
     return (
@@ -115,8 +115,9 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold text-red-500 mb-2">Er is een fout opgetreden</h3>
               <p className="text-gray-300 mb-4">{error}</p>
               <button 
-                onClick={() => window.location.reload()} 
-                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-md transition-colors duration-200"
+                onClick={() => fetchDashboardData()} 
+                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                aria-label="Vernieuw dashboard gegevens"
               >
                 Vernieuwen
               </button>
@@ -207,7 +208,7 @@ export default function DashboardPage() {
   );
 }
 
-const EnhancedGlassCard = ({ icon, title, value, description, trend, color, href }) => {
+const EnhancedGlassCard: React.FC<DashboardCardProps> = ({ icon, title, value, description, trend, color, href }) => {
   const colorClasses = {
     blue: "from-blue-500/10 to-cyan-500/10 border-blue-400/20 hover:border-blue-400/40",
     emerald: "from-emerald-500/10 to-green-500/10 border-emerald-400/20 hover:border-emerald-400/40",
@@ -267,7 +268,14 @@ const EnhancedGlassCard = ({ icon, title, value, description, trend, color, href
   );
 };
 
-const GlassCard = ({ icon, title, value, description }) => {
+interface GlassCardProps {
+  icon: React.ReactNode;
+  title: string;
+  value: string | number;
+  description: string;
+}
+
+const GlassCard: React.FC<GlassCardProps> = ({ icon, title, value, description }) => {
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-center backdrop-blur-lg shadow-lg hover:bg-white/10 transition-all duration-300 aspect-square">
       <div className="mb-4">{icon}</div>

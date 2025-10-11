@@ -1,20 +1,26 @@
 import { supabase } from './supabase';
+import { Customer, Invoice, ApiResponse } from '../types/dashboard';
 
-// Cache voor API responses
-const apiCache = new Map<string, { data: any; timestamp: number }>();
+// Cache voor API responses met proper typing
+const apiCache = new Map<string, { data: unknown; timestamp: number }>();
 const CACHE_DURATION = 60 * 1000; // 1 minuut in milliseconden
 
-// Type voor API response
-type ApiResponse<T> = {
-  data: T | null;
-  error: string | null;
-  status: number;
-};
+// Error types voor betere error handling
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number = 500,
+    public code?: string
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
 
 // Generieke fetch functie met caching en error handling
 async function fetchWithCache<T>(
   cacheKey: string,
-  fetchFn: () => Promise<{ data: T | null; error: any }>,
+  fetchFn: () => Promise<{ data: T | null; error: unknown }>,
   skipCache = false
 ): Promise<ApiResponse<T>> {
   try {
@@ -25,7 +31,7 @@ async function fetchWithCache<T>(
       
       if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
         console.log(`[API] Using cached data for ${cacheKey}`);
-        return { data: cachedData.data, error: null, status: 200 };
+        return { data: cachedData.data as T, error: null, status: 200 };
       }
     }
 
@@ -35,10 +41,12 @@ async function fetchWithCache<T>(
     // Handle error
     if (error) {
       console.error(`[API] Error fetching ${cacheKey}:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'Er is een fout opgetreden';
+      const errorStatus = (error as any)?.status || 500;
       return { 
         data: null, 
-        error: error.message || 'Er is een fout opgetreden', 
-        status: error.status || 500 
+        error: errorMessage, 
+        status: errorStatus 
       };
     }
 
@@ -46,11 +54,12 @@ async function fetchWithCache<T>(
     apiCache.set(cacheKey, { data, timestamp: Date.now() });
     
     return { data, error: null, status: 200 };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[API] Unexpected error for ${cacheKey}:`, error);
+    const errorMessage = error instanceof Error ? error.message : 'Er is een onverwachte fout opgetreden';
     return { 
       data: null, 
-      error: error.message || 'Er is een onverwachte fout opgetreden', 
+      error: errorMessage, 
       status: 500 
     };
   }
@@ -59,8 +68,8 @@ async function fetchWithCache<T>(
 // API functies voor klanten
 export const customersApi = {
   // Haal alle klanten op
-  getAll: async (skipCache = false): Promise<ApiResponse<any[]>> => {
-    return fetchWithCache<any[]>(
+  getAll: async (skipCache = false): Promise<ApiResponse<Customer[]>> => {
+    return fetchWithCache<Customer[]>(
       'customers:all',
       async () => {
         const { data, error } = await supabase
@@ -75,8 +84,8 @@ export const customersApi = {
   },
 
   // Haal een specifieke klant op
-  getById: async (id: string, skipCache = false): Promise<ApiResponse<any>> => {
-    return fetchWithCache<any>(
+  getById: async (id: string, skipCache = false): Promise<ApiResponse<Customer>> => {
+    return fetchWithCache<Customer>(
       `customers:${id}`,
       async () => {
         const { data, error } = await supabase
@@ -92,7 +101,7 @@ export const customersApi = {
   },
 
   // Maak een nieuwe klant aan
-  create: async (customerData: any): Promise<ApiResponse<any>> => {
+  create: async (customerData: Omit<Customer, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Customer>> => {
     try {
       const { data, error } = await supabase
         .from('customers')
@@ -118,7 +127,7 @@ export const customersApi = {
   },
 
   // Update een klant
-  update: async (id: string, customerData: any): Promise<ApiResponse<any>> => {
+  update: async (id: string, customerData: Partial<Omit<Customer, 'id' | 'created_at' | 'updated_at'>>): Promise<ApiResponse<Customer>> => {
     try {
       const { data, error } = await supabase
         .from('customers')
@@ -175,8 +184,8 @@ export const customersApi = {
 // API functies voor facturen
 export const invoicesApi = {
   // Haal alle facturen op
-  getAll: async (skipCache = false): Promise<ApiResponse<any[]>> => {
-    return fetchWithCache<any[]>(
+  getAll: async (skipCache = false): Promise<ApiResponse<Invoice[]>> => {
+    return fetchWithCache<Invoice[]>(
       'invoices:all',
       async () => {
         const { data, error } = await supabase
@@ -198,8 +207,8 @@ export const invoicesApi = {
   },
 
   // Haal een specifieke factuur op
-  getById: async (id: string, skipCache = false): Promise<ApiResponse<any>> => {
-    return fetchWithCache<any>(
+  getById: async (id: string, skipCache = false): Promise<ApiResponse<Invoice>> => {
+    return fetchWithCache<Invoice>(
       `invoices:${id}`,
       async () => {
         const { data, error } = await supabase
@@ -222,7 +231,7 @@ export const invoicesApi = {
   },
 
   // Maak een nieuwe factuur aan
-  create: async (invoiceData: any): Promise<ApiResponse<any>> => {
+  create: async (invoiceData: Omit<Invoice, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Invoice>> => {
     try {
       const { data, error } = await supabase
         .from('invoices')
@@ -248,7 +257,7 @@ export const invoicesApi = {
   },
 
   // Update een factuur
-  update: async (id: string, invoiceData: any): Promise<ApiResponse<any>> => {
+  update: async (id: string, invoiceData: Partial<Omit<Invoice, 'id' | 'created_at' | 'updated_at'>>): Promise<ApiResponse<Invoice>> => {
     try {
       const { data, error } = await supabase
         .from('invoices')
