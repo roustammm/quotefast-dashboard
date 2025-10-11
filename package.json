@@ -15,7 +15,10 @@
     "demo": "./demo.sh",
     "analyze": "cross-env ANALYZE=true next build",
     "clean": "rm -rf .next out dist",
-    "precommit": "npm run type-check && npm run lint && npm run test"
+    "precommit": "npm run type-check && npm run lint && npm run test",
+    "setup-supabase": "node scripts/setup-supabase.js",
+    "db:migrate": "echo 'Run the SQL migration in Supabase Dashboard: supabase/migrations/001_initial_schema.sql'",
+    "db:reset": "echo 'Reset database by running the migration again'"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
