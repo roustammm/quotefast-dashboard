@@ -94,6 +94,7 @@ export default function LoginPage() {
                 required
                 className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary transition-colors"
               />
+            </div>
           </div>
 
           <button

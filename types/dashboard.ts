@@ -20,10 +20,32 @@ export interface Invoice {
   id: string;
   customer_id: string;
   total: number;
-  status: 'draft' | 'sent' | 'paid' | 'overdue';
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
   created_at: string;
   updated_at: string;
   customers?: Customer;
+  // Extended fields for mock data compatibility
+  invoiceNumber?: string;
+  client?: string;
+  clientEmail?: string;
+  amount?: number;
+  createdDate?: string;
+  sentDate?: string;
+  paidDate?: string;
+  dueDate?: string;
+  description?: string;
+  items?: Array<{
+    name: string;
+    description: string;
+    quantity: number;
+    price: number;
+    tax: number;
+  }>;
+  subtotal?: number;
+  tax?: number;
+  notes?: string;
+  paymentMethod?: string;
+  createdBy?: string;
 }
 
 export interface ApiResponse<T> {

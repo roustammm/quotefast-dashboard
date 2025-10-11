@@ -202,6 +202,7 @@ export default function APIKeysSection() {
                     <button
                       onClick={closeModal}
                       className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                      title="Annuleer het aanmaken van een nieuwe API key"
                     >
                       Annuleren
                     </button>
@@ -209,6 +210,7 @@ export default function APIKeysSection() {
                       onClick={handleGenerateKey}
                       disabled={!newKeyName.trim()}
                       className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Genereer een nieuwe API key"
                     >
                       Genereer Key
                     </button>
@@ -230,6 +232,8 @@ export default function APIKeysSection() {
                       <button
                         onClick={() => handleCopyKey(generatedKey, 'Nieuwe key')}
                         className="p-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
+                        title="Kopieer de nieuwe API key"
+                        aria-label="Kopieer de nieuwe API key"
                       >
                         <Copy className="h-4 w-4 text-white" />
                       </button>
@@ -243,6 +247,7 @@ export default function APIKeysSection() {
                   <button
                     onClick={closeModal}
                     className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    title="Sluit het dialoogvenster"
                   >
                     Sluiten
                   </button>

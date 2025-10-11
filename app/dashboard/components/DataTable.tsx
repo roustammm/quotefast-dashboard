@@ -78,7 +78,8 @@ function DataTable({
     onBulkAction?.(action, selectedData);
   }, [data, selectedRows, onBulkAction]);
 
-  const renderCell = useMemo(() => (column: Column, row: any, value: any) => {
+  const renderCell = useMemo(() => {
+    const renderCellFunction = (column: Column, row: any, value: any) => {
     if (column.render) {
       return column.render(value, row);
     }
@@ -100,6 +101,8 @@ function DataTable({
     }
     
     return value;
+    };
+    return renderCellFunction;
   }, []);
 
   if (loading) {

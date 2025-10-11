@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabase } from '../../../../lib/supabase';
+import { createServerSupabaseClient } from '../../../../lib/supabase';
 
-const supabase = getSupabase();
+const supabase = createServerSupabaseClient();
 
 export async function GET(
   request: NextRequest,

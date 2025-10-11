@@ -11,15 +11,16 @@ import InvoiceDetailsModal from '../components/InvoiceDetailsModal';
 import { mockInvoices, getInvoicesStats } from "../../../lib/mockData/invoicesData";
 import { FileText, Euro, CheckCircle, Clock, AlertTriangle, Send } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { Invoice } from '../../../types/dashboard';
 
 export default function FacturatiePage() {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [editingInvoice, setEditingInvoice] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -84,9 +85,9 @@ export default function FacturatiePage() {
   };
 
   const filteredInvoices = invoices.filter(invoice =>
-    (invoice.invoice_number && invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (invoice.customers?.name && invoice.customers.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (invoice.title && invoice.title.toLowerCase().includes(searchTerm.toLowerCase()))
+    (invoice.invoiceNumber && invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (invoice.client && invoice.client.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (invoice.description && invoice.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const columns = [
@@ -216,11 +217,11 @@ export default function FacturatiePage() {
         />
         <DashboardCard
           title="Openstaand"
-          value={stats.sent + stats.overdue}
+          value={stats.pending + stats.overdue}
           growth="-5%"
           trend="down"
           icon={<Clock className="h-5 w-5" />}
-          progress={Math.round(((stats.sent + stats.overdue) / stats.total) * 100)}
+          progress={Math.round(((stats.pending + stats.overdue) / stats.total) * 100)}
           delay={200}
         />
         <DashboardCard
@@ -233,7 +234,7 @@ export default function FacturatiePage() {
         />
         <DashboardCard
           title="Totaal Bedrag"
-          value={`€${(stats.totalValue / 1000).toFixed(0)}k`}
+          value={`€${(stats.totalRevenue / 1000).toFixed(0)}k`}
           growth="22%"
           icon={<Euro className="h-5 w-5" />}
           progress={85}
@@ -241,10 +242,10 @@ export default function FacturatiePage() {
         />
         <DashboardCard
           title="Betaald Bedrag"
-          value={`€${(stats.paidValue / 1000).toFixed(0)}k`}
+          value={`€${(stats.totalRevenue / 1000).toFixed(0)}k`}
           growth="28%"
           icon={<CheckCircle className="h-5 w-5" />}
-          progress={Math.round((stats.paidValue / stats.totalValue) * 100)}
+          progress={Math.round((stats.paid / stats.total) * 100)}
           delay={500}
         />
       </div>

@@ -1,7 +1,7 @@
 "use client";
 import { memo } from 'react';
 
-export const CustomTooltip = memo(({ active, payload, label, isDark, formatter }: any) => {
+const CustomTooltipComponent = ({ active, payload, label, isDark, formatter }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className={`p-3 rounded-lg shadow-lg border ${
@@ -22,9 +22,12 @@ export const CustomTooltip = memo(({ active, payload, label, isDark, formatter }
     );
   }
   return null;
-});
+};
 
-export const CustomLegend = memo(({ payload, isDark }: any) => {
+export const CustomTooltip = memo(CustomTooltipComponent);
+CustomTooltip.displayName = 'CustomTooltip';
+
+const CustomLegendComponent = ({ payload, isDark }: any) => {
   return (
     <div className="flex flex-wrap gap-4 justify-center mt-4">
       {payload.map((entry: any, index: number) => (
@@ -40,4 +43,7 @@ export const CustomLegend = memo(({ payload, isDark }: any) => {
       ))}
     </div>
   );
-});
+};
+
+export const CustomLegend = memo(CustomLegendComponent);
+CustomLegend.displayName = 'CustomLegend';

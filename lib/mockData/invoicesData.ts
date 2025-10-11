@@ -1,38 +1,17 @@
-export interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  client: string;
-  clientEmail: string;
-  amount: number;
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
-  createdDate: string;
-  sentDate?: string;
-  paidDate?: string;
-  dueDate: string;
-  description: string;
-  items: Array<{
-    name: string;
-    description: string;
-    quantity: number;
-    price: number;
-    tax: number;
-  }>;
-  subtotal: number;
-  tax: number;
-  total: number;
-  notes?: string;
-  paymentMethod?: string;
-  createdBy: string;
-}
+import { Invoice } from '../../types/dashboard';
 
 export const mockInvoices: Invoice[] = [
   {
     id: 'INV-2024-001',
+    customer_id: 'customer-1',
+    total: 3025,
+    status: 'paid',
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-01-20T15:30:00Z',
     invoiceNumber: '2024-001',
     client: 'ABC Bedrijf',
     clientEmail: 'contact@abcbedrijf.nl',
     amount: 2500,
-    status: 'paid',
     createdDate: '2024-01-15',
     sentDate: '2024-01-16',
     paidDate: '2024-01-20',
@@ -45,17 +24,21 @@ export const mockInvoices: Invoice[] = [
     ],
     subtotal: 2500,
     tax: 525,
-    total: 3025,
+    notes: 'Project afgerond volgens planning',
     paymentMethod: 'iDEAL',
     createdBy: 'Jan de Vries'
   },
   {
     id: 'INV-2024-002',
+    customer_id: 'customer-2',
+    total: 544.5,
+    status: 'paid',
+    created_at: '2024-01-10T10:00:00Z',
+    updated_at: '2024-01-14T15:30:00Z',
     invoiceNumber: '2024-002',
     client: 'Maria Jansen',
     clientEmail: 'maria@jansen.nl',
     amount: 450,
-    status: 'paid',
     createdDate: '2024-01-10',
     sentDate: '2024-01-11',
     paidDate: '2024-01-14',
@@ -67,186 +50,182 @@ export const mockInvoices: Invoice[] = [
     ],
     subtotal: 450,
     tax: 94.5,
-    total: 544.5,
     paymentMethod: 'Credit Card',
     createdBy: 'Sarah Johnson'
   },
   {
     id: 'INV-2024-003',
+    customer_id: 'customer-3',
+    total: 10285,
+    status: 'sent',
+    created_at: '2024-01-20T10:00:00Z',
+    updated_at: '2024-01-20T10:00:00Z',
     invoiceNumber: '2024-003',
     client: 'TechStart',
     clientEmail: 'info@techstart.nl',
     amount: 8500,
-    status: 'sent',
     createdDate: '2024-01-20',
-    sentDate: '2024-01-22',
+    sentDate: '2024-01-21',
     dueDate: '2024-02-20',
     description: 'E-commerce Platform Development',
     items: [
-      { name: 'Platform Development', description: 'Custom e-commerce oplossing', quantity: 1, price: 5000, tax: 1050 },
+      { name: 'Platform Development', description: 'Volledige e-commerce oplossing', quantity: 1, price: 6000, tax: 1260 },
       { name: 'Payment Integration', description: 'Stripe en iDEAL integratie', quantity: 1, price: 1500, tax: 315 },
-      { name: 'Admin Dashboard', description: 'Beheer interface', quantity: 1, price: 2000, tax: 420 }
+      { name: 'SEO Optimization', description: 'Zoekmachine optimalisatie', quantity: 1, price: 1000, tax: 210 }
     ],
     subtotal: 8500,
     tax: 1785,
-    total: 10285,
+    notes: 'Project in uitvoering',
+    paymentMethod: 'Bank Transfer',
     createdBy: 'Mike Chen'
   },
   {
     id: 'INV-2024-004',
-    invoiceNumber: '2024-004',
-    client: 'RetailPlus',
-    clientEmail: 'dev@retailplus.nl',
-    amount: 12000,
+    customer_id: 'customer-4',
+    total: 1200,
     status: 'draft',
+    created_at: '2024-01-25T10:00:00Z',
+    updated_at: '2024-01-25T10:00:00Z',
+    invoiceNumber: '2024-004',
+    client: 'Local Bakery',
+    clientEmail: 'info@localbakery.nl',
+    amount: 1000,
     createdDate: '2024-01-25',
-    dueDate: '2024-03-15',
-    description: 'Mobile App Development - iOS & Android',
+    dueDate: '2024-02-25',
+    description: 'Website Redesign',
     items: [
-      { name: 'iOS App', description: 'Native iOS ontwikkeling', quantity: 1, price: 6000, tax: 1260 },
-      { name: 'Android App', description: 'Native Android ontwikkeling', quantity: 1, price: 5000, tax: 1050 },
-      { name: 'Backend API', description: 'REST API voor apps', quantity: 1, price: 1000, tax: 210 }
+      { name: 'Website Redesign', description: 'Moderne responsive website', quantity: 1, price: 800, tax: 168 },
+      { name: 'Content Management', description: 'CMS setup en training', quantity: 1, price: 200, tax: 42 }
     ],
-    subtotal: 12000,
-    tax: 2520,
-    total: 14520,
+    subtotal: 1000,
+    tax: 210,
+    notes: 'Concept klaar voor review',
     createdBy: 'Emma Wilson'
   },
   {
     id: 'INV-2024-005',
-    invoiceNumber: '2024-005',
-    client: 'DataCorp',
-    clientEmail: 'analytics@datacorp.nl',
-    amount: 3200,
+    customer_id: 'customer-5',
+    total: 1800,
     status: 'overdue',
-    createdDate: '2024-01-18',
-    sentDate: '2024-01-19',
-    dueDate: '2024-01-18',
-    description: 'Data Analytics Dashboard',
+    created_at: '2024-01-05T10:00:00Z',
+    updated_at: '2024-01-05T10:00:00Z',
+    invoiceNumber: '2024-005',
+    client: 'Fitness Center',
+    clientEmail: 'admin@fitnesscenter.nl',
+    amount: 1500,
+    createdDate: '2024-01-05',
+    sentDate: '2024-01-06',
+    dueDate: '2024-01-20',
+    description: 'Mobile App Development',
     items: [
-      { name: 'Dashboard Development', description: 'React dashboard met charts', quantity: 1, price: 2000, tax: 420 },
-      { name: 'Data Integration', description: 'API koppelingen', quantity: 1, price: 800, tax: 168 },
-      { name: 'Reporting Module', description: 'Automatische rapporten', quantity: 1, price: 400, tax: 84 }
+      { name: 'Mobile App', description: 'iOS en Android app', quantity: 1, price: 1200, tax: 252 },
+      { name: 'Backend API', description: 'REST API voor app', quantity: 1, price: 300, tax: 63 }
     ],
-    subtotal: 3200,
-    tax: 672,
-    total: 3872,
+    subtotal: 1500,
+    tax: 315,
+    notes: 'Betaling achterstallig',
+    paymentMethod: 'Bank Transfer',
     createdBy: 'Alex Rodriguez'
   },
   {
     id: 'INV-2024-006',
-    invoiceNumber: '2024-006',
-    client: 'StartupXYZ',
-    clientEmail: 'hello@startupxyz.nl',
-    amount: 1800,
+    customer_id: 'customer-6',
+    total: 600,
     status: 'cancelled',
-    createdDate: '2024-01-05',
-    sentDate: '2024-01-06',
-    dueDate: '2024-01-20',
-    description: 'Brand Identity Package',
+    created_at: '2024-01-12T10:00:00Z',
+    updated_at: '2024-01-15T10:00:00Z',
+    invoiceNumber: '2024-006',
+    client: 'Startup Inc',
+    clientEmail: 'contact@startupinc.nl',
+    amount: 500,
+    createdDate: '2024-01-12',
+    sentDate: '2024-01-13',
+    dueDate: '2024-01-27',
+    description: 'Consulting Services',
     items: [
-      { name: 'Logo Design', description: '5 concepten + 3 revisies', quantity: 1, price: 600, tax: 126 },
-      { name: 'Brand Guidelines', description: 'Uitgebreide style guide', quantity: 1, price: 400, tax: 84 },
-      { name: 'Business Cards', description: 'Design en print files', quantity: 1, price: 200, tax: 42 },
-      { name: 'Letterhead', description: 'Briefpapier design', quantity: 1, price: 200, tax: 42 },
-      { name: 'Social Media Kit', description: 'Templates voor social media', quantity: 1, price: 400, tax: 84 }
+      { name: 'Business Consulting', description: 'Strategie en planning', quantity: 1, price: 400, tax: 84 },
+      { name: 'Market Research', description: 'Marktanalyse rapport', quantity: 1, price: 100, tax: 21 }
     ],
-    subtotal: 1800,
-    tax: 378,
-    total: 2178,
+    subtotal: 500,
+    tax: 105,
+    notes: 'Project geannuleerd door klant',
     createdBy: 'Lisa Park'
   },
   {
     id: 'INV-2024-007',
-    invoiceNumber: '2024-007',
-    client: 'GlobalTech',
-    clientEmail: 'marketing@globaltech.nl',
-    amount: 4200,
+    customer_id: 'customer-7',
+    total: 2400,
     status: 'sent',
-    createdDate: '2024-01-28',
-    sentDate: '2024-01-29',
-    dueDate: '2024-02-28',
-    description: 'Website Redesign Project',
+    created_at: '2024-01-18T10:00:00Z',
+    updated_at: '2024-01-18T10:00:00Z',
+    invoiceNumber: '2024-007',
+    client: 'Restaurant Group',
+    clientEmail: 'info@restaurantgroup.nl',
+    amount: 2000,
+    createdDate: '2024-01-18',
+    sentDate: '2024-01-19',
+    dueDate: '2024-02-18',
+    description: 'Online Ordering System',
     items: [
-      { name: 'UX Research', description: 'Gebruikersonderzoek en wireframes', quantity: 1, price: 800, tax: 168 },
-      { name: 'UI Design', description: 'Modern design systeem', quantity: 1, price: 1200, tax: 252 },
-      { name: 'Frontend Development', description: 'React implementatie', quantity: 1, price: 1500, tax: 315 },
-      { name: 'Content Migration', description: 'Bestaande content overzetten', quantity: 1, price: 700, tax: 147 }
+      { name: 'Ordering System', description: 'Online bestelsysteem', quantity: 1, price: 1500, tax: 315 },
+      { name: 'Payment Gateway', description: 'Betaling integratie', quantity: 1, price: 500, tax: 105 }
     ],
-    subtotal: 4200,
-    tax: 882,
-    total: 5082,
+    subtotal: 2000,
+    tax: 420,
+    notes: 'Systeem live gegaan',
+    paymentMethod: 'iDEAL',
     createdBy: 'Sarah Johnson'
   },
   {
     id: 'INV-2024-008',
-    invoiceNumber: '2024-008',
-    client: 'Innovate Solutions',
-    clientEmail: 'tech@innovatesolutions.nl',
-    amount: 2800,
+    customer_id: 'customer-8',
+    total: 3600,
     status: 'paid',
-    createdDate: '2024-01-12',
-    sentDate: '2024-01-13',
-    paidDate: '2024-01-17',
-    dueDate: '2024-02-12',
-    description: 'API Development & Integration',
+    created_at: '2024-01-08T10:00:00Z',
+    updated_at: '2024-01-12T15:30:00Z',
+    invoiceNumber: '2024-008',
+    client: 'Retail Chain',
+    clientEmail: 'it@retailchain.nl',
+    amount: 3000,
+    createdDate: '2024-01-08',
+    sentDate: '2024-01-09',
+    paidDate: '2024-01-12',
+    dueDate: '2024-02-08',
+    description: 'Inventory Management System',
     items: [
-      { name: 'API Design', description: 'OpenAPI specificatie', quantity: 1, price: 400, tax: 84 },
-      { name: 'Backend Development', description: 'Node.js API implementatie', quantity: 1, price: 1800, tax: 378 },
-      { name: 'Documentation', description: 'API documentatie', quantity: 1, price: 300, tax: 63 },
-      { name: 'Testing', description: 'Unit en integration tests', quantity: 1, price: 300, tax: 63 }
+      { name: 'Inventory System', description: 'Voorraadbeheer systeem', quantity: 1, price: 2000, tax: 420 },
+      { name: 'Reporting Dashboard', description: 'Rapportage dashboard', quantity: 1, price: 1000, tax: 210 }
     ],
-    subtotal: 2800,
-    tax: 588,
-    total: 3388,
+    subtotal: 3000,
+    tax: 630,
+    notes: 'Implementatie succesvol',
     paymentMethod: 'Bank Transfer',
     createdBy: 'Mike Chen'
   }
 ];
 
-export const getInvoicesByStatus = (status: Invoice['status']) => {
-  return mockInvoices.filter(invoice => invoice.status === status);
-};
-
-export const getTotalInvoicesValue = () => {
-  return mockInvoices.reduce((total, invoice) => total + invoice.total, 0);
-};
-
-export const getPaidInvoicesValue = () => {
-  return mockInvoices
-    .filter(invoice => invoice.status === 'paid')
-    .reduce((total, invoice) => total + invoice.total, 0);
-};
-
-export const getUnpaidInvoicesValue = () => {
-  return mockInvoices
-    .filter(invoice => invoice.status === 'sent' || invoice.status === 'overdue')
-    .reduce((total, invoice) => total + invoice.total, 0);
-};
-
-export const getInvoicesStats = () => {
+export function getInvoicesStats() {
   const total = mockInvoices.length;
   const paid = mockInvoices.filter(i => i.status === 'paid').length;
-  const sent = mockInvoices.filter(i => i.status === 'sent').length;
-  const draft = mockInvoices.filter(i => i.status === 'draft').length;
+  const pending = mockInvoices.filter(i => i.status === 'sent').length;
   const overdue = mockInvoices.filter(i => i.status === 'overdue').length;
+  const draft = mockInvoices.filter(i => i.status === 'draft').length;
   const cancelled = mockInvoices.filter(i => i.status === 'cancelled').length;
-  
-  const totalValue = getTotalInvoicesValue();
-  const paidValue = getPaidInvoicesValue();
-  const unpaidValue = getUnpaidInvoicesValue();
-  const avgValue = total > 0 ? Math.round(totalValue / total) : 0;
-  
+
+  const totalRevenue = mockInvoices
+    .filter(i => i.status === 'paid')
+    .reduce((sum, i) => sum + (i.total || 0), 0);
+
+  const avgInvoiceValue = paid > 0 ? totalRevenue / paid : 0;
+
   return {
     total,
     paid,
-    sent,
-    draft,
+    pending,
     overdue,
+    draft,
     cancelled,
-    totalValue,
-    paidValue,
-    unpaidValue,
-    avgValue
+    totalRevenue,
+    avgInvoiceValue
   };
-};
+}
