@@ -1,0 +1,165 @@
+name: 🤖 AI-Powered Bug Report
+description: Report a bug with AI-assisted analysis
+title: "[BUG] "
+labels: ["bug", "ai-assisted"]
+assignees: ["Rustamiqq"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🤖 AI-Powered Bug Report
+        This template uses AI to help analyze and categorize your bug report for faster resolution.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 🐛 Bug Description
+      description: Describe the bug in detail
+      placeholder: A clear and concise description of what the bug is...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✅ Expected Behavior
+      description: What you expected to happen
+      placeholder: A clear and concise description of what you expected to happen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: ❌ Actual Behavior
+      description: What actually happened
+      placeholder: A clear and concise description of what actually happened...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 🚨 Severity Level
+      description: How severe is this bug?
+      options:
+        - Critical - Application crashes or data loss
+        - High - Major functionality broken
+        - Medium - Minor functionality affected
+        - Low - Cosmetic issue or minor inconvenience
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: 🧩 Affected Component
+      description: Which part of the application is affected?
+      options:
+        - Dashboard
+        - Authentication
+        - Invoice Management
+        - Customer Management
+        - API
+        - Database
+        - UI/UX
+        - Performance
+        - Security
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 🌍 Environment
+      description: Environment details
+      placeholder: |
+        - OS: [e.g. Windows 10, macOS 12.0, Ubuntu 20.04]
+        - Browser: [e.g. Chrome 91, Firefox 89, Safari 14]
+        - Node.js version: [e.g. 18.0.0]
+        - Next.js version: [e.g. 14.0.0]
+    validations:
+      required: true
+
+  - type: textarea
+    id: console-errors
+    attributes:
+      label: 🖥️ Console Errors
+      description: Any console errors or warnings
+      placeholder: Paste any console errors or warnings here...
+      render: shell
+
+  - type: textarea
+    id: network-requests
+    attributes:
+      label: 🌐 Network Requests
+      description: Any failed network requests (check Network tab in DevTools)
+      placeholder: Paste any failed network requests here...
+
+  - type: textarea
+    id: performance-metrics
+    attributes:
+      label: ⚡ Performance Metrics
+      description: Any performance issues observed
+      placeholder: |
+        - Page load time: [e.g. 3.2s]
+        - Time to Interactive: [e.g. 4.1s]
+        - Bundle size: [e.g. 2.1MB]
+        - Memory usage: [e.g. 150MB]
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 📸 Screenshots
+      description: Screenshots or screen recordings
+      placeholder: Drag and drop screenshots here or paste image URLs...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📝 Additional Context
+      description: Any other context about the problem
+      placeholder: Add any other context about the problem here...
+
+  - type: checkboxes
+    id: ai-analysis
+    attributes:
+      label: 🤖 AI Analysis Request
+      description: Select AI analysis options
+      options:
+        - label: "Analyze code patterns for similar issues"
+          required: false
+        - label: "Suggest potential fixes"
+          required: false
+        - label: "Check for security implications"
+          required: false
+        - label: "Analyze performance impact"
+          required: false
+        - label: "Generate test cases"
+          required: false
+
+  - type: textarea
+    id: reproduction-code
+    attributes:
+      label: 💻 Reproduction Code
+      description: Minimal code to reproduce the issue
+      placeholder: |
+        ```typescript
+        // Paste minimal reproduction code here
+        ```
+      render: typescript
