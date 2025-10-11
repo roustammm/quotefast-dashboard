@@ -6,48 +6,104 @@ import PageHeader from "../components/PageHeader";
 import DataTable from "../components/DataTable";
 import InvoiceChart from "../components/InvoiceChart";
 import PaymentStatusChart from "../components/PaymentStatusChart";
+import InvoiceForm from '../components/InvoiceForm';
+import InvoiceDetailsModal from '../components/InvoiceDetailsModal';
 import { mockInvoices, getInvoicesStats } from "../../../lib/mockData/invoicesData";
 import { FileText, Euro, CheckCircle, Clock, AlertTriangle, Send } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export default function FacturatiePage() {
   const { theme } = useTheme();
-  const [invoices, setInvoices] = useState(mockInvoices);
+  const { user } = useAuth();
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   const stats = getInvoicesStats();
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchInvoices = async () => {
+      if (!user) return;
+      try {
+        const response = await fetch('/api/invoices');
+        if (!response.ok) {
+          throw new Error('Failed to fetch invoices');
+        }
+        const data = await response.json();
+        setInvoices(data.invoices);
+      } catch (error) {
+        console.error(error);
+        // Fallback to mock data if API fails
+        setInvoices(mockInvoices);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInvoices();
+  }, [user]);
+
+  const refreshInvoices = async () => {
+    if (!user) return;
+    try {
+      const response = await fetch('/api/invoices');
+      if (!response.ok) throw new Error('Failed to fetch invoices');
+      const data = await response.json();
+      setInvoices(data.invoices);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSaveInvoice = async (invoiceData: any) => {
+    const method = editingInvoice ? 'PUT' : 'POST';
+    const url = editingInvoice ? `/api/invoices/${editingInvoice.id}` : '/api/invoices';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(invoiceData),
+    });
+
+    if (!response.ok) throw new Error('Failed to save invoice');
+    refreshInvoices();
+  };
+
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    if (!confirm('Weet je zeker dat je deze factuur wilt verwijderen?')) return;
+
+    const response = await fetch(`/api/invoices/${invoiceId}`, { method: 'DELETE' });
+
+    if (!response.ok) throw new Error('Failed to delete invoice');
+    refreshInvoices();
+    setIsDetailsModalOpen(false);
+  };
 
   const filteredInvoices = invoices.filter(invoice =>
-    invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.id.toLowerCase().includes(searchTerm.toLowerCase())
+    (invoice.invoice_number && invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (invoice.customers?.name && invoice.customers.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (invoice.title && invoice.title.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const columns = [
     {
-      key: 'invoiceNumber',
+      key: 'invoice_number',
       label: 'Factuur #',
       sortable: true,
       width: '120px'
     },
     {
-      key: 'client',
+      key: 'customers',
       label: 'Klant',
       sortable: true,
-      render: (value: string, row: any) => (
+      render: (value: any, row: any) => (
         <div>
-          <p className="font-medium">{value}</p>
-          <p className="text-sm text-gray-500">{row.clientEmail}</p>
+          <p className="font-medium">{value?.name || row.client}</p>
+          <p className="text-sm text-gray-500">{value?.email || row.clientEmail}</p>
         </div>
       )
     },
@@ -66,16 +122,16 @@ export default function FacturatiePage() {
       sortable: true
     },
     {
-      key: 'createdDate',
+      key: 'created_at',
       label: 'Aangemaakt',
       sortable: true,
       render: (value: string) => new Date(value).toLocaleDateString('nl-NL')
     },
     {
-      key: 'dueDate',
+      key: 'due_date',
       label: 'Vervaldatum',
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString('nl-NL')
+      render: (value: string) => value ? new Date(value).toLocaleDateString('nl-NL') : '-'
     }
   ];
 
@@ -87,7 +143,7 @@ export default function FacturatiePage() {
 
   const handleRowClick = (invoice: any) => {
     setSelectedInvoice(invoice);
-    setIsModalOpen(true);
+    setIsDetailsModalOpen(true);
   };
 
   const handleBulkAction = (action: string, selectedRows: any[]) => {
@@ -96,8 +152,14 @@ export default function FacturatiePage() {
   };
 
   const handleCreateInvoice = () => {
-    console.log('Create new invoice');
-    // Implement create invoice
+    setEditingInvoice(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleEditInvoice = (invoice: any) => {
+    setEditingInvoice(invoice);
+    setIsDetailsModalOpen(false); // Close details
+    setIsFormModalOpen(true);   // Open form
   };
 
   if (isLoading) {
@@ -202,6 +264,28 @@ export default function FacturatiePage() {
         bulkActions={bulkActions}
         selectable={true}
         emptyMessage="Geen facturen gevonden"
+      />
+
+      {/* Invoice Details Modal */}
+      <InvoiceDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedInvoice(null);
+        }}
+        invoice={selectedInvoice}
+        onEdit={handleEditInvoice}
+        onSend={(invoice) => console.log('Send invoice:', invoice)}
+        onDownload={(invoice) => console.log('Download invoice:', invoice)}
+        onDelete={() => selectedInvoice && handleDeleteInvoice(selectedInvoice.id)}
+      />
+
+      {/* Invoice Form Modal */}
+      <InvoiceForm
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        invoice={editingInvoice}
+        onSave={handleSaveInvoice}
       />
     </div>
   );
