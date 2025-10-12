@@ -1,5 +1,5 @@
 {
-  "name": "dashboard-starter",
+  "name": "quotefast-ai-dashboard",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,8 +17,18 @@
     "clean": "rm -rf .next out dist",
     "precommit": "npm run type-check && npm run lint && npm run test",
     "setup-supabase": "node scripts/setup-supabase.js",
+    "test:connection": "node simple_connection_test.js",
+    "test:registration": "node test_registration.js",
+    "fix:supabase": "node fix_supabase_error.js",
+    "setup:env": "node setup_environment_interactive.js",
+    "fix:database": "node fix_database_comprehensive.js",
+    "test:fixes": "node test_fixes.js",
+    "check:env": "node check_environment.js",
+    "test:supabase": "node test_supabase_client.js",
     "db:migrate": "echo 'Run the SQL migration in Supabase Dashboard: supabase/migrations/001_initial_schema.sql'",
-    "db:reset": "echo 'Reset database by running the migration again'"
+    "db:reset": "echo 'Reset database by running the migration again'",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -32,6 +42,7 @@
     "@supabase/supabase-js": "^2.75.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.294.0",
     "next": "14.0.0",
     "openai": "^6.3.0",

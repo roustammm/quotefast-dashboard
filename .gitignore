@@ -12,3 +12,4 @@ node_modules
 kilo-code-mcp-config*.json
 *.png
 scripts/config/
+.vercel

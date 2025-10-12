@@ -36,14 +36,7 @@ export const useSettingsForm = () => {
     predictiveAnalytics: false,
   });
 
-  // Load all settings on mount
-  useEffect(() => {
-    if (user) {
-      loadAllSettings();
-    }
-  }, [user]);
-
-  const loadAllSettings = async () => {
+  const loadAllSettings = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
@@ -72,7 +65,14 @@ export const useSettingsForm = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
+
+  // Load all settings on mount
+  useEffect(() => {
+    if (user) {
+      loadAllSettings();
+    }
+  }, [user, loadAllSettings]);
 
   // Save notification settings
   const saveNotificationSettings = useCallback(async (settings: NotificationSettings) => {

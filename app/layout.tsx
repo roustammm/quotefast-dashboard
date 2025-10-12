@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   authors: [{ name: "QuoteFast Team" }],
   creator: "QuoteFast",
   publisher: "QuoteFast",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   formatDetection: {
     email: false,
     address: false,

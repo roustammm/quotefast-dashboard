@@ -66,10 +66,15 @@ export const authService = {
         };
       }
 
-      // Haal gebruikersgegevens op met fallback voor ontbrekende profielen
-      const userData = await authService.getOrCreateUserProfile(data.user.id, data.user.email || '', data.user.user_metadata);
+      // Haal gebruikersgegevens op
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
 
-      if (!userData) {
+      if (userError) {
+        console.error('User data fetch error:', userError);
         return {
           user: null,
           error: 'Fout bij het ophalen van gebruikersgegevens',
@@ -81,9 +86,9 @@ export const authService = {
       const user: User = {
         id: data.user.id,
         email: data.user.email || '',
-        name: userData.full_name || '',
-        company: userData.company_name,
-        subscription: userData.subscription
+        name: userData?.full_name || '',
+        company: userData?.company_name,
+        subscription: userData?.subscription
       };
 
       return {
@@ -152,18 +157,43 @@ export const authService = {
         };
       }
 
-      // Wacht even voor de database trigger
+      // Het profiel wordt automatisch aangemaakt via de database trigger
+      // Wacht even en haal het profiel op
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Probeer het profiel op te halen of aan te maken
-      const userData = await authService.getOrCreateUserProfile(data.user.id, data.user.email || '', { full_name: name, company_name: company });
+      const { data: userData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
 
-      if (!userData) {
-        return {
-          user: null,
-          error: 'Fout bij het aanmaken van gebruikersprofiel',
-          status: 500
-        };
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        // Het profiel bestaat mogelijk nog niet, maak het handmatig aan
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: data.user.id,
+              email: data.user.email,
+              full_name: name,
+              company_name: company,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+          ]);
+
+        if (insertError) {
+          console.error('Profile creation error:', insertError);
+          // Verwijder de gebruiker als het profiel niet kan worden aangemaakt
+          await supabase.auth.admin.deleteUser(data.user.id);
+          
+          return {
+            user: null,
+            error: 'Fout bij het aanmaken van gebruikersprofiel',
+            status: 500
+          };
+        }
       }
 
       // Stel gebruiker samen
@@ -186,52 +216,6 @@ export const authService = {
         error: 'Er is een onverwachte fout opgetreden bij het registreren',
         status: 500
       };
-    }
-  },
-
-  // Helper functie om profiel op te halen of aan te maken
-  getOrCreateUserProfile: async (userId: string, email: string, metadata?: any) => {
-    try {
-      // Probeer eerst het profiel op te halen
-      const { data: userData, error: userError } = await (supabase as any)
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (userError) {
-        console.error('User data fetch error:', userError);
-        
-        // Als het profiel niet bestaat, maak het aan
-        if (userError.code === 'PGRST116') {
-          const { data: newProfile, error: createError } = await (supabase as any)
-            .from('profiles')
-            .insert({
-              id: userId,
-              email: email,
-              full_name: metadata?.full_name || metadata?.name || '',
-              company_name: metadata?.company_name || '',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            .select()
-            .single();
-
-          if (createError) {
-            console.error('Profile creation error:', createError);
-            return null;
-          }
-
-          return newProfile;
-        }
-        
-        return null;
-      }
-
-      return userData;
-    } catch (error) {
-      console.error('Error in getOrCreateUserProfile:', error);
-      return null;
     }
   },
 
@@ -266,9 +250,14 @@ export const authService = {
       }
 
       // Haal gebruikersgegevens op
-      const userData = await authService.getOrCreateUserProfile(data.user.id, data.user.email || '', data.user.user_metadata);
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
 
-      if (!userData) {
+      if (userError) {
+        console.error('User data fetch error:', userError);
         return {
           user: null,
           error: 'Fout bij het ophalen van gebruikersgegevens',
@@ -280,9 +269,9 @@ export const authService = {
       const user: User = {
         id: data.user.id,
         email: data.user.email || '',
-        name: userData.full_name || '',
-        company: userData.company_name,
-        subscription: userData.subscription
+        name: userData?.full_name || '',
+        company: userData?.company_name,
+        subscription: userData?.subscription
       };
 
       return {
@@ -322,7 +311,7 @@ export const authService = {
       delete updateData.name;
       delete updateData.company;
       
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('profiles')
         .update(updateData)
         .eq('id', userId)

@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover',
-})
+// Check if Stripe is enabled
+const isStripeEnabled = process.env.STRIPE_ENABLED === 'true';
+
+const stripe = isStripeEnabled && process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null
 
 export async function POST(request: NextRequest) {
+  // Return early if Stripe is not enabled or configured
+  if (!isStripeEnabled || !stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({
+      error: 'Stripe not enabled or not configured',
+      enabled: isStripeEnabled
+    }, { status: 503 })
+  }
+
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')!
 
@@ -15,7 +26,7 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     )
   } catch (err) {
     console.error('Webhook signature verification failed:', err)

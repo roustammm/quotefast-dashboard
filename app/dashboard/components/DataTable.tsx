@@ -61,7 +61,7 @@ function DataTable({
     } else {
       setSelectedRows(new Set(data.map((_, index) => index.toString())));
     }
-  }, [selectedRows.size, data.length]);
+  }, [selectedRows.size, data]);
 
   const handleSelectRow = useCallback((index: string) => {
     const newSelected = new Set(selectedRows);
