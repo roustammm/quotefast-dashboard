@@ -1,3 +1,10 @@
+#!/bin/bash
+
+# QuoteFast Dashboard Environment Setup Script
+echo "🚀 Setting up QuoteFast Dashboard Environment..."
+
+# Create .env.local file
+cat > .env.local << 'EOF'
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://qgyboabomydquodygomq.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFneWJvYWJvbXlkcXVvZHlnb21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNjQ5NTAsImV4cCI6MjA3MDg0MDk1MH0.Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8Ej8
@@ -30,5 +37,22 @@ INNGEST_SIGNING_KEY=your_inngest_signing_key_here
 VERCEL_BEARER_TOKEN=your_vercel_bearer_token_here
 
 # Supabase CLI Configuration (for local development)
-SUPABASE_ACCESS_TOKEN=sbp_v0_822a73850eae1e98569165a6286d18eb597ef4e8
+SUPABASE_ACCESS_TOKEN=your_supabase_access_token_here
 SUPABASE_DB_PASSWORD=your_database_password_here
+EOF
+
+echo "✅ .env.local file created successfully!"
+echo ""
+echo "📝 Next steps:"
+echo "1. Update the placeholder values in .env.local with your actual API keys"
+echo "2. Run: npm install"
+echo "3. Run: npm run dev"
+echo ""
+echo "🔑 Required API Keys to obtain:"
+echo "- Stripe keys (for payments)"
+echo "- OpenAI API key (for AI features)"
+echo "- Resend API key (for emails)"
+echo "- Inngest keys (for background jobs)"
+echo "- Vercel token (for deployment)"
+echo ""
+echo "🚀 Supabase is already configured with your project!"

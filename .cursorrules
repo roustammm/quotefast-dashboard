@@ -1,0 +1,25 @@
+# Cursor Rules for QuoteFast Dashboard
+
+## Environment Files
+- You can read and analyze .env.local and .env files for development purposes
+- Never commit actual API keys or sensitive data to version control
+- Always use placeholder values in documentation and examples
+- When creating environment files, use .env.example as a template
+
+## Security Guidelines
+- Treat all environment variables as sensitive
+- Use placeholder values like "your_api_key_here" in examples
+- Never log or expose actual API keys in code
+- Always validate environment variables before use
+
+## Development Workflow
+- Use .env.local for local development
+- Use .env.example as a template for team members
+- Keep .env and .env.local in .gitignore for security
+- Document required environment variables in README.md
+
+## File Access Rules
+- Allow reading of .env.local for development setup
+- Allow reading of .env for configuration analysis
+- Block committing of actual environment files
+- Allow creation of .env.example templates

@@ -1,0 +1,112 @@
+{
+  "lm-studio": {
+    "server": {
+      "host": "localhost",
+      "port": 1234,
+      "endpoint": "http://localhost:1234/v1"
+    },
+    "models": {
+      "deepseek-coder-33b-instruct": {
+        "name": "deepseek-coder-33b-instruct",
+        "description": "Advanced coding model for complex algorithms and system design",
+        "parameters": {
+          "temperature": 0.7,
+          "max_tokens": 4096,
+          "top_p": 0.9,
+          "frequency_penalty": 0.1,
+          "presence_penalty": 0.1,
+          "stop": ["</code>", "```", "\n\n\n"]
+        },
+        "specialties": [
+          "code-generation",
+          "debugging",
+          "architecture-design",
+          "performance-optimization",
+          "error-analysis"
+        ]
+      },
+      "qwen3-4b-thinking-2507": {
+        "name": "qwen/qwen3-4b-thinking-2507",
+        "description": "Thinking model for logical reasoning and step-by-step problem solving",
+        "parameters": {
+          "temperature": 0.8,
+          "max_tokens": 2048,
+          "top_p": 0.95,
+          "frequency_penalty": 0.0,
+          "presence_penalty": 0.0,
+          "stop": ["</thinking>", "\n\n\n"]
+        },
+        "specialties": [
+          "logical-reasoning",
+          "step-by-step-thinking",
+          "problem-decomposition",
+          "creative-solutions",
+          "debugging-strategies"
+        ]
+      }
+    },
+    "collaboration": {
+      "enabled": true,
+      "workflows": {
+        "coding-session": {
+          "models": ["qwen/qwen3-4b-thinking-2507", "deepseek-coder-33b-instruct"],
+          "flow": [
+            {
+              "model": "qwen/qwen3-4b-thinking-2507",
+              "role": "analyzer",
+              "prompt": "Let's think through this problem step by step..."
+            },
+            {
+              "model": "deepseek-coder-33b-instruct", 
+              "role": "implementer",
+              "prompt": "Based on the analysis, let's implement the solution..."
+            }
+          ]
+        },
+        "debugging-session": {
+          "models": ["deepseek-coder-33b-instruct", "qwen/qwen3-4b-thinking-2507"],
+          "flow": [
+            {
+              "model": "deepseek-coder-33b-instruct",
+              "role": "detector",
+              "prompt": "Let's identify the issues in this code..."
+            },
+            {
+              "model": "qwen/qwen3-4b-thinking-2507",
+              "role": "analyzer", 
+              "prompt": "Let's analyze the root cause of these issues..."
+            }
+          ]
+        },
+        "ideation-session": {
+          "models": ["qwen/qwen3-4b-thinking-2507"],
+          "flow": [
+            {
+              "model": "qwen/qwen3-4b-thinking-2507",
+              "role": "creative-thinker",
+              "prompt": "Let's brainstorm creative solutions and think outside the box..."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "gemini": {
+    "model": "gemini-2.5-pro",
+    "capabilities": [
+      "multimodal-analysis",
+      "comprehensive-understanding", 
+      "cross-domain-knowledge",
+      "advanced-reasoning"
+    ],
+    "integration": {
+      "role": "reviewer",
+      "use_cases": [
+        "architecture-review",
+        "security-analysis",
+        "performance-optimization",
+        "best-practices-validation"
+      ]
+    }
+  }
+}
