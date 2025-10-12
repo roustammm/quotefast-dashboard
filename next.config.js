@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Configure for Hugging Face Spaces
+  output: 'standalone',
+  trailingSlash: true,
+  
   images: {
     remotePatterns: [
       {
@@ -8,7 +12,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'qgyboabomydquodygomq.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
     ],
+  },
+  
+  // Environment variables for Hugging Face Spaces
+  env: {
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://your-space-name.hf.space',
   },
 }
 

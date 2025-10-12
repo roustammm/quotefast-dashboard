@@ -152,8 +152,8 @@ export const authService = {
         };
       }
 
-      // Wacht even voor de database trigger
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wacht even voor de database trigger (nu langer omdat we niet meer handmatig aanmaken)
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Probeer het profiel op te halen of aan te maken
       const userData = await authService.getOrCreateUserProfile(data.user.id, data.user.email || '', { full_name: name, company_name: company });
@@ -192,7 +192,10 @@ export const authService = {
   // Helper functie om profiel op te halen of aan te maken
   getOrCreateUserProfile: async (userId: string, email: string, metadata?: any) => {
     try {
-      // Probeer eerst het profiel op te halen
+      // Wacht even voor de database trigger om het profile aan te maken
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Probeer het profiel op te halen (trigger zou het moeten hebben aangemaakt)
       const { data: userData, error: userError } = await (supabase as any)
         .from('profiles')
         .select('*')
@@ -202,27 +205,23 @@ export const authService = {
       if (userError) {
         console.error('User data fetch error:', userError);
         
-        // Als het profiel niet bestaat, maak het aan
+        // Als het profiel nog steeds niet bestaat na de trigger, wacht langer en probeer opnieuw
         if (userError.code === 'PGRST116') {
-          const { data: newProfile, error: createError } = await (supabase as any)
+          console.log('Profile not found, waiting for trigger...');
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          
+          const { data: retryData, error: retryError } = await (supabase as any)
             .from('profiles')
-            .insert({
-              id: userId,
-              email: email,
-              full_name: metadata?.full_name || metadata?.name || '',
-              company_name: metadata?.company_name || '',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            .select()
+            .select('*')
+            .eq('id', userId)
             .single();
-
-          if (createError) {
-            console.error('Profile creation error:', createError);
+            
+          if (retryError) {
+            console.error('Profile still not found after trigger wait:', retryError);
             return null;
           }
-
-          return newProfile;
+          
+          return retryData;
         }
         
         return null;

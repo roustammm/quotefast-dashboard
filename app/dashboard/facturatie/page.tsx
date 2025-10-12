@@ -8,6 +8,7 @@ import InvoiceChart from "../components/InvoiceChart";
 import PaymentStatusChart from "../components/PaymentStatusChart";
 import InvoiceForm from '../components/InvoiceForm';
 import InvoiceDetailsModal from '../components/InvoiceDetailsModal';
+import { logger } from '../../../lib/logger';
 import { mockInvoices, getInvoicesStats } from "../../../lib/mockData/invoicesData";
 import { FileText, Euro, CheckCircle, Clock, AlertTriangle, Send } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -148,7 +149,7 @@ export default function FacturatiePage() {
   };
 
   const handleBulkAction = (action: string, selectedRows: any[]) => {
-    console.log(`Bulk action: ${action}`, selectedRows);
+    logger.info(`Bulk action: ${action}`, 'facturatie', { selectedRows });
     // Implement bulk actions
   };
 
@@ -194,7 +195,7 @@ export default function FacturatiePage() {
         searchPlaceholder="Zoek facturen..."
         onSearchChange={setSearchTerm}
         showFilters={true}
-        onFilterClick={() => console.log('Filter clicked')}
+        onFilterClick={() => logger.info('Filter clicked', 'facturatie')}
       />
 
       {/* Stats Cards */}
@@ -276,8 +277,8 @@ export default function FacturatiePage() {
         }}
         invoice={selectedInvoice}
         onEdit={handleEditInvoice}
-        onSend={(invoice) => console.log('Send invoice:', invoice)}
-        onDownload={(invoice) => console.log('Download invoice:', invoice)}
+        onSend={(invoice) => logger.info('Send invoice', 'facturatie', { invoice })}
+        onDownload={(invoice) => logger.info('Download invoice', 'facturatie', { invoice })}
         onDelete={() => selectedInvoice && handleDeleteInvoice(selectedInvoice.id)}
       />
 
