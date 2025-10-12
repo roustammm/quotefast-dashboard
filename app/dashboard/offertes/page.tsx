@@ -1,17 +1,19 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useAIPersonalization } from "../../../contexts/AIPersonalizationContext";
 import { getPersonalizedTemplates } from "../../../lib/aiPersonalization";
 import DashboardCard from "../components/DashboardCard";
 import PageHeader from "../components/PageHeader";
-import DataTable from "../components/DataTable";
-import OfferStatusChart from "../components/OfferStatusChart";
-import OfferTimelineChart from "../components/OfferTimelineChart";
 import { logger } from '../../../lib/logger';
-import OfferDetailsModal from "../components/OfferDetailsModal";
 import { mockOffers, getOffersStats } from "../../../lib/mockData/offersData";
 import { FileText, Euro, Target, Clock, Users, Zap } from 'lucide-react';
+
+// Lazy load heavy components
+const DataTable = lazy(() => import("../components/DataTable"));
+const OfferStatusChart = lazy(() => import("../components/OfferStatusChart"));
+const OfferTimelineChart = lazy(() => import("../components/OfferTimelineChart"));
+const OfferDetailsModal = lazy(() => import("../components/OfferDetailsModal"));
 
 export default function OffertesPage() {
   const { theme } = useTheme();

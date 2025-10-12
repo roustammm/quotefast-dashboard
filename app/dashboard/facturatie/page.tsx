@@ -1,18 +1,20 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTheme } from "../../../contexts/ThemeContext";
 import DashboardCard from "../components/DashboardCard";
 import PageHeader from "../components/PageHeader";
-import DataTable from "../components/DataTable";
-import InvoiceChart from "../components/InvoiceChart";
-import PaymentStatusChart from "../components/PaymentStatusChart";
-import InvoiceForm from '../components/InvoiceForm';
-import InvoiceDetailsModal from '../components/InvoiceDetailsModal';
 import { logger } from '../../../lib/logger';
 import { mockInvoices, getInvoicesStats } from "../../../lib/mockData/invoicesData";
 import { FileText, Euro, CheckCircle, Clock, AlertTriangle, Send } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Invoice } from '../../../types/dashboard';
+
+// Lazy load heavy components
+const DataTable = lazy(() => import("../components/DataTable"));
+const InvoiceChart = lazy(() => import("../components/InvoiceChart"));
+const PaymentStatusChart = lazy(() => import("../components/PaymentStatusChart"));
+const InvoiceForm = lazy(() => import('../components/InvoiceForm'));
+const InvoiceDetailsModal = lazy(() => import('../components/InvoiceDetailsModal'));
 
 export default function FacturatiePage() {
   const { theme } = useTheme();
@@ -253,42 +255,52 @@ export default function FacturatiePage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <InvoiceChart />
-        <PaymentStatusChart />
+        <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />}>
+          <InvoiceChart />
+        </Suspense>
+        <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />}>
+          <PaymentStatusChart />
+        </Suspense>
       </div>
 
       {/* Invoices Table */}
-      <DataTable
-        data={filteredInvoices}
-        columns={columns}
-        onRowClick={handleRowClick}
-        onBulkAction={handleBulkAction}
-        bulkActions={bulkActions}
-        selectable={true}
-        emptyMessage="Geen facturen gevonden"
-      />
+      <Suspense fallback={<div className="h-96 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />}>
+        <DataTable
+          data={filteredInvoices}
+          columns={columns}
+          onRowClick={handleRowClick}
+          onBulkAction={handleBulkAction}
+          bulkActions={bulkActions}
+          selectable={true}
+          emptyMessage="Geen facturen gevonden"
+        />
+      </Suspense>
 
       {/* Invoice Details Modal */}
-      <InvoiceDetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={() => {
-          setIsDetailsModalOpen(false);
-          setSelectedInvoice(null);
-        }}
-        invoice={selectedInvoice}
-        onEdit={handleEditInvoice}
-        onSend={(invoice) => logger.info('Send invoice', 'facturatie', { invoice })}
-        onDownload={(invoice) => logger.info('Download invoice', 'facturatie', { invoice })}
-        onDelete={() => selectedInvoice && handleDeleteInvoice(selectedInvoice.id)}
-      />
+      <Suspense fallback={null}>
+        <InvoiceDetailsModal
+          isOpen={isDetailsModalOpen}
+          onClose={() => {
+            setIsDetailsModalOpen(false);
+            setSelectedInvoice(null);
+          }}
+          invoice={selectedInvoice}
+          onEdit={handleEditInvoice}
+          onSend={(invoice) => logger.info('Send invoice', 'facturatie', { invoice })}
+          onDownload={(invoice) => logger.info('Download invoice', 'facturatie', { invoice })}
+          onDelete={() => selectedInvoice && handleDeleteInvoice(selectedInvoice.id)}
+        />
+      </Suspense>
 
       {/* Invoice Form Modal */}
-      <InvoiceForm
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        invoice={editingInvoice}
-        onSave={handleSaveInvoice}
-      />
+      <Suspense fallback={null}>
+        <InvoiceForm
+          isOpen={isFormModalOpen}
+          onClose={() => setIsFormModalOpen(false)}
+          invoice={editingInvoice}
+          onSave={handleSaveInvoice}
+        />
+      </Suspense>
     </div>
   );
 }
