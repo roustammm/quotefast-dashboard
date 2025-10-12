@@ -36,21 +36,29 @@ class Logger {
       
       switch (level) {
         case 'error':
+          /* eslint-disable no-console */
           console.error(`${prefix}${contextStr}: ${message}`, data || '');
+          /* eslint-enable no-console */
           break;
         case 'warn':
+          /* eslint-disable no-console */
           console.warn(`${prefix}${contextStr}: ${message}`, data || '');
+          /* eslint-enable no-console */
           break;
         case 'debug':
           // Only log debug in development
           if (this.isDevelopment) {
+            /* eslint-disable no-console */
             console.debug(`${prefix}${contextStr}: ${message}`, data || '');
+            /* eslint-enable no-console */
           }
           break;
         default:
           // Only log info in development
           if (this.isDevelopment) {
+            /* eslint-disable no-console */
             console.log(`${prefix}${contextStr}: ${message}`, data || '');
+            /* eslint-enable no-console */
           }
       }
     }

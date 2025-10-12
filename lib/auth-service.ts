@@ -1,19 +1,10 @@
-import { supabase } from './supabase';
+import { createClient } from '@/lib/supabase/client';
 import { logger } from './logger';
+import { User } from '../types/user';
+
+const supabase = createClient();
 
 // Type definities
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  company?: string;
-  subscription?: {
-    plan: string;
-    status: string;
-    currentPeriodEnd: string;
-  };
-}
-
 export interface AuthResponse {
   user: User | null;
   error: string | null;

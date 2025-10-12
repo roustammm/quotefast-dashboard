@@ -1,17 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configure for Netlify static export
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out',
-  
-  // Disable server-side features for static export
-  experimental: {
-    appDir: true,
-  },
-  
   images: {
-    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',

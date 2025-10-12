@@ -4,6 +4,7 @@ import "../styles/base.css";
 import "../styles/components.css";
 import "../styles/utilities.css";
 import { AppProviders } from "./components/AppProviders";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: {
@@ -76,6 +77,7 @@ export default function RootLayout({
         <AppProviders>
           {children}
         </AppProviders>
+        <SpeedInsights />
       </body>
     </html>
   );

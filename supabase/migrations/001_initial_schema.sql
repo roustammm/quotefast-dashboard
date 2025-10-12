@@ -207,13 +207,28 @@ END;
 $$ language 'plpgsql';
 
 -- Add updated_at triggers
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_customers_updated_at ON public.customers;
 CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON public.customers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_invoices_updated_at ON public.invoices;
 CREATE TRIGGER update_invoices_updated_at BEFORE UPDATE ON public.invoices FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_invoice_items_updated_at ON public.invoice_items;
 CREATE TRIGGER update_invoice_items_updated_at BEFORE UPDATE ON public.invoice_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_offers_updated_at ON public.offers;
 CREATE TRIGGER update_offers_updated_at BEFORE UPDATE ON public.offers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_offer_items_updated_at ON public.offer_items;
 CREATE TRIGGER update_offer_items_updated_at BEFORE UPDATE ON public.offer_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_projects_updated_at ON public.projects;
 CREATE TRIGGER update_projects_updated_at BEFORE UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_settings_updated_at ON public.settings;
 CREATE TRIGGER update_settings_updated_at BEFORE UPDATE ON public.settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Create function to handle new user registration
@@ -251,42 +266,52 @@ ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for profiles
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 CREATE POLICY "Users can view own profile" ON public.profiles
     FOR SELECT USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles
     FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "Users can insert own profile" ON public.profiles
-    FOR INSERT WITH CHECK (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 
 -- Create RLS policies for customers
+DROP POLICY IF EXISTS "Users can view own customers" ON public.customers;
 CREATE POLICY "Users can view own customers" ON public.customers
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own customers" ON public.customers;
 CREATE POLICY "Users can insert own customers" ON public.customers
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own customers" ON public.customers;
 CREATE POLICY "Users can update own customers" ON public.customers
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own customers" ON public.customers;
 CREATE POLICY "Users can delete own customers" ON public.customers
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Create RLS policies for invoices
+DROP POLICY IF EXISTS "Users can view own invoices" ON public.invoices;
 CREATE POLICY "Users can view own invoices" ON public.invoices
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own invoices" ON public.invoices;
 CREATE POLICY "Users can insert own invoices" ON public.invoices
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own invoices" ON public.invoices;
 CREATE POLICY "Users can update own invoices" ON public.invoices
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own invoices" ON public.invoices;
 CREATE POLICY "Users can delete own invoices" ON public.invoices
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Create RLS policies for invoice_items
+DROP POLICY IF EXISTS "Users can view own invoice items" ON public.invoice_items;
 CREATE POLICY "Users can view own invoice items" ON public.invoice_items
     FOR SELECT USING (
         EXISTS (
@@ -296,6 +321,7 @@ CREATE POLICY "Users can view own invoice items" ON public.invoice_items
         )
     );
 
+DROP POLICY IF EXISTS "Users can insert own invoice items" ON public.invoice_items;
 CREATE POLICY "Users can insert own invoice items" ON public.invoice_items
     FOR INSERT WITH CHECK (
         EXISTS (
@@ -305,6 +331,7 @@ CREATE POLICY "Users can insert own invoice items" ON public.invoice_items
         )
     );
 
+DROP POLICY IF EXISTS "Users can update own invoice items" ON public.invoice_items;
 CREATE POLICY "Users can update own invoice items" ON public.invoice_items
     FOR UPDATE USING (
         EXISTS (
@@ -314,6 +341,7 @@ CREATE POLICY "Users can update own invoice items" ON public.invoice_items
         )
     );
 
+DROP POLICY IF EXISTS "Users can delete own invoice items" ON public.invoice_items;
 CREATE POLICY "Users can delete own invoice items" ON public.invoice_items
     FOR DELETE USING (
         EXISTS (
@@ -324,19 +352,24 @@ CREATE POLICY "Users can delete own invoice items" ON public.invoice_items
     );
 
 -- Create RLS policies for offers
+DROP POLICY IF EXISTS "Users can view own offers" ON public.offers;
 CREATE POLICY "Users can view own offers" ON public.offers
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own offers" ON public.offers;
 CREATE POLICY "Users can insert own offers" ON public.offers
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own offers" ON public.offers;
 CREATE POLICY "Users can update own offers" ON public.offers
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own offers" ON public.offers;
 CREATE POLICY "Users can delete own offers" ON public.offers
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Create RLS policies for offer_items
+DROP POLICY IF EXISTS "Users can view own offer items" ON public.offer_items;
 CREATE POLICY "Users can view own offer items" ON public.offer_items
     FOR SELECT USING (
         EXISTS (
@@ -346,6 +379,7 @@ CREATE POLICY "Users can view own offer items" ON public.offer_items
         )
     );
 
+DROP POLICY IF EXISTS "Users can insert own offer items" ON public.offer_items;
 CREATE POLICY "Users can insert own offer items" ON public.offer_items
     FOR INSERT WITH CHECK (
         EXISTS (
@@ -355,6 +389,7 @@ CREATE POLICY "Users can insert own offer items" ON public.offer_items
         )
     );
 
+DROP POLICY IF EXISTS "Users can update own offer items" ON public.offer_items;
 CREATE POLICY "Users can update own offer items" ON public.offer_items
     FOR UPDATE USING (
         EXISTS (
@@ -364,6 +399,7 @@ CREATE POLICY "Users can update own offer items" ON public.offer_items
         )
     );
 
+DROP POLICY IF EXISTS "Users can delete own offer items" ON public.offer_items;
 CREATE POLICY "Users can delete own offer items" ON public.offer_items
     FOR DELETE USING (
         EXISTS (
@@ -374,57 +410,71 @@ CREATE POLICY "Users can delete own offer items" ON public.offer_items
     );
 
 -- Create RLS policies for projects
+DROP POLICY IF EXISTS "Users can view own projects" ON public.projects;
 CREATE POLICY "Users can view own projects" ON public.projects
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own projects" ON public.projects;
 CREATE POLICY "Users can insert own projects" ON public.projects
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own projects" ON public.projects;
 CREATE POLICY "Users can update own projects" ON public.projects
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own projects" ON public.projects;
 CREATE POLICY "Users can delete own projects" ON public.projects
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Create RLS policies for activities
+DROP POLICY IF EXISTS "Users can view own activities" ON public.activities;
 CREATE POLICY "Users can view own activities" ON public.activities
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own activities" ON public.activities;
 CREATE POLICY "Users can insert own activities" ON public.activities
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Create RLS policies for settings
+DROP POLICY IF EXISTS "Users can view own settings" ON public.settings;
 CREATE POLICY "Users can view own settings" ON public.settings
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own settings" ON public.settings;
 CREATE POLICY "Users can insert own settings" ON public.settings
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own settings" ON public.settings;
 CREATE POLICY "Users can update own settings" ON public.settings
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own settings" ON public.settings;
 CREATE POLICY "Users can delete own settings" ON public.settings
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Create storage policies
+DROP POLICY IF EXISTS "Users can upload own files" ON storage.objects;
 CREATE POLICY "Users can upload own files" ON storage.objects
     FOR INSERT WITH CHECK (
         bucket_id = 'uploads' AND 
         auth.uid()::text = (storage.foldername(name))[1]
     );
 
+DROP POLICY IF EXISTS "Users can view own files" ON storage.objects;
 CREATE POLICY "Users can view own files" ON storage.objects
     FOR SELECT USING (
         bucket_id = 'uploads' AND 
         auth.uid()::text = (storage.foldername(name))[1]
     );
 
+DROP POLICY IF EXISTS "Users can update own files" ON storage.objects;
 CREATE POLICY "Users can update own files" ON storage.objects
     FOR UPDATE USING (
         bucket_id = 'uploads' AND 
         auth.uid()::text = (storage.foldername(name))[1]
     );
 
+DROP POLICY IF EXISTS "Users can delete own files" ON storage.objects;
 CREATE POLICY "Users can delete own files" ON storage.objects
     FOR DELETE USING (
         bucket_id = 'uploads' AND 
@@ -457,6 +507,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create trigger for default settings
+DROP TRIGGER IF EXISTS setup_default_settings_trigger ON public.profiles;
 CREATE TRIGGER setup_default_settings_trigger
     AFTER INSERT ON public.profiles
     FOR EACH ROW EXECUTE FUNCTION public.setup_default_settings();

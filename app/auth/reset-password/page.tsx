@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function ResetPassword() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const supabase = createClient()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)

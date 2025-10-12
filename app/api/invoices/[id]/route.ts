@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '../../../../lib/supabase';
-
-const supabase = createServerSupabaseClient();
+import { createServer } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const supabase = createServer();
   try {
     const { data: invoice, error } = await supabase
       .from('invoices')
@@ -37,6 +36,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const supabase = createServer();
   try {
     const body = await request.json();
     const { 
@@ -92,6 +92,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const supabase = createServer();
   try {
     const { error } = await supabase
       .from('invoices')

@@ -1,5 +1,7 @@
-import { supabase } from './supabase';
+import { createClient } from '@/lib/supabase/client';
 import { NotificationSettings, AppearanceSettings, AIPersonalizationSettings } from '../types/settings';
+
+const supabase = createClient();
 
 export interface SettingsResponse<T> {
   data: T | null;

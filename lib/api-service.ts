@@ -1,6 +1,8 @@
-import { supabase } from './supabase';
+import { createClient } from '@/lib/supabase/client';
 import { Customer, Invoice, ApiResponse } from '../types/dashboard';
 import { logger } from './logger';
+
+const supabase = createClient();
 
 // Cache voor API responses met proper typing
 const apiCache = new Map<string, { data: unknown; timestamp: number }>();

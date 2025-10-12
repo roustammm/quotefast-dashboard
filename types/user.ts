@@ -3,15 +3,15 @@
 import { OnboardingData } from '../lib/onboarding'
 
 export interface User {
-  id: string
-  email: string
-  name: string
-  company?: string
-  subscription: {
-    plan: string
-    status: 'active' | 'inactive' | 'cancelled'
-    currentPeriodEnd: string
-  }
+  id: string;
+  email: string;
+  name: string;
+  company?: string;
+  subscription?: {
+    plan: string;
+    status: string;
+    currentPeriodEnd: string;
+  };
 }
 
 export interface UserMetadata {

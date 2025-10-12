@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '../../../lib/supabase';
-
-const supabase = createServerSupabaseClient();
+import { createServer } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
+  const supabase = createServer();
   try {
     const { data: customers, error } = await supabase
       .from('customers')
@@ -23,6 +22,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = createServer();
   try {
     const body = await request.json();
     const { name, email, phone, address, company } = body;

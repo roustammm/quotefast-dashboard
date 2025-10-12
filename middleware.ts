@@ -1,44 +1,60 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
-import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  try {
-    // Create a Supabase client configured to use cookies
-    const response = NextResponse.next()
-    const supabase = createMiddlewareClient({ req: request, res: response })
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
-    // Refresh session if expired - required for Server Components
-    const { data: { session } } = await supabase.auth.getSession()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: CookieOptions) {
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    }
+  )
 
-    // Add basic security headers
-    response.headers.set('X-Frame-Options', 'DENY')
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-    
-    return response
-  } catch (error) {
-    // If there's an error with Supabase, just pass through with basic headers
-    console.warn('Middleware Supabase error:', error)
-    const response = NextResponse.next()
-    
-    // Add basic security headers
-    response.headers.set('X-Frame-Options', 'DENY')
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-    
-    return response
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const publicPaths = ['/', '/login', '/register', '/auth/callback', '/features', '/pricing'];
+  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname.startsWith(path));
+  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
+
+  // if user is signed in and trying to access a public path (like login), redirect to dashboard
+  if (user && isPublicPath && request.nextUrl.pathname !== '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
+
+  // if user is not signed in and trying to access a protected route, redirect to login
+  if (!user && isProtectedRoute) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  return response
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }

@@ -1,75 +1,89 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { authService, User } from '../lib/auth-service'
-import { OnboardingData } from '../lib/onboarding'
+import { useRouter } from 'next/navigation' // Importeren
+import { createClient } from '@/lib/supabase/client' // Directe import
+import { User } from '../types/user'
+import { authService } from '@/lib/auth-service' // Correct pad
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string, company?: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void> // Maak logout async
   updateUser: (userData: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Supabase client hier aanmaken
+const supabase = createClient();
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter() // Router hook
 
-  // Controleer de huidige gebruiker bij het laden
   useEffect(() => {
-    const checkUser = async () => {
+    const getAuthenticatedUser = async () => {
       setLoading(true)
-      const { user } = await authService.getCurrentUser()
-      setUser(user)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { user: appUser } = await authService.getCurrentUser();
+        setUser(appUser);
+      }
       setLoading(false)
     }
-    
-    checkUser()
-  }, [])
+
+    getAuthenticatedUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          const { user: appUser } = await authService.getCurrentUser();
+          setUser(appUser);
+          router.push('/dashboard') // Redirect na login
+        }
+        if (event === 'SIGNED_OUT') {
+          setUser(null)
+          router.push('/') // Redirect na logout
+        }
+      }
+    )
+
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
+  }, [router])
 
   // Login functie
   const login = async (email: string, password: string) => {
-    setLoading(true)
-    const { user, error } = await authService.login(email, password)
-    
-    if (error) {
-      setLoading(false)
-      throw new Error(error)
-    }
-    
-    setUser(user)
-    setLoading(false)
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+    router.refresh(); // Server state vernieuwen
   }
 
   // Registratie functie
   const register = async (email: string, password: string, name: string, company?: string) => {
-    setLoading(true)
-    const { user, error } = await authService.register(email, password, name, company)
-    
-    if (error) {
-      setLoading(false)
-      throw new Error(error)
-    }
-    
-    setUser(user)
-    setLoading(false)
+    const { error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          full_name: name,
+          company_name: company
+        }
+      }
+    });
+    if (error) throw new Error(error.message);
+    router.refresh(); // Server state vernieuwen
   }
 
   // Uitlog functie
   const logout = async () => {
-    setLoading(true)
-    const { error } = await authService.logout()
-    
-    if (error) {
-      console.error('Logout error:', error)
-    }
-    
-    setUser(null)
-    setLoading(false)
+    await supabase.auth.signOut()
+    router.refresh(); // Server state vernieuwen
   }
 
   // Gebruiker bijwerken
@@ -85,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     setUser(updatedUser)
+    router.refresh() // Server state vernieuwen
     setLoading(false)
   }
 
