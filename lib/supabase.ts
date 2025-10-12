@@ -78,8 +78,12 @@ export const createServerSupabaseClient = () => {
   });
 };
 
-// Admin client for server-side operations
-export const supabaseAdmin = (() => {
+// Admin client for server-side operations (lazy initialization)
+export const getSupabaseAdmin = () => {
+  if (typeof window !== 'undefined') {
+    throw new Error('Supabase admin client should only be used on the server-side');
+  }
+
   if (!supabaseConfig) {
     throw new Error('Supabase configuration is missing. Run: npm run setup:env');
   }
@@ -98,6 +102,25 @@ export const supabaseAdmin = (() => {
       },
     }
   );
+};
+
+// For backward compatibility, but should be avoided in client-side code
+export const supabaseAdmin = (() => {
+  if (typeof window !== 'undefined') {
+    // Return a mock client for client-side to prevent errors
+    return createClient(
+      'https://placeholder.supabase.co',
+      'placeholder-key',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+  }
+  
+  return getSupabaseAdmin();
 })();
 
 // Auth helper functions
