@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   creator: "QuoteFast",
   publisher: "QuoteFast",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
     apple: "/favicon.svg",
   },
   formatDetection: {
