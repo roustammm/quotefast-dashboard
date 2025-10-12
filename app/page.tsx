@@ -2,29 +2,54 @@
 
 import Link from 'next/link'
 import { useTheme } from '../contexts/ThemeContext'
-import { Sun, Moon, Play, ArrowRight, CheckCircle, Shield, Users, Zap, Code, Rocket, Heart, Search, Bell, Settings, ArrowUp, ArrowDown, Folder, DollarSign, TrendingUp, Clock, FileText } from 'lucide-react'
+import { Sun, Moon, Play, ArrowRight, CheckCircle, Shield, Users, Zap, Code, Rocket, Heart, Search, Bell, Settings, ArrowUp, ArrowDown, Folder, DollarSign, TrendingUp, Clock, FileText, Sparkles, Star } from 'lucide-react'
 import PublicFooter from './components/PublicFooter'
 import PricingSection from './components/PricingSection'
+import AnimatedCard from '../components/ui/AnimatedCard'
+import GradientText from '../components/ui/GradientText'
+import FloatingElements from '../components/ui/FloatingElements'
+import { motion } from 'framer-motion'
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme()
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-dark-bg relative overflow-hidden">
+      <FloatingElements />
+      
       {/* Navigation */}
-      <nav className="container-app py-6 flex items-center justify-between">
-        <Link href="/" className="font-bold text-xl text-brand-text">QuoteFast</Link>
+      <motion.nav 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="container-app py-6 flex items-center justify-between relative z-10"
+      >
+        <Link href="/" className="font-bold text-xl text-brand-text flex items-center gap-2">
+          <Sparkles className="w-6 h-6 text-brand-primary" />
+          QuoteFast
+        </Link>
         <div className="flex items-center gap-6">
           <div className="flex gap-4 text-brand-muted">
-            <Link href="/features" className="hover:text-brand-text transition-colors">Features</Link>
-            <Link href="/pricing" className="hover:text-brand-text transition-colors">Pricing</Link>
-            <Link href="/login" className="hover:text-brand-text transition-colors">Login</Link>
+            <Link href="/features" className="hover:text-brand-text transition-colors relative group">
+              Features
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-primary transition-all group-hover:w-full"></span>
+            </Link>
+            <Link href="/pricing" className="hover:text-brand-text transition-colors relative group">
+              Pricing
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-primary transition-all group-hover:w-full"></span>
+            </Link>
+            <Link href="/login" className="hover:text-brand-text transition-colors relative group">
+              Login
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-primary transition-all group-hover:w-full"></span>
+            </Link>
           </div>
           
           {/* Theme Toggle */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={toggleTheme}
-            className="theme-toggle flex items-center gap-2 px-3 py-2 rounded-full"
+            className="theme-toggle flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:border-brand-primary/30 transition-all"
           >
             {theme === 'dark' ? (
               <>
@@ -37,28 +62,81 @@ export default function Home() {
                 <span className="text-sm text-brand-text">Light</span>
               </>
             )}
-          </button>
+          </motion.button>
           
-          <Link href="/register" className="btn-primary">Probeer gratis</Link>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link href="/register" className="btn-primary flex items-center gap-2">
+              <Star className="w-4 h-4" />
+              Probeer gratis
+            </Link>
+          </motion.div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Hero Section - Makerkit Style */}
-      <section className="container-app py-24">
+      {/* Hero Section - Enhanced */}
+      <section className="container-app py-24 relative z-10">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-red-500/20 text-red-300 px-4 py-1.5 rounded-full text-sm font-medium mb-8 border border-red-500/30">
-          <Zap className="w-4 h-4" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 text-brand-primary px-4 py-1.5 rounded-full text-sm font-medium mb-8 border border-brand-primary/30 backdrop-blur-sm"
+        >
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <Zap className="w-4 h-4" />
+          </motion.div>
           <span>AI-Powered Quote Generation</span>
-        </div>
+        </motion.div>
 
         {/* Main Heading */}
-        <div className="max-w-4xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="max-w-4xl"
+        >
           <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-8 text-brand-text">
-            QuoteFast Dashboard.
+            <GradientText className="text-5xl md:text-6xl font-bold">
+              QuoteFast Dashboard.
+            </GradientText>
             <br />
             <span className="text-brand-muted">Automatiseer je offertes met AI en groei je bedrijf sneller.</span>
-              </h1>
-        </div>
+          </h1>
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="flex flex-col sm:flex-row gap-4 mt-12"
+        >
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link href="/register" className="btn-primary text-lg px-8 py-4 flex items-center justify-center gap-2 group">
+              <Sparkles className="w-5 h-5" />
+              Start Gratis Proberen
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link href="/features" className="btn-ghost text-lg px-8 py-4 flex items-center justify-center gap-2">
+              <Play className="w-5 h-5" />
+              Bekijk Demo
+            </Link>
+          </motion.div>
+        </motion.div>
 
         {/* Dashboard Preview - Makerkit Style */}
         <div className="mt-16 relative">
@@ -311,52 +389,79 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Grid - 4 Columns */}
-      <section className="container-app py-24">
+      {/* Features Grid - Enhanced */}
+      <section className="container-app py-24 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl font-bold text-brand-text mb-4">
+            <GradientText>Waarom kiezen voor QuoteFast?</GradientText>
+          </h2>
+          <p className="text-brand-muted text-lg max-w-2xl mx-auto">
+            Ontdek de krachtige features die je bedrijf naar het volgende niveau tillen
+          </p>
+        </motion.div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Feature 1 */}
-          <div className="text-center">
-            <div className="w-12 h-12 bg-brand-primary/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <AnimatedCard delay={0.1} className="text-center bg-brand-card/30 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-brand-primary/30 transition-all">
+            <motion.div 
+              whileHover={{ rotate: 5, scale: 1.1 }}
+              className="w-12 h-12 bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 rounded-lg flex items-center justify-center mx-auto mb-4"
+            >
               <Zap className="w-6 h-6 text-brand-primary" />
-            </div>
+            </motion.div>
             <h3 className="text-xl font-semibold text-brand-text mb-3">AI Offertegenerator</h3>
             <p className="text-brand-muted text-sm leading-relaxed">
               Laat AI automatisch professionele offertes genereren. Slimme productherkenning en automatische prijsberekening.
             </p>
-          </div>
+          </AnimatedCard>
 
           {/* Feature 2 */}
-          <div className="text-center">
-            <div className="w-12 h-12 bg-brand-primary/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <AnimatedCard delay={0.2} className="text-center bg-brand-card/30 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-brand-primary/30 transition-all">
+            <motion.div 
+              whileHover={{ rotate: 5, scale: 1.1 }}
+              className="w-12 h-12 bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 rounded-lg flex items-center justify-center mx-auto mb-4"
+            >
               <Users className="w-6 h-6 text-brand-primary" />
-            </div>
+            </motion.div>
             <h3 className="text-xl font-semibold text-brand-text mb-3">CRM & Klantbeheer</h3>
             <p className="text-brand-muted text-sm leading-relaxed">
               Beheer al je klanten, leads en contacten op één plek. Track conversaties en follow-ups voor betere klantrelaties.
             </p>
-          </div>
+          </AnimatedCard>
 
           {/* Feature 3 */}
-          <div className="text-center">
-            <div className="w-12 h-12 bg-brand-primary/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <AnimatedCard delay={0.3} className="text-center bg-brand-card/30 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-brand-primary/30 transition-all">
+            <motion.div 
+              whileHover={{ rotate: 5, scale: 1.1 }}
+              className="w-12 h-12 bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 rounded-lg flex items-center justify-center mx-auto mb-4"
+            >
               <Shield className="w-6 h-6 text-brand-primary" />
-            </div>
+            </motion.div>
             <h3 className="text-xl font-semibold text-brand-text mb-3">Facturatie & Betalingen</h3>
             <p className="text-brand-muted text-sm leading-relaxed">
               Automatische facturatie, betalingsherinneringen en Stripe integratie. Accepteer betalingen online.
             </p>
-          </div>
+          </AnimatedCard>
 
           {/* Feature 4 */}
-          <div className="text-center">
-            <div className="w-12 h-12 bg-brand-primary/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <AnimatedCard delay={0.4} className="text-center bg-brand-card/30 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-brand-primary/30 transition-all">
+            <motion.div 
+              whileHover={{ rotate: 5, scale: 1.1 }}
+              className="w-12 h-12 bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 rounded-lg flex items-center justify-center mx-auto mb-4"
+            >
               <Rocket className="w-6 h-6 text-brand-primary" />
-            </div>
+            </motion.div>
             <h3 className="text-xl font-semibold text-brand-text mb-3">Workflow Automatisering</h3>
             <p className="text-brand-muted text-sm leading-relaxed">
               Automatiseer repetitieve taken. Van lead capture tot factuur verzending - alles draait automatisch.
             </p>
-          </div>
+          </AnimatedCard>
         </div>
       </section>
 

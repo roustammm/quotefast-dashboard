@@ -235,11 +235,12 @@ CREATE TRIGGER update_settings_updated_at BEFORE UPDATE ON public.settings FOR E
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email, full_name, avatar_url, created_at, updated_at)
+    INSERT INTO public.profiles (id, email, full_name, company_name, avatar_url, created_at, updated_at)
     VALUES (
         NEW.id,
         NEW.email,
         COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name'),
+        NEW.raw_user_meta_data->>'company_name',
         NEW.raw_user_meta_data->>'avatar_url',
         NOW(),
         NOW()

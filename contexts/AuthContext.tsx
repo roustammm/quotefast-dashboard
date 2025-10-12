@@ -59,30 +59,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Login functie
   const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
+    const { user, error } = await authService.login(email, password);
+    if (error) throw new Error(error);
+    if (user) {
+      setUser(user);
+    }
     router.refresh(); // Server state vernieuwen
   }
 
   // Registratie functie
   const register = async (email: string, password: string, name: string, company?: string) => {
-    const { error } = await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        data: {
-          full_name: name,
-          company_name: company
-        }
-      }
-    });
-    if (error) throw new Error(error.message);
+    const { user, error } = await authService.register(email, password, name, company);
+    if (error) throw new Error(error);
+    if (user) {
+      setUser(user);
+    }
     router.refresh(); // Server state vernieuwen
   }
 
   // Uitlog functie
   const logout = async () => {
-    await supabase.auth.signOut()
+    const { error } = await authService.logout();
+    if (error) throw new Error(error);
+    setUser(null);
     router.refresh(); // Server state vernieuwen
   }
 

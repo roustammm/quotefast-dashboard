@@ -7,6 +7,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { customersApi, invoicesApi } from "../../lib/api-service";
 import { DashboardData, DashboardCardProps, Invoice } from "../../types/dashboard";
+import { motion } from "framer-motion";
+import AnimatedCard from "../../components/ui/AnimatedCard";
+import GradientText from "../../components/ui/GradientText";
 
 const AiSphere = () => (
   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -132,57 +135,102 @@ export default function DashboardPage() {
     <div className="relative w-full min-h-screen p-4 sm:p-6 md:p-8 flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <AiSphere />
       
-      <div className="relative z-10 flex flex-col items-center text-center mb-10 mt-8 animate-fadeIn">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-md mb-4 shadow-lg hover:bg-white/10 transition-all duration-300">
-          <Sparkles className="h-4 w-4 text-purple-400" />
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 flex flex-col items-center text-center mb-10 mt-8"
+      >
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-md mb-4 shadow-lg hover:bg-white/10 transition-all duration-300"
+        >
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <Sparkles className="h-4 w-4 text-purple-400" />
+          </motion.div>
           <span className="text-sm font-medium text-gray-300">AI-Powered Dashboard</span>
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-purple-200 to-purple-400 mb-3">
-          QuoteFast Dashboard
-        </h1>
-        <p className="mt-2 text-lg text-gray-300 max-w-2xl leading-relaxed">
+        </motion.div>
+        
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-4xl md:text-5xl font-bold tracking-tight mb-3"
+        >
+          <GradientText className="text-4xl md:text-5xl font-bold">
+            QuoteFast Dashboard
+          </GradientText>
+        </motion.h1>
+        
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-2 text-lg text-gray-300 max-w-2xl leading-relaxed"
+        >
           Visualiseer en plan je bedrijfsactiviteiten met AI-aangedreven inzichten en interactieve doelstellingen.
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl mb-10">
-        <EnhancedGlassCard 
-          icon={<FileText className="h-8 w-8 text-blue-400" />} 
-          title="Verstuurde Offertes" 
-          value={data.offersSent} 
-          description="Totaal aantal" 
-          trend="+12% deze maand"
-          color="blue"
-          href="/dashboard/offertes"
-        />
-        <EnhancedGlassCard 
-          icon={<Euro className="h-8 w-8 text-emerald-400" />} 
-          title="Gem. Offerte Waarde" 
-          value={data.avgOfferValue} 
-          description="Laatste 30 dagen" 
-          trend="+8% vs vorige maand"
-          color="emerald"
-          href="/dashboard/financials"
-        />
-        <EnhancedGlassCard 
-          icon={<Users className="h-8 w-8 text-purple-400" />} 
-          title="Actieve Klanten" 
-          value={data.activeCustomers} 
-          description="Leads en contacten" 
-          trend="+15 nieuwe deze week"
-          color="purple"
-          href="/dashboard/contactpersoon"
-        />
-        <EnhancedGlassCard 
-          icon={<Zap className="h-8 w-8 text-amber-400" />} 
-          title="AI Generaties" 
-          value={data.aiGenerations} 
-          description="Slimme content" 
-          trend="+3 vandaag"
-          color="amber"
-          href="/dashboard/ai-tools"
-        />
-      </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+        className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl mb-10"
+      >
+        <AnimatedCard delay={0.1}>
+          <EnhancedGlassCard 
+            icon={<FileText className="h-8 w-8 text-blue-400" />} 
+            title="Verstuurde Offertes" 
+            value={data.offersSent} 
+            description="Totaal aantal" 
+            trend="+12% deze maand"
+            color="blue"
+            href="/dashboard/offertes"
+          />
+        </AnimatedCard>
+        
+        <AnimatedCard delay={0.2}>
+          <EnhancedGlassCard 
+            icon={<Euro className="h-8 w-8 text-emerald-400" />} 
+            title="Gem. Offerte Waarde" 
+            value={data.avgOfferValue} 
+            description="Laatste 30 dagen" 
+            trend="+8% vs vorige maand"
+            color="emerald"
+            href="/dashboard/financials"
+          />
+        </AnimatedCard>
+        
+        <AnimatedCard delay={0.3}>
+          <EnhancedGlassCard 
+            icon={<Users className="h-8 w-8 text-purple-400" />} 
+            title="Actieve Klanten" 
+            value={data.activeCustomers} 
+            description="Leads en contacten" 
+            trend="+15 nieuwe deze week"
+            color="purple"
+            href="/dashboard/contactpersoon"
+          />
+        </AnimatedCard>
+        
+        <AnimatedCard delay={0.4}>
+          <EnhancedGlassCard 
+            icon={<Zap className="h-8 w-8 text-amber-400" />} 
+            title="AI Generaties" 
+            value={data.aiGenerations} 
+            description="Slimme content" 
+            trend="+3 vandaag"
+            color="amber"
+            href="/dashboard/ai-tools"
+          />
+        </AnimatedCard>
+      </motion.div>
 
       <div className="relative z-10 flex flex-col sm:flex-row gap-4 items-center">
         <Link
