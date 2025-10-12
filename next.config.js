@@ -1,10 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configure for Hugging Face Spaces
-  output: 'standalone',
+  // Configure for Netlify static export
+  output: 'export',
   trailingSlash: true,
+  distDir: 'out',
+  
+  // Disable server-side features for static export
+  experimental: {
+    appDir: true,
+  },
   
   images: {
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',
@@ -21,9 +28,9 @@ const nextConfig = {
     ],
   },
   
-  // Environment variables for Hugging Face Spaces
+  // Environment variables
   env: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://YANDIEVPRORUSTRAM-quotefast-dashboard.hf.space',
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   },
 }
 

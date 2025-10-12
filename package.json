@@ -19,7 +19,10 @@
     "db:migrate": "echo 'Run the SQL migration in Supabase Dashboard: supabase/migrations/001_initial_schema.sql'",
     "db:reset": "echo 'Reset database by running the migration again'",
     "deploy": "vercel --prod",
-    "deploy:preview": "vercel"
+    "deploy:preview": "vercel",
+    "export": "next build && next export",
+    "netlify:build": "npm run build",
+    "netlify:deploy": "netlify deploy --prod"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
