@@ -182,7 +182,7 @@ function DataTable({
                   className={`px-4 py-3 text-left font-medium ${
                     isDark ? 'text-gray-300' : 'text-gray-700'
                   }`}
-                  style={{ width: column.width }}
+                  {...(column.width && { style: { width: column.width } })}
                 >
                   {column.sortable ? (
                     <button

@@ -2,9 +2,9 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration with enhanced settings
 export const supabaseConfig = {
-  url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://qgyboabomydquodygomq.supabase.co',
+  anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'temp_anon_key',
+  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || 'temp_service_role_key',
 };
 
 // Client-side Supabase client

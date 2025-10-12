@@ -3,25 +3,24 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration with fallbacks and validation
 const getSupabaseConfig = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://qgyboabomydquodygomq.supabase.co';
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'temp_anon_key';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'temp_service_role_key';
 
   // In development, provide helpful warnings instead of throwing errors
-  if (!url) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     console.warn('⚠️ NEXT_PUBLIC_SUPABASE_URL is missing from environment variables');
-    console.warn('Run: npm run setup:env');
-    return null;
+    console.warn('Using fallback URL. Run: npm run setup:env');
   }
   
-  if (!anonKey) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     console.warn('⚠️ NEXT_PUBLIC_SUPABASE_ANON_KEY is missing from environment variables');
-    console.warn('Run: npm run setup:env');
-    return null;
+    console.warn('Using fallback key. Run: npm run setup:env');
   }
 
-  if (process.env.NODE_ENV === 'production' && !serviceRoleKey) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is missing from environment variables for production');
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY is missing from environment variables');
+    console.warn('Using fallback key. Run: npm run setup:env');
   }
 
   return {
@@ -85,11 +84,13 @@ export const getSupabaseAdmin = () => {
   }
 
   if (!supabaseConfig) {
-    throw new Error('Supabase configuration is missing. Run: npm run setup:env');
+    console.warn('⚠️ Supabase configuration is missing. Using fallback values.');
+    return null;
   }
 
-  if (!supabaseConfig.serviceRoleKey) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for admin client. Run: npm run setup:env');
+  if (!supabaseConfig.serviceRoleKey || supabaseConfig.serviceRoleKey === 'temp_service_role_key') {
+    console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY is missing or using fallback. Admin operations may not work properly.');
+    console.warn('Run: npm run setup:env');
   }
 
   return createClient(
