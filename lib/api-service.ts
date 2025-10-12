@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { Customer, Invoice, ApiResponse } from '../types/dashboard';
+import { logger } from './logger';
 
 // Cache voor API responses met proper typing
 const apiCache = new Map<string, { data: unknown; timestamp: number }>();
@@ -30,7 +31,7 @@ async function fetchWithCache<T>(
       const now = Date.now();
       
       if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
-        console.log(`[API] Using cached data for ${cacheKey}`);
+        logger.debug(`Using cached data for ${cacheKey}`, 'api');
         return { data: cachedData.data as T, error: null, status: 200 };
       }
     }
@@ -314,5 +315,5 @@ export const invoicesApi = {
 // Functie om de cache te wissen
 export const clearApiCache = () => {
   apiCache.clear();
-  console.log('[API] Cache cleared');
+  logger.info('Cache cleared', 'api');
 };

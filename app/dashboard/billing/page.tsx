@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { CheckIcon, XMarkIcon, CreditCardIcon } from '@heroicons/react/24/outline'
+import { logger } from '../../../lib/logger'
 
 export default function BillingPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -48,7 +49,7 @@ export default function BillingPage() {
   const handleCancel = async () => {
     if (confirm('Weet je zeker dat je je abonnement wilt opzeggen?')) {
       // In real app, call your API to cancel subscription
-      console.log('Canceling subscription...')
+      logger.info('Canceling subscription...', 'billing')
     }
   }
 

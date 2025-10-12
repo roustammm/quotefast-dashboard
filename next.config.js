@@ -23,7 +23,7 @@ const nextConfig = {
   
   // Environment variables for Hugging Face Spaces
   env: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://your-space-name.hf.space',
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://YANDIEVPRORUSTRAM-quotefast-dashboard.hf.space',
   },
 }
 

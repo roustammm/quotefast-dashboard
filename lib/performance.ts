@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from './logger';
 
 export interface PerformanceMetrics {
   lcp: number;

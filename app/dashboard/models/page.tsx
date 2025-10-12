@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Bot, Settings, Play, TestTube, Zap, Brain, Code, Shield, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { useState } from "react";
 import ModelConfigModal from "../components/ModelConfigModal";
+import { logger } from '../../../lib/logger';
 
 interface Model {
   id: string;
@@ -132,7 +133,7 @@ export default Counter;`;
   };
 
   const handleSaveConfig = (config: any) => {
-    console.log("Saving config for model:", configModelId, config);
+    logger.info("Saving config for model", 'models', { configModelId, config });
     // Here you would save the configuration to your backend
     setConfigModalOpen(false);
     setConfigModelId(null);

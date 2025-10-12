@@ -8,6 +8,7 @@ import PageHeader from "../components/PageHeader";
 import DataTable from "../components/DataTable";
 import OfferStatusChart from "../components/OfferStatusChart";
 import OfferTimelineChart from "../components/OfferTimelineChart";
+import { logger } from '../../../lib/logger';
 import OfferDetailsModal from "../components/OfferDetailsModal";
 import { mockOffers, getOffersStats } from "../../../lib/mockData/offersData";
 import { FileText, Euro, Target, Clock, Users, Zap } from 'lucide-react';
@@ -98,12 +99,12 @@ export default function OffertesPage() {
   };
 
   const handleBulkAction = (action: string, selectedRows: any[]) => {
-    console.log(`Bulk action: ${action}`, selectedRows);
+    logger.info(`Bulk action: ${action}`, 'offertes', { selectedRows });
     // Implement bulk actions
   };
 
   const handleCreateOffer = () => {
-    console.log('Create new offer');
+    logger.info('Create new offer', 'offertes');
     // Implement create offer
   };
 
@@ -138,7 +139,7 @@ export default function OffertesPage() {
         searchPlaceholder="Zoek offertes..."
         onSearchChange={setSearchTerm}
         showFilters={true}
-        onFilterClick={() => console.log('Filter clicked')}
+        onFilterClick={() => logger.info('Filter clicked', 'offertes')}
       />
 
       {/* Stats Cards */}
@@ -250,9 +251,9 @@ export default function OffertesPage() {
           setIsModalOpen(false);
           setSelectedOffer(null);
         }}
-        onEdit={(offer) => console.log('Edit offer:', offer)}
-        onSend={(offer) => console.log('Send offer:', offer)}
-        onDownload={(offer) => console.log('Download offer:', offer)}
+        onEdit={(offer) => logger.info('Edit offer', 'offertes', { offer })}
+        onSend={(offer) => logger.info('Send offer', 'offertes', { offer })}
+        onDownload={(offer) => logger.info('Download offer', 'offertes', { offer })}
       />
     </div>
   );
