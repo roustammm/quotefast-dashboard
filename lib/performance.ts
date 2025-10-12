@@ -110,13 +110,13 @@ export const usePerformanceMonitoring = (): PerformanceMetrics | null => {
 // Performance monitoring for development
 export const logPerformanceMetrics = (metrics: PerformanceMetrics) => {
   if (process.env.NODE_ENV === 'development') {
-    console.group('🚀 Performance Metrics');
-    console.log(`LCP: ${metrics.lcp.toFixed(0)}ms ${metrics.lcp > 2500 ? '❌' : '✅'}`);
-    console.log(`FID: ${metrics.fid.toFixed(0)}ms ${metrics.fid > 100 ? '❌' : '✅'}`);
-    console.log(`CLS: ${metrics.cls.toFixed(3)} ${metrics.cls > 0.1 ? '❌' : '✅'}`);
-    console.log(`FCP: ${metrics.fcp.toFixed(0)}ms ${metrics.fcp > 1800 ? '❌' : '✅'}`);
-    console.log(`TTFB: ${metrics.ttfb.toFixed(0)}ms ${metrics.ttfb > 800 ? '❌' : '✅'}`);
-    console.groupEnd();
+    logger.info('Performance Metrics', 'performance', {
+      lcp: `${metrics.lcp.toFixed(0)}ms ${metrics.lcp > 2500 ? '❌' : '✅'}`,
+      fid: `${metrics.fid.toFixed(0)}ms ${metrics.fid > 100 ? '❌' : '✅'}`,
+      cls: `${metrics.cls.toFixed(3)} ${metrics.cls > 0.1 ? '❌' : '✅'}`,
+      fcp: `${metrics.fcp.toFixed(0)}ms ${metrics.fcp > 1800 ? '❌' : '✅'}`,
+      ttfb: `${metrics.ttfb.toFixed(0)}ms ${metrics.ttfb > 800 ? '❌' : '✅'}`
+    });
   }
 };
 
@@ -253,7 +253,7 @@ export const trackPerformance = (name: string, fn: () => void | Promise<void>) =
     return result.finally(() => {
       const end = performance.now();
       const duration = end - start;
-      console.log(`⏱️ ${name}: ${duration.toFixed(2)}ms`);
+      logger.debug(`${name}: ${duration.toFixed(2)}ms`, 'performance');
       
       // Send to analytics in production
       if (process.env.NODE_ENV === 'production') {
@@ -266,7 +266,7 @@ export const trackPerformance = (name: string, fn: () => void | Promise<void>) =
   } else {
     const end = performance.now();
     const duration = end - start;
-    console.log(`⏱️ ${name}: ${duration.toFixed(2)}ms`);
+    logger.debug(`${name}: ${duration.toFixed(2)}ms`, 'performance');
     
     // Send to analytics in production
     if (process.env.NODE_ENV === 'production') {

@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { logger } from './logger';
 
 // Type definities
 export interface User {
@@ -207,7 +208,7 @@ export const authService = {
         
         // Als het profiel nog steeds niet bestaat na de trigger, wacht langer en probeer opnieuw
         if (userError.code === 'PGRST116') {
-          console.log('Profile not found, waiting for trigger...');
+          logger.info('Profile not found, waiting for trigger...', 'auth');
           await new Promise(resolve => setTimeout(resolve, 3000));
           
           const { data: retryData, error: retryError } = await (supabase as any)
