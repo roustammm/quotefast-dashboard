@@ -84,7 +84,7 @@ export default function RegisterPage() {
               <p className="text-brand-muted">Start je gratis proefperiode van 14 dagen</p>
             </motion.div>
 
-          {error && (
+            {error && (
             <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
               <div className="flex items-center space-x-2">
                 <AlertCircle className="w-5 h-5 text-red-400" />
@@ -191,7 +191,8 @@ export default function RegisterPage() {
               </Link>
             </p>
           </div>
-        </div>
+          </div>
+        </AnimatedCard>
       </div>
     </div>
   )
