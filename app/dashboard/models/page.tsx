@@ -49,6 +49,28 @@ export default function ModelsPage() {
       responseTime: 2.8
     },
     {
+      id: "qwen3-4b-thinking",
+      name: "Qwen3-4B-Thinking-2507",
+      provider: "Alibaba Cloud",
+      endpoint: "http://127.0.0.1:1234/v1",
+      status: "active",
+      capabilities: ["Advanced Reasoning", "Step-by-step Thinking", "Problem Solving", "Code Analysis"],
+      description: "Advanced reasoning model with step-by-step thinking capabilities. Excellent for complex problem solving and detailed code analysis.",
+      lastUsed: "1 minute ago",
+      responseTime: 2.1
+    },
+    {
+      id: "deepseek-coder-33b",
+      name: "DeepSeek-Coder-33B-Instruct",
+      provider: "DeepSeek",
+      endpoint: "http://127.0.0.1:1234/v1",
+      status: "active",
+      capabilities: ["Code Generation", "Code Completion", "Bug Fixing", "Code Review", "Multi-language Support"],
+      description: "Large-scale coding model specialized in code generation, completion, and debugging. Excellent for complex programming tasks and code optimization.",
+      lastUsed: "30 seconds ago",
+      responseTime: 3.2
+    },
+    {
       id: "gemini-pro",
       name: "Google Gemini Pro",
       provider: "Google",
