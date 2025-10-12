@@ -1,5 +1,6 @@
 import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from './logger';
 
 // Supabase configuration with fallbacks and validation
 const getSupabaseConfig = () => {
@@ -9,18 +10,18 @@ const getSupabaseConfig = () => {
 
   // In development, provide helpful warnings instead of throwing errors
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    console.warn('⚠️ NEXT_PUBLIC_SUPABASE_URL is missing from environment variables');
-    console.warn('Using fallback URL. Run: npm run setup:env');
+    logger.warn('NEXT_PUBLIC_SUPABASE_URL is missing from environment variables', 'supabase');
+    logger.warn('Using fallback URL. Run: npm run setup:env', 'supabase');
   }
   
   if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.warn('⚠️ NEXT_PUBLIC_SUPABASE_ANON_KEY is missing from environment variables');
-    console.warn('Using fallback key. Run: npm run setup:env');
+    logger.warn('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing from environment variables', 'supabase');
+    logger.warn('Using fallback key. Run: npm run setup:env', 'supabase');
   }
 
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY is missing from environment variables');
-    console.warn('Using fallback key. Run: npm run setup:env');
+    logger.warn('SUPABASE_SERVICE_ROLE_KEY is missing from environment variables', 'supabase');
+    logger.warn('Using fallback key. Run: npm run setup:env', 'supabase');
   }
 
   return {
@@ -84,13 +85,13 @@ export const getSupabaseAdmin = () => {
   }
 
   if (!supabaseConfig) {
-    console.warn('⚠️ Supabase configuration is missing. Using fallback values.');
+    logger.warn('Supabase configuration is missing. Using fallback values.', 'supabase');
     return null;
   }
 
   if (!supabaseConfig.serviceRoleKey || supabaseConfig.serviceRoleKey === 'temp_service_role_key') {
-    console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY is missing or using fallback. Admin operations may not work properly.');
-    console.warn('Run: npm run setup:env');
+    logger.warn('SUPABASE_SERVICE_ROLE_KEY is missing or using fallback. Admin operations may not work properly.', 'supabase');
+    logger.warn('Run: npm run setup:env', 'supabase');
   }
 
   return createClient(

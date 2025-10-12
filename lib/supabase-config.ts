@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from './logger';
 
 // Supabase configuration with enhanced settings
 export const supabaseConfig = {
@@ -217,19 +218,19 @@ export const emailHelpers = {
   // Send welcome email
   async sendWelcomeEmail(email: string, name: string) {
     // This would typically integrate with your email service
-    console.log(`Welcome email sent to ${email} for ${name}`);
+    logger.info(`Welcome email sent to ${email} for ${name}`, 'email');
     return { success: true };
   },
 
   // Send password reset email
   async sendPasswordResetEmail(email: string) {
-    console.log(`Password reset email sent to ${email}`);
+    logger.info(`Password reset email sent to ${email}`, 'email');
     return { success: true };
   },
 
   // Send email confirmation
   async sendEmailConfirmation(email: string) {
-    console.log(`Email confirmation sent to ${email}`);
+    logger.info(`Email confirmation sent to ${email}`, 'email');
     return { success: true };
   },
 };

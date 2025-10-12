@@ -1,5 +1,6 @@
 
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
     // 3. Save the token and its expiry date to the user's record in the database.
     // 4. Send an email to the user with a link containing the token.
     
-    console.log(`Password reset requested for: ${email}`);
+    logger.info(`Password reset requested for: ${email}`, 'auth');
 
     // For now, we'll just simulate a success response.
     return NextResponse.json({ message: 'Als het e-mailadres in ons systeem bestaat, is er een reset-link verzonden.' }, { status: 200 });

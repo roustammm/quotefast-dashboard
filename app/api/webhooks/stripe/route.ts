@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { logger } from '@/lib/logger'
 
 // Check if Stripe is enabled
 const isStripeEnabled = process.env.STRIPE_ENABLED === 'true';
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed':
         const session = event.data.object as Stripe.Checkout.Session
-        console.log('Payment successful:', session.id)
+        logger.info(`Payment successful: ${session.id}`, 'stripe')
         
         // Here you would typically:
         // 1. Update user subscription status in your database
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.updated':
         const subscription = event.data.object as Stripe.Subscription
-        console.log('Subscription updated:', subscription.id)
+        logger.info(`Subscription updated: ${subscription.id}`, 'stripe')
         
         // Handle subscription changes (upgrade/downgrade)
         
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.deleted':
         const canceledSubscription = event.data.object as Stripe.Subscription
-        console.log('Subscription canceled:', canceledSubscription.id)
+        logger.info(`Subscription canceled: ${canceledSubscription.id}`, 'stripe')
         
         // Handle subscription cancellation
         
@@ -64,14 +65,14 @@ export async function POST(request: NextRequest) {
 
       case 'invoice.payment_failed':
         const failedInvoice = event.data.object as Stripe.Invoice
-        console.log('Payment failed:', failedInvoice.id)
+        logger.warn(`Payment failed: ${failedInvoice.id}`, 'stripe')
         
         // Handle failed payments
         
         break
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        logger.warn(`Unhandled event type: ${event.type}`, 'stripe')
     }
 
     return NextResponse.json({ received: true })
