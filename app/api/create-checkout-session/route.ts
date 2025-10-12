@@ -1,12 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover',
-})
+// Check if Stripe is enabled
+const isStripeEnabled = process.env.STRIPE_ENABLED === 'true';
+
+// Early return if Stripe is not enabled
+if (!isStripeEnabled) {
+  console.warn('Stripe not enabled - payment functionality disabled')
+}
+
+let stripe: Stripe | null = null
+
+// Only import and initialize Stripe if enabled and the key is available
+if (isStripeEnabled && process.env.STRIPE_SECRET_KEY) {
+  try {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  } catch (error) {
+    console.warn('Failed to initialize Stripe:', error)
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Stripe is available
+    if (!isStripeEnabled || !stripe) {
+      return NextResponse.json(
+        {
+          error: 'Payment processing not enabled or configured',
+          enabled: isStripeEnabled
+        },
+        { status: 503 }
+      )
+    }
     const { priceId, customerEmail, planName } = await request.json()
 
     // Create or retrieve customer

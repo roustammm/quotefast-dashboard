@@ -3,9 +3,7 @@ import "../styles/globals.css";
 import "../styles/base.css";
 import "../styles/components.css";
 import "../styles/utilities.css";
-import { AuthProvider } from "../contexts/AuthContext";
-import { ThemeProvider } from "../contexts/ThemeContext";
-import { AIPersonalizationProvider } from "../contexts/AIPersonalizationContext";
+import { AppProviders } from "./components/AppProviders";
 
 export const metadata: Metadata = {
   title: {
@@ -17,6 +15,11 @@ export const metadata: Metadata = {
   authors: [{ name: "QuoteFast Team" }],
   creator: "QuoteFast",
   publisher: "QuoteFast",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.svg",
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -70,13 +73,9 @@ export default function RootLayout({
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
       </head>
       <body className="antialiased">
-        <ThemeProvider>
-          <AuthProvider>
-            <AIPersonalizationProvider>
-              {children}
-            </AIPersonalizationProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <AppProviders>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

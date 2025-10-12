@@ -71,6 +71,7 @@ const getFileIcon = (type: string) => {
     case "pdf":
       return <FileText className="h-6 w-6 text-red-400" />;
     case "image":
+      // eslint-disable-next-line jsx-a11y/alt-text
       return <Image className="h-6 w-6 text-green-400" />;
     case "video":
       return <Video className="h-6 w-6 text-purple-400" />;

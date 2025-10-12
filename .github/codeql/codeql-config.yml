@@ -1,0 +1,56 @@
+name: "CodeQL Configuration"
+
+# This configuration file specifies the languages to analyze and queries to run.
+# For more information, see: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning
+
+# Specify the languages to analyze
+languages:
+  - javascript
+  - typescript
+
+# Specify the queries to run
+queries:
+  # Use the default queries for JavaScript/TypeScript
+  - uses: security-and-quality
+  # Add additional security queries
+  - uses: security-extended
+  # Add custom queries for Next.js specific issues
+  - name: custom-nextjs-queries
+    uses: ./.github/codeql/custom-queries
+
+# Specify the paths to exclude from analysis
+paths-ignore:
+  - "node_modules/**"
+  - ".next/**"
+  - "out/**"
+  - "dist/**"
+  - "build/**"
+  - "coverage/**"
+  - "*.min.js"
+  - "*.bundle.js"
+
+# Specify the paths to include in analysis
+paths:
+  - "app/**"
+  - "components/**"
+  - "lib/**"
+  - "hooks/**"
+  - "types/**"
+  - "middleware.ts"
+  - "next.config.js"
+  - "tailwind.config.js"
+  - "tsconfig.json"
+
+# Disable default queries that are not relevant for this project
+disable-default-queries: false
+
+# Enable additional analysis features
+packs:
+  - javascript-security-and-quality
+  - typescript-security-and-quality
+
+# Configure analysis timeout
+timeout: 600
+
+# Configure memory settings
+memory: 4096

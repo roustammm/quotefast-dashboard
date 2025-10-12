@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useTheme } from '../contexts/ThemeContext'
 import { Sun, Moon, Play, ArrowRight, CheckCircle, Shield, Users, Zap, Code, Rocket, Heart, Search, Bell, Settings, ArrowUp, ArrowDown, Folder, DollarSign, TrendingUp, Clock, FileText } from 'lucide-react'
+import PublicFooter from './components/PublicFooter'
+import PricingSection from './components/PricingSection'
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme()
@@ -673,6 +675,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <PricingSection />
+
       {/* CTA Section */}
       <section className="container-app py-24">
         <div className="text-center">
@@ -708,9 +713,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-10 text-center text-brand-muted text-sm">
-        © {new Date().getFullYear()} QuoteFast — Alle rechten voorbehouden.
-      </footer>
+      <PublicFooter />
     </div>
   )
 }

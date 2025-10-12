@@ -61,7 +61,7 @@ function DataTable({
     } else {
       setSelectedRows(new Set(data.map((_, index) => index.toString())));
     }
-  }, [selectedRows.size, data.length]);
+  }, [selectedRows.size, data]);
 
   const handleSelectRow = useCallback((index: string) => {
     const newSelected = new Set(selectedRows);
@@ -78,7 +78,8 @@ function DataTable({
     onBulkAction?.(action, selectedData);
   }, [data, selectedRows, onBulkAction]);
 
-  const renderCell = useMemo(() => (column: Column, row: any, value: any) => {
+  const renderCell = useMemo(() => {
+    const renderCellFunction = (column: Column, row: any, value: any) => {
     if (column.render) {
       return column.render(value, row);
     }
@@ -100,6 +101,8 @@ function DataTable({
     }
     
     return value;
+    };
+    return renderCellFunction;
   }, []);
 
   if (loading) {
@@ -179,7 +182,7 @@ function DataTable({
                   className={`px-4 py-3 text-left font-medium ${
                     isDark ? 'text-gray-300' : 'text-gray-700'
                   }`}
-                  style={{ width: column.width }}
+                  {...(column.width && { style: { width: column.width } })}
                 >
                   {column.sortable ? (
                     <button
