@@ -8,6 +8,8 @@ import PricingSection from './components/PricingSection'
 import AnimatedCard from '../components/ui/AnimatedCard'
 import GradientText from '../components/ui/GradientText'
 import FloatingElements from '../components/ui/FloatingElements'
+import ScrollProgress from '../components/ui/ScrollProgress'
+import ParallaxSection from '../components/ui/ParallaxSection'
 import { motion } from 'framer-motion'
 
 export default function Home() {
@@ -15,6 +17,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-dark-bg relative overflow-hidden">
+      <ScrollProgress />
       <FloatingElements />
       
       {/* Navigation */}

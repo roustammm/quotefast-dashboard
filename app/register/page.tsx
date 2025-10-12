@@ -1,12 +1,16 @@
 'use client'
 import React, { useState } from 'react'
-import { Mail, Lock, UserPlus, User, AlertCircle } from 'lucide-react'
+import { Mail, Lock, UserPlus, User, AlertCircle, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '../../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import PublicNav from '../components/PublicNav'
 import OnboardingWizard from './components/OnboardingWizard'
 import { OnboardingData } from '../../lib/onboarding'
+import { motion } from 'framer-motion'
+import AnimatedCard from '../../components/ui/AnimatedCard'
+import GradientText from '../../components/ui/GradientText'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
@@ -60,14 +64,25 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-dark-bg relative overflow-hidden">
       <PublicNav currentPage="register" />
       <div className="container-app py-24">
-        <div className="w-full max-w-md mx-auto glass-card bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/10 p-10 text-center shadow-2xl">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-brand-text mb-2">Maak een account 🚀</h1>
-            <p className="text-brand-muted">Start je gratis proefperiode van 14 dagen</p>
-          </div>
+        <AnimatedCard className="w-full max-w-md mx-auto">
+          <div className="glass-card-premium rounded-3xl p-10 text-center shadow-2xl">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="mb-8"
+            >
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Sparkles className="w-8 h-8 text-brand-primary" />
+                <h1 className="text-3xl font-bold">
+                  <GradientText>Maak een account</GradientText>
+                </h1>
+              </div>
+              <p className="text-brand-muted">Start je gratis proefperiode van 14 dagen</p>
+            </motion.div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
@@ -134,14 +149,16 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={isLoading}
+              whileHover={{ scale: isLoading ? 1 : 1.02 }}
+              whileTap={{ scale: isLoading ? 1 : 0.98 }}
               className="w-full btn-primary py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" />
                   <span>Account aanmaken...</span>
                 </>
               ) : (
@@ -150,7 +167,7 @@ export default function RegisterPage() {
                   <span>Account aanmaken</span>
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           <div className="mt-8 text-center">
