@@ -1,90 +1,165 @@
 {
   "lm-studio": {
     "server": {
-      "host": "localhost",
+      "host": "127.0.0.1",
       "port": 1234,
-      "endpoint": "http://localhost:1234/v1"
+      "endpoint": "http://127.0.0.1:1234/v1"
     },
     "models": {
-      "deepseek-coder-33b-instruct": {
-        "name": "deepseek-coder-33b-instruct",
-        "description": "Advanced coding model for complex algorithms and system design",
+      "deepseek-r1-distill-qwen-32b": {
+        "name": "deepseek-r1-distill-qwen-32b",
+        "description": "Primary game development model - excellent for game logic, mechanics, and real-time systems",
         "parameters": {
           "temperature": 0.7,
           "max_tokens": 4096,
           "top_p": 0.9,
           "frequency_penalty": 0.1,
           "presence_penalty": 0.1,
-          "stop": ["</code>", "```", "\n\n\n"]
+          "stop": ["</code>", "```", "\n\n\n", "// End of game logic"]
         },
         "specialties": [
-          "code-generation",
-          "debugging",
-          "architecture-design",
+          "game-mechanics",
+          "game-architecture",
           "performance-optimization",
-          "error-analysis"
+          "real-time-systems",
+          "physics-simulation",
+          "ai-behavior",
+          "multiplayer-networking",
+          "memory-management",
+          "rendering-optimization"
+        ],
+        "game-frameworks": [
+          "Unity C#",
+          "Unreal Engine C++",
+          "Godot GDScript",
+          "WebGL JavaScript",
+          "Three.js",
+          "Phaser.js"
         ]
       },
-      "qwen3-4b-thinking-2507": {
-        "name": "qwen/qwen3-4b-thinking-2507",
-        "description": "Thinking model for logical reasoning and step-by-step problem solving",
+      "openai-gpt-oss-20b": {
+        "name": "openai/gpt-oss-20b",
+        "description": "Creative game design model for UI/UX, narrative, and visual design",
         "parameters": {
           "temperature": 0.8,
-          "max_tokens": 2048,
+          "max_tokens": 3072,
           "top_p": 0.95,
           "frequency_penalty": 0.0,
           "presence_penalty": 0.0,
-          "stop": ["</thinking>", "\n\n\n"]
+          "stop": ["</design>", "```", "\n\n\n", "// End of design"]
         },
         "specialties": [
-          "logical-reasoning",
-          "step-by-step-thinking",
-          "problem-decomposition",
-          "creative-solutions",
-          "debugging-strategies"
+          "creative-design",
+          "ui-ux-design",
+          "game-narrative",
+          "level-design",
+          "asset-optimization",
+          "user-experience",
+          "game-balancing",
+          "accessibility"
+        ],
+        "game-types": [
+          "2D-platformer",
+          "3D-first-person",
+          "puzzle-games",
+          "strategy-games",
+          "racing-games",
+          "mobile-games"
+        ]
+      },
+      "text-embedding-nomic-embed-text-v1.5": {
+        "name": "text-embedding-nomic-embed-text-v1.5",
+        "description": "Embedding model for game code similarity and documentation retrieval",
+        "specialties": [
+          "code-similarity",
+          "context-understanding",
+          "semantic-search",
+          "documentation-retrieval",
+          "pattern-matching",
+          "code-recommendations"
         ]
       }
     },
     "collaboration": {
       "enabled": true,
       "workflows": {
-        "coding-session": {
-          "models": ["qwen/qwen3-4b-thinking-2507", "deepseek-coder-33b-instruct"],
+        "game-prototype": {
+          "models": ["deepseek-r1-distill-qwen-32b", "openai/gpt-oss-20b"],
           "flow": [
             {
-              "model": "qwen/qwen3-4b-thinking-2507",
-              "role": "analyzer",
-              "prompt": "Let's think through this problem step by step..."
+              "model": "deepseek-r1-distill-qwen-32b",
+              "role": "game-architect",
+              "prompt": "Let's design the game architecture, core mechanics, and technical implementation..."
             },
             {
-              "model": "deepseek-coder-33b-instruct", 
+              "model": "openai/gpt-oss-20b",
+              "role": "game-designer",
+              "prompt": "Let's create the visual design, user experience, and game feel..."
+            }
+          ]
+        },
+        "performance-optimization": {
+          "models": ["deepseek-r1-distill-qwen-32b"],
+          "flow": [
+            {
+              "model": "deepseek-r1-distill-qwen-32b",
+              "role": "performance-engineer",
+              "prompt": "Let's analyze and optimize this game code for performance, memory usage, and frame rate..."
+            }
+          ]
+        },
+        "game-bug-fixing": {
+          "models": ["deepseek-r1-distill-qwen-32b", "openai/gpt-oss-20b"],
+          "flow": [
+            {
+              "model": "deepseek-r1-distill-qwen-32b",
+              "role": "debugger",
+              "prompt": "Let's identify and fix the bugs in this game code, focusing on gameplay issues..."
+            },
+            {
+              "model": "openai/gpt-oss-20b",
+              "role": "tester",
+              "prompt": "Let's create test cases and edge cases to prevent similar gameplay issues..."
+            }
+          ]
+        },
+        "game-mechanics-design": {
+          "models": ["openai/gpt-oss-20b", "deepseek-r1-distill-qwen-32b"],
+          "flow": [
+            {
+              "model": "openai/gpt-oss-20b",
+              "role": "game-designer",
+              "prompt": "Let's brainstorm creative game mechanics and player interactions..."
+            },
+            {
+              "model": "deepseek-r1-distill-qwen-32b",
               "role": "implementer",
-              "prompt": "Based on the analysis, let's implement the solution..."
+              "prompt": "Let's implement these game mechanics with clean, performant code..."
             }
           ]
         },
-        "debugging-session": {
-          "models": ["deepseek-coder-33b-instruct", "qwen/qwen3-4b-thinking-2507"],
+        "multiplayer-networking": {
+          "models": ["deepseek-r1-distill-qwen-32b"],
           "flow": [
             {
-              "model": "deepseek-coder-33b-instruct",
-              "role": "detector",
-              "prompt": "Let's identify the issues in this code..."
+              "model": "deepseek-r1-distill-qwen-32b",
+              "role": "network-engineer",
+              "prompt": "Let's design and implement multiplayer networking, synchronization, and anti-cheat systems..."
+            }
+          ]
+        },
+        "ai-behavior-design": {
+          "models": ["openai/gpt-oss-20b", "deepseek-r1-distill-qwen-32b"],
+          "flow": [
+            {
+              "model": "openai/gpt-oss-20b",
+              "role": "ai-designer",
+              "prompt": "Let's design engaging AI behaviors and enemy patterns..."
             },
             {
-              "model": "qwen/qwen3-4b-thinking-2507",
-              "role": "analyzer", 
-              "prompt": "Let's analyze the root cause of these issues..."
-            }
-          ]
-        },
-        "ideation-session": {
-          "models": ["qwen/qwen3-4b-thinking-2507"],
-          "flow": [
-            {
-              "model": "qwen/qwen3-4b-thinking-2507",
-              "role": "creative-thinker",
-              "prompt": "Let's brainstorm creative solutions and think outside the box..."
+              "model": "deepseek-r1-distill-qwen-32b",
+              "role": "ai-programmer",
+              "prompt": "Let's implement these AI behaviors with state machines and decision trees..."
             }
           ]
         }
@@ -110,3 +185,5 @@
     }
   }
 }
+
+
