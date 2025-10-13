@@ -38,8 +38,9 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const publicPaths = ['/', '/login', '/register', '/auth/callback', '/features', '/pricing'];
-  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname.startsWith(path));
+  const publicPaths = ['/login', '/register', '/auth/callback', '/features', '/pricing'];
+  const isRootPath = request.nextUrl.pathname === '/';
+  const isPublicPath = isRootPath || publicPaths.some(path => request.nextUrl.pathname.startsWith(path));
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
 
   // if user is signed in and trying to access a public path (like login), redirect to dashboard

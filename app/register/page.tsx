@@ -27,7 +27,20 @@ export default function RegisterPage() {
     setError('')
 
     try {
-      await register(form.email, form.password, form.name)
+      const result = await register(form.email, form.password, form.name)
+
+      if (result.status === 202) {
+        // E-mailbevestiging vereist - toon informatief bericht
+        setError('Registratie gestart. Controleer je e-mail om je account te activeren.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (result.error) {
+        throw new Error(result.error)
+      }
+
+      // Succes — toon onboarding
       setShowOnboarding(true)
     } catch (err: any) {
       setError(err.message || 'Er is een fout opgetreden bij het aanmaken van je account')

@@ -4,15 +4,15 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useRouter } from 'next/navigation' // Importeren
 import { createClient } from '@/lib/supabase/client' // Directe import
 import { User } from '../types/user'
-import { authService } from '@/lib/auth-service' // Correct pad
+import { authService, AuthResponse } from '@/lib/auth-service' // Correct pad
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, name: string, company?: string) => Promise<void>
+  register: (email: string, password: string, name: string, company?: string) => Promise<AuthResponse>
   logout: () => Promise<void> // Maak logout async
-  updateUser: (userData: Partial<User>) => void
+  updateUser: (userData: Partial<User>) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -26,36 +26,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter() // Router hook
 
   useEffect(() => {
-    const getAuthenticatedUser = async () => {
-      setLoading(true)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { user: appUser } = await authService.getCurrentUser();
-        setUser(appUser);
-      }
-      setLoading(false)
-    }
-
-    getAuthenticatedUser();
+    setLoading(true);
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          const { user: appUser } = await authService.getCurrentUser();
-          setUser(appUser);
-          router.push('/dashboard') // Redirect na login
+        let appUser: User | null = null;
+        if (session?.user) {
+          // Als er een sessie is, haal het volledige gebruikersprofiel op.
+          // Dit is een goed moment om je eigen `authService` te gebruiken als die extra logica bevat.
+          const { user: profile } = await authService.getCurrentUser();
+          appUser = profile;
         }
-        if (event === 'SIGNED_OUT') {
-          setUser(null)
-          router.push('/') // Redirect na logout
+        
+        setUser(appUser);
+        setLoading(false);
+
+        // Optionele redirects op basis van auth event
+        if (event === 'SIGNED_IN') {
+          // router.push('/dashboard'); // Overweeg of dit gewenst is
+        } else if (event === 'SIGNED_OUT') {
+          // router.push('/');
         }
       }
-    )
+    );
 
     return () => {
-      authListener.subscription.unsubscribe()
-    }
-  }, [router])
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   // Login functie
   const login = async (email: string, password: string) => {
@@ -68,13 +66,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Registratie functie
-  const register = async (email: string, password: string, name: string, company?: string) => {
-    const { user, error } = await authService.register(email, password, name, company);
-    if (error) throw new Error(error);
-    if (user) {
-      setUser(user);
+  const register = async (email: string, password: string, name: string, company?: string): Promise<AuthResponse> => {
+    const result = await authService.register(email, password, name, company);
+
+    // Als registratie een gebruiker teruggeeft, stel die in
+    if (result.user) {
+      setUser(result.user);
     }
-    router.refresh(); // Server state vernieuwen
+
+    // router.refresh voor server state; laat de caller beslissen bij 202 (email confirm)
+    router.refresh();
+
+    return result;
   }
 
   // Uitlog functie

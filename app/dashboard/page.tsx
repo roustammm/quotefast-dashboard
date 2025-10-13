@@ -8,7 +8,6 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { customersApi, invoicesApi } from "../../lib/api-service";
 import { DashboardData, DashboardCardProps, Invoice } from "../../types/dashboard";
 import { motion } from "framer-motion";
-import AnimatedCard from "../../components/ui/AnimatedCard";
 import GradientText from "../../components/ui/GradientText";
 
 const AiSphere = () => (
@@ -177,60 +176,44 @@ export default function DashboardPage() {
         </motion.p>
       </motion.div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.5 }}
-        className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-7xl mb-10"
-      >
-        <AnimatedCard delay={0.1}>
-          <EnhancedGlassCard 
-            icon={<FileText className="h-8 w-8 text-blue-400" />} 
-            title="Verstuurde Offertes" 
-            value={data.offersSent} 
-            description="Totaal aantal" 
-            trend="+12% deze maand"
-            color="blue"
-            href="/dashboard/offertes"
-          />
-        </AnimatedCard>
-        
-        <AnimatedCard delay={0.2}>
-          <EnhancedGlassCard 
-            icon={<Euro className="h-8 w-8 text-emerald-400" />} 
-            title="Gem. Offerte Waarde" 
-            value={data.avgOfferValue} 
-            description="Laatste 30 dagen" 
-            trend="+8% vs vorige maand"
-            color="emerald"
-            href="/dashboard/financials"
-          />
-        </AnimatedCard>
-        
-        <AnimatedCard delay={0.3}>
-          <EnhancedGlassCard 
-            icon={<Users className="h-8 w-8 text-purple-400" />} 
-            title="Actieve Klanten" 
-            value={data.activeCustomers} 
-            description="Leads en contacten" 
-            trend="+15 nieuwe deze week"
-            color="purple"
-            href="/dashboard/contactpersoon"
-          />
-        </AnimatedCard>
-        
-        <AnimatedCard delay={0.4}>
-          <EnhancedGlassCard 
-            icon={<Zap className="h-8 w-8 text-amber-400" />} 
-            title="AI Generaties" 
-            value={data.aiGenerations} 
-            description="Slimme content" 
-            trend="+3 vandaag"
-            color="amber"
-            href="/dashboard/ai-tools"
-          />
-        </AnimatedCard>
-      </motion.div>
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl mb-10">
+        <DashboardCard 
+          icon={<FileText className="h-6 w-6 text-blue-400" />} 
+          title="Verstuurde Offertes" 
+          value={data.offersSent} 
+          description="Totaal aantal" 
+          growth="+12% deze maand"
+          trend="up"
+          delay={100}
+        />
+        <DashboardCard 
+          icon={<Euro className="h-6 w-6 text-emerald-400" />} 
+          title="Gem. Offerte Waarde" 
+          value={data.avgOfferValue} 
+          description="Laatste 30 dagen" 
+          growth="+8% vs vorige maand"
+          trend="up"
+          delay={200}
+        />
+        <DashboardCard 
+          icon={<Users className="h-6 w-6 text-purple-400" />} 
+          title="Actieve Klanten" 
+          value={data.activeCustomers} 
+          description="Leads en contacten" 
+          growth="+15 nieuwe deze week"
+          trend="up"
+          delay={300}
+        />
+        <DashboardCard 
+          icon={<Zap className="h-6 w-6 text-amber-400" />} 
+          title="AI Generaties" 
+          value={data.aiGenerations} 
+          description="Slimme content" 
+          growth="+3 vandaag"
+          trend="up"
+          delay={400}
+        />
+      </div>
 
       <div className="relative z-10 flex flex-col sm:flex-row gap-4 items-center">
         <Link

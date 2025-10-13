@@ -12,6 +12,15 @@ export interface AuthResponse {
 }
 
 // Authenticatie service met verbeterde error handling en sessie management
+
+export const authServiceConfig = {
+  pollIntervalMs: 2000,
+  maxPollAttempts: 6,
+  initialProfileWaitMs: 1000,
+  getOrCreateProfileWaitMs: 2000
+}
+
+// Registreren van een nieuwe gebruiker
 export const authService = {
   // Inloggen met email en wachtwoord
   login: async (email: string, password: string): Promise<AuthResponse> => {
@@ -93,7 +102,6 @@ export const authService = {
     }
   },
 
-  // Registreren van een nieuwe gebruiker
   register: async (email: string, password: string, name: string, company?: string): Promise<AuthResponse> => {
     try {
       // Validatie
@@ -136,19 +144,52 @@ export const authService = {
         };
       }
 
-      if (!data.user) {
-        return {
-          user: null,
-          error: 'Registratie mislukt. Probeer het later opnieuw.',
-          status: 500
-        };
+
+      // Als Supabase e-mailbevestiging vereist, bevat de response soms geen `user`.
+      // We proberen in dat geval het profiel op te halen via de `profiles` tabel (fallback)
+      let userId: string | undefined = data.user?.id;
+
+      if (!userId) {
+        logger.info('No user returned from signUp response; attempting to find profile by email', 'auth');
+
+          // Poll kort voor het aanmaken van het profiel door DB-trigger
+          const maxAttempts = authServiceConfig.maxPollAttempts;
+          for (let attempt = 0; attempt < maxAttempts && !userId; attempt++) {
+            const { data: profileByEmail, error: profileError } = await (supabase as any)
+              .from('profiles')
+              .select('*')
+              .eq('email', email)
+              .maybeSingle();
+
+          if (profileError) {
+            // bij tijdelijke fouten: wacht en retry
+            logger.info(`Profile lookup error (attempt ${attempt + 1}): ${profileError.message || profileError}`, 'auth');
+          }
+
+          if (profileByEmail && profileByEmail.id) {
+            userId = profileByEmail.id;
+            break;
+          }
+
+          // Wacht tussen pogingen
+          await new Promise(resolve => setTimeout(resolve, authServiceConfig.pollIntervalMs));
+        }
+
+        // Als we na polling nog geen userId hebben, vraag gebruiker te bevestigen via e-mail
+        if (!userId) {
+          return {
+            user: null,
+            error: 'Registratie succesvol gestart — controleer je e-mail om je account te activeren.',
+            status: 202
+          };
+        }
       }
 
-      // Wacht even voor de database trigger (nu langer omdat we niet meer handmatig aanmaken)
-      await new Promise(resolve => setTimeout(resolve, 3000));
+  // Wacht even voor de database trigger (nu langer omdat we niet meer handmatig aanmaken)
+  await new Promise(resolve => setTimeout(resolve, authServiceConfig.initialProfileWaitMs));
 
       // Probeer het profiel op te halen of aan te maken
-      const userData = await authService.getOrCreateUserProfile(data.user.id, data.user.email || '', { full_name: name, company_name: company });
+  const userData = await authService.getOrCreateUserProfile(userId, data.user?.email || email, { full_name: name, company_name: company });
 
       if (!userData) {
         return {
@@ -160,8 +201,8 @@ export const authService = {
 
       // Stel gebruiker samen
       const user: User = {
-        id: data.user.id,
-        email: data.user.email || '',
+        id: userId,
+        email: data.user?.email || email,
         name,
         company
       };
@@ -185,7 +226,7 @@ export const authService = {
   getOrCreateUserProfile: async (userId: string, email: string, metadata?: any) => {
     try {
       // Wacht even voor de database trigger om het profile aan te maken
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, authServiceConfig.getOrCreateProfileWaitMs));
       
       // Probeer het profiel op te halen (trigger zou het moeten hebben aangemaakt)
       const { data: userData, error: userError } = await (supabase as any)
@@ -197,23 +238,59 @@ export const authService = {
       if (userError) {
         console.error('User data fetch error:', userError);
         
-        // Als het profiel nog steeds niet bestaat na de trigger, wacht langer en probeer opnieuw
+        // Als het profiel nog steeds niet bestaat na de trigger, probeer meerdere keren
         if (userError.code === 'PGRST116') {
-          logger.info('Profile not found, waiting for trigger...', 'auth');
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          logger.info('Profile not found, attempting manual creation...', 'auth');
           
-          const { data: retryData, error: retryError } = await (supabase as any)
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
+          // Probeer handmatig profiel aan te maken via RPC functie
+          const { data: createResult, error: createError } = await (supabase as any)
+            .rpc('create_user_profile', {
+              user_id: userId,
+              user_email: email,
+              user_name: metadata?.full_name || metadata?.name,
+              user_company: metadata?.company_name
+            });
+          
+          if (createError) {
+            console.error('Manual profile creation failed:', createError);
             
-          if (retryError) {
-            console.error('Profile still not found after trigger wait:', retryError);
-            return null;
+            // Als RPC faalt, probeer directe insert als laatste redmiddel
+            const { data: directInsertData, error: directInsertError } = await (supabase as any)
+              .from('profiles')
+              .insert({
+                id: userId,
+                email: email,
+                full_name: metadata?.full_name || metadata?.name || 'User',
+                company_name: metadata?.company_name,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .select()
+              .single();
+            
+            if (directInsertError) {
+              console.error('Direct profile insert failed:', directInsertError);
+              return null;
+            }
+            
+            return directInsertData;
           }
           
-          return retryData;
+          // Haal het zojuist aangemaakte profiel op
+          if (createResult) {
+            const { data: newProfileData, error: newProfileError } = await (supabase as any)
+              .from('profiles')
+              .select('*')
+              .eq('id', userId)
+              .single();
+            
+            if (newProfileError) {
+              console.error('Failed to fetch newly created profile:', newProfileError);
+              return null;
+            }
+            
+            return newProfileData;
+          }
         }
         
         return null;
