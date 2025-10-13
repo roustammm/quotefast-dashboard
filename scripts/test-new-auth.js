@@ -59,7 +59,7 @@ async function testConnection() {
 async function testAuth() {
     console.log('\n2️⃣ Testing authentication methods...');
     
-    const testEmail = `test-${Date.now()}@example.com`;
+    const testEmail = `testuser${Date.now()}@gmail.com`;
     const testPassword = 'TestPassword123!';
     const testName = 'Test User';
     
