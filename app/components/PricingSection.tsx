@@ -86,15 +86,15 @@ export default function PricingSection() {
         {plans.map((plan, index) => (
           <div 
             key={index} 
-            className={`relative glass-card rounded-xl p-8 border transition-colors ${
-              plan.popular 
-                ? 'border-blue-500/50 ring-2 ring-blue-500/20' 
-                : 'border-white/10 hover:border-white/20'
+            className={`relative glass-card rounded-xl p-8 border transition-all duration-300 hover:scale-105 ${
+              plan.popular
+                ? 'border-green-500/50 ring-2 ring-green-500/20 bg-green-500/10'
+                : 'border-white/10 hover:border-green-400/30 hover:bg-green-500/5'
             } backdrop-blur-2xl`}
           >
             {plan.popular && (
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1 rounded-full text-sm font-medium">
                   Meest populair
                 </span>
               </div>

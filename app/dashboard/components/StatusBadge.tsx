@@ -1,5 +1,6 @@
 "use client";
 import { useTheme } from '../../../contexts/ThemeContext';
+import { motion } from 'framer-motion';
 
 interface StatusBadgeProps {
   status: 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled' | 'draft' | 'sent' | 'accepted' | 'rejected' | 'paid' | 'unpaid' | 'overdue' | 'online' | 'offline' | 'away';
@@ -76,11 +77,29 @@ export default function StatusBadge({
   };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full font-medium ${sizeClasses[size]} ${config.bgColor} ${config.textColor} ${className}`}>
+    <motion.span 
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className={`inline-flex items-center gap-2 rounded-full font-semibold backdrop-blur-xl transition-all duration-300 ${sizeClasses[size]} ${config.bgColor} ${config.textColor} ${className}`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
       {showDot && (
-        <div className={`w-2 h-2 rounded-full ${config.dotColor}`} />
+        <motion.div 
+          className={`w-2 h-2 rounded-full ${config.dotColor}`}
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.7, 1, 0.7]
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
       )}
       {config.text}
-    </span>
+    </motion.span>
   );
 }

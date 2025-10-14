@@ -124,3 +124,18 @@ kilo-code-mcp-config*.json
 
 # Scripts config
 scripts/config/
+
+# Spec Kit
+.specify/
+specs/
+memory/
+scripts/bash/
+scripts/powershell/
+templates/
+AGENTS.md
+spec-driven.md
+
+
+# Spec Kit
+.specify/
+

@@ -3,6 +3,7 @@ import { memo, useState, useCallback, useMemo } from 'react';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { ChevronUp, ChevronDown, MoreHorizontal, CheckSquare, Square } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Column {
   key: string;
@@ -118,62 +119,109 @@ function DataTable({
 
   if (data.length === 0) {
     return (
-      <div className={`rounded-lg border ${isDark ? 'bg-gray-800/50 border-gray-700/30' : 'bg-white border-gray-200'}`}>
-        <div className="p-8 text-center">
-          <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{emptyMessage}</p>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={`rounded-2xl border backdrop-blur-xl transition-all duration-300 ${
+          isDark 
+            ? 'bg-white/10 border-white/20' 
+            : 'bg-gray-50/90 border-gray-400/60 shadow-lg'
+        }`}
+      >
+        <div className="p-12 text-center">
+          <motion.p 
+            initial={{ y: 20 }}
+            animate={{ y: 0 }}
+            transition={{ delay: 0.2 }}
+            className={`text-lg font-medium ${
+              isDark ? 'text-gray-300' : 'text-gray-600'
+            }`}
+          >
+            {emptyMessage}
+          </motion.p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className={`rounded-lg border ${isDark ? 'bg-gray-800/50 border-gray-700/30' : 'bg-white border-gray-200'} ${className}`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`rounded-2xl border backdrop-blur-xl transition-all duration-300 ${className} ${
+        isDark 
+          ? 'bg-white/10 border-white/20 hover:bg-white/15' 
+          : 'bg-gray-50/90 border-gray-400/60 hover:bg-gray-100/90 shadow-lg'
+      }`}
+    >
       {/* Bulk Actions */}
-      {selectable && selectedRows.size > 0 && bulkActions.length > 0 && (
-        <div className={`px-4 py-3 border-b ${isDark ? 'border-gray-700/30 bg-gray-800/30' : 'border-gray-200 bg-gray-50'}`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              {selectedRows.size} item(s) geselecteerd
-            </span>
-            <div className="flex items-center gap-2">
-              {bulkActions.map((action, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleBulkAction(action.action)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
-                    isDark
-                      ? 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-300'
-                      : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                  }`}
-                >
-                  {action.icon}
-                  {action.label}
-                </button>
-              ))}
+      <AnimatePresence>
+        {selectable && selectedRows.size > 0 && bulkActions.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`px-6 py-4 border-b backdrop-blur-xl transition-all duration-300 ${
+              isDark 
+                ? 'border-white/20 bg-white/5' 
+                : 'border-gray-400/60 bg-gray-100/50'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className={`text-sm font-medium ${
+                isDark ? 'text-gray-200' : 'text-gray-700'
+              }`}>
+                {selectedRows.size} item(s) geselecteerd
+              </span>
+              <div className="flex items-center gap-2">
+                {bulkActions.map((action, index) => (
+                  <motion.button
+                    key={index}
+                    onClick={() => handleBulkAction(action.action)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-300 modern-glass-button ${
+                      isDark
+                        ? 'bg-blue-600/80 hover:bg-blue-600 text-white border-blue-500/30'
+                        : 'bg-blue-600/90 hover:bg-blue-700 text-white shadow-lg'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {action.icon}
+                    {action.label}
+                  </motion.button>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead>
-            <tr className={`border-b ${isDark ? 'border-gray-700/30' : 'border-gray-200'}`}>
+          <thead className={`border-b backdrop-blur-xl ${
+            isDark 
+              ? 'border-white/20 bg-white/5' 
+              : 'border-gray-400/60 bg-gray-100/50'
+          }`}>
+            <tr>
               {selectable && (
-                <th className="px-4 py-3 text-left">
-                  <button
+                <th className="px-4 py-4 text-left">
+                  <motion.button
                     onClick={handleSelectAll}
-                    className={`p-1 rounded transition-colors ${
-                      isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark ? 'hover:bg-white/10' : 'hover:bg-gray-200/50'
                     }`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     {selectedRows.size === data.length ? (
                       <CheckSquare className="w-4 h-4 text-blue-500" />
                     ) : (
                       <Square className="w-4 h-4 text-gray-400" />
                     )}
-                  </button>
+                  </motion.button>
                 </th>
               )}
               {columns.map((column) => (
@@ -213,63 +261,74 @@ function DataTable({
             </tr>
           </thead>
           <tbody>
-            {data.map((row, index) => (
-              <tr
-                key={index}
-                onClick={() => onRowClick?.(row)}
-                className={`border-b transition-colors ${
-                  isDark 
-                    ? 'border-gray-700/20 hover:bg-gray-700/30' 
-                    : 'border-gray-200 hover:bg-gray-50'
-                } ${onRowClick ? 'cursor-pointer' : ''}`}
-              >
-                {selectable && (
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectRow(index.toString());
-                      }}
-                      className={`p-1 rounded transition-colors ${
-                        isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'
+            <AnimatePresence>
+              {data.map((row, index) => (
+                <motion.tr
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ delay: index * 0.05 }}
+                  onClick={() => onRowClick?.(row)}
+                  className={`border-b transition-all duration-300 group ${
+                    isDark 
+                      ? 'border-white/10 hover:bg-white/5' 
+                      : 'border-gray-400/30 hover:bg-gray-100/50'
+                  } ${onRowClick ? 'cursor-pointer' : ''}`}
+                  whileHover={{ x: 4 }}
+                >
+                  {selectable && (
+                    <td className="px-4 py-4">
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectRow(index.toString());
+                        }}
+                        className={`p-2 rounded-lg transition-all duration-300 ${
+                          isDark ? 'hover:bg-white/10' : 'hover:bg-gray-200/50'
+                        }`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {selectedRows.has(index.toString()) ? (
+                          <CheckSquare className="w-4 h-4 text-blue-500" />
+                        ) : (
+                          <Square className="w-4 h-4 text-gray-400" />
+                        )}
+                      </motion.button>
+                    </td>
+                  )}
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      className={`px-4 py-4 text-sm transition-colors duration-300 ${
+                        isDark ? 'text-gray-300 group-hover:text-white' : 'text-gray-700 group-hover:text-gray-900'
                       }`}
                     >
-                      {selectedRows.has(index.toString()) ? (
-                        <CheckSquare className="w-4 h-4 text-blue-500" />
-                      ) : (
-                        <Square className="w-4 h-4 text-gray-400" />
-                      )}
-                    </button>
+                      {renderCell(column, row, row[column.key])}
+                    </td>
+                  ))}
+                  <td className="px-4 py-4 text-right">
+                    <motion.button
+                      onClick={(e) => e.stopPropagation()}
+                      className={`p-2 rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-100 ${
+                        isDark ? 'hover:bg-white/10' : 'hover:bg-gray-200/50'
+                      }`}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      aria-label="Meer opties"
+                      title="Meer opties"
+                    >
+                      <MoreHorizontal className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                    </motion.button>
                   </td>
-                )}
-                {columns.map((column) => (
-                  <td
-                    key={column.key}
-                    className={`px-4 py-3 ${
-                      isDark ? 'text-gray-300' : 'text-gray-700'
-                    }`}
-                  >
-                    {renderCell(column, row, row[column.key])}
-                  </td>
-                ))}
-                <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={(e) => e.stopPropagation()}
-                    className={`p-1 rounded transition-colors ${
-                      isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'
-                    }`}
-                    aria-label="Meer opties"
-                    title="Meer opties"
-                  >
-                    <MoreHorizontal className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                </motion.tr>
+              ))}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

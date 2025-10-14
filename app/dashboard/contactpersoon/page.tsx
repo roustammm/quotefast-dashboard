@@ -22,17 +22,17 @@ export default function ContactpersoonPage() {
         <DashboardCard title="Actieve Contacten" value={89} />
       </div>
       
-      <div className={`backdrop-blur-xl rounded-2xl border p-6 ${
+      <div className={`backdrop-blur-xl rounded-2xl border p-6 transition-all duration-300 ${
         theme === "dark"
-          ? "bg-card/80 border-border shadow-sm"
-          : "bg-card/90 border-border shadow-md"
+          ? "bg-white/10 border-white/20 hover:bg-white/15"
+          : "bg-gray-50/90 border-gray-400/60 hover:bg-gray-100/90 shadow-md"
       }`}>
         <h2 className={`text-lg font-semibold mb-4 ${
           theme === "dark" ? "text-white" : "text-gray-900"
         }`}>Recent Toegevoegde Contacten</h2>
         <div className="space-y-3">
-          <div className={`flex items-center justify-between p-3 rounded-xl ${
-            theme === "dark" ? "bg-white/5" : "bg-gray-100/50"
+          <div className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
+            theme === "dark" ? "bg-white/5 hover:bg-white/10" : "bg-gray-100/50 hover:bg-gray-200/60"
           }`}>
             <div>
               <p className={`font-medium ${
@@ -42,10 +42,12 @@ export default function ContactpersoonPage() {
                 theme === "dark" ? "text-gray-400" : "text-gray-600"
               }`}>jan@example.com</p>
             </div>
-            <span className="text-xs text-emerald-400">2 dagen geleden</span>
+            <span className={`text-xs ${
+              theme === "dark" ? "text-emerald-400" : "text-emerald-600"
+            }`}>2 dagen geleden</span>
           </div>
-          <div className={`flex items-center justify-between p-3 rounded-xl ${
-            theme === "dark" ? "bg-white/5" : "bg-gray-100/50"
+          <div className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
+            theme === "dark" ? "bg-white/5 hover:bg-white/10" : "bg-gray-100/50 hover:bg-gray-200/60"
           }`}>
             <div>
               <p className={`font-medium ${

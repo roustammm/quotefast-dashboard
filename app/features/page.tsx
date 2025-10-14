@@ -4,22 +4,22 @@ import Link from 'next/link'
 import PublicNav from '../components/PublicNav'
 import PublicFooter from '../components/PublicFooter'
 import {
-  CpuChipIcon,
-  BoltIcon,
-  DocumentTextIcon,
-  ChartBarIcon,
-  CurrencyEuroIcon,
-  ClockIcon,
-  ShieldCheckIcon,
-  CogIcon,
-  UserGroupIcon,
-  CloudIcon,
-} from '@heroicons/react/24/outline'
+  Cpu,
+  Zap,
+  FileText,
+  BarChart3,
+  Euro,
+  Clock,
+  Shield,
+  Settings,
+  Users,
+  Cloud,
+} from 'lucide-react'
 
 export default function FeaturesPage() {
   const features = [
     {
-      icon: <CpuChipIcon className="w-8 h-8 text-blue-400" />,
+      icon: <Cpu className="w-8 h-8 text-green-400" />,
       title: 'AI Offertes',
       description: 'Genereer professionele offertes in minuten met intelligente AI-suggesties op basis van klantdata en historie.',
       benefits: [
@@ -30,7 +30,7 @@ export default function FeaturesPage() {
       ]
     },
     {
-      icon: <BoltIcon className="w-8 h-8 text-purple-400" />,
+      icon: <Zap className="w-8 h-8 text-purple-400" />,
       title: 'Workflow Automatisatie',
       description: 'Laat repetitieve taken automatisch verlopen met slimme workflows en triggers.',
       benefits: [
@@ -41,7 +41,7 @@ export default function FeaturesPage() {
       ]
     },
     {
-      icon: <DocumentTextIcon className="w-8 h-8 text-green-400" />,
+      icon: <FileText className="w-8 h-8 text-green-400" />,
       title: 'Facturen & Betalingen',
       description: 'Maak en verstuur facturen in seconden. Volg betalingen real-time met SEPA-integratie.',
       benefits: [
@@ -52,7 +52,7 @@ export default function FeaturesPage() {
       ]
     },
     {
-      icon: <ChartBarIcon className="w-8 h-8 text-orange-400" />,
+      icon: <BarChart3 className="w-8 h-8 text-orange-400" />,
       title: 'Analytics & Rapportage',
       description: 'Krijg inzicht in je bedrijfsprestaties met uitgebreide analytics en rapporten.',
       benefits: [
@@ -63,7 +63,7 @@ export default function FeaturesPage() {
       ]
     },
     {
-      icon: <UserGroupIcon className="w-8 h-8 text-pink-400" />,
+      icon: <Users className="w-8 h-8 text-pink-400" />,
       title: 'CRM & Klantbeheer',
       description: 'Beheer je klanten en leads efficiënt met een geïntegreerd CRM systeem.',
       benefits: [
@@ -74,7 +74,7 @@ export default function FeaturesPage() {
       ]
     },
     {
-      icon: <ShieldCheckIcon className="w-8 h-8 text-indigo-400" />,
+      icon: <Shield className="w-8 h-8 text-indigo-400" />,
       title: 'Beveiliging & Compliance',
       description: 'Enterprise-grade beveiliging met volledige GDPR compliance en data bescherming.',
       benefits: [

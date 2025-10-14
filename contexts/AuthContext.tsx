@@ -1,118 +1,146 @@
+/* Simplified AuthContext without Supabase dependencies */
+
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useRouter } from 'next/navigation' // Importeren
-import { createClient } from '@/lib/supabase/client' // Directe import
-import { User } from '../types/user'
-import { authService, AuthResponse } from '@/lib/auth-service' // Correct pad
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 
-interface AuthContextType {
+type User = {
+  id: string
+  email: string
+  full_name: string | null
+  avatar_url: string | null
+}
+
+type AuthContextType = {
   user: User | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, name: string, company?: string) => Promise<AuthResponse>
-  logout: () => Promise<void> // Maak logout async
-  updateUser: (userData: Partial<User>) => Promise<void>
+  signIn: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, fullName: string) => Promise<void>
+  signOut: () => Promise<void>
+  updateProfile: (updates: Partial<User>) => Promise<void>
+  isAuthenticated: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Supabase client hier aanmaken
-const supabase = createClient();
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const router = useRouter() // Router hook
+  const router = useRouter()
 
+  // Initialize auth state (simplified)
   useEffect(() => {
-    setLoading(true);
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        let appUser: User | null = null;
-        if (session?.user) {
-          // Als er een sessie is, haal het volledige gebruikersprofiel op.
-          // Dit is een goed moment om je eigen `authService` te gebruiken als die extra logica bevat.
-          const { user: profile } = await authService.getCurrentUser();
-          appUser = profile;
+    const initAuth = async () => {
+      try {
+        setLoading(true)
+        // Simple mock auth - check localStorage for user
+        const savedUser = localStorage.getItem('user')
+        if (savedUser) {
+          setUser(JSON.parse(savedUser))
         }
-        
-        setUser(appUser);
-        setLoading(false);
-
-        // Optionele redirects op basis van auth event
-        if (event === 'SIGNED_IN') {
-          // router.push('/dashboard'); // Overweeg of dit gewenst is
-        } else if (event === 'SIGNED_OUT') {
-          // router.push('/');
-        }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+      } finally {
+        setLoading(false)
       }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-  // Login functie
-  const login = async (email: string, password: string) => {
-    const { user, error } = await authService.login(email, password);
-    if (error) throw new Error(error);
-    if (user) {
-      setUser(user);
-    }
-    router.refresh(); // Server state vernieuwen
-  }
-
-  // Registratie functie
-  const register = async (email: string, password: string, name: string, company?: string): Promise<AuthResponse> => {
-    const result = await authService.register(email, password, name, company);
-
-    // Als registratie een gebruiker teruggeeft, stel die in
-    if (result.user) {
-      setUser(result.user);
     }
 
-    // router.refresh voor server state; laat de caller beslissen bij 202 (email confirm)
-    router.refresh();
+    initAuth()
+  }, [])
 
-    return result;
-  }
-
-  // Uitlog functie
-  const logout = async () => {
-    const { error } = await authService.logout();
-    if (error) throw new Error(error);
-    setUser(null);
-    router.refresh(); // Server state vernieuwen
-  }
-
-  // Gebruiker bijwerken
-  const updateUser = async (userData: Partial<User>) => {
-    if (!user) return
-    
-    setLoading(true)
-    const { user: updatedUser, error } = await authService.updateUser(user.id, userData)
-    
-    if (error) {
+  // Sign in function
+  const signIn = async (email: string, password: string) => {
+    try {
+      setLoading(true)
+      // Mock authentication
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const mockUser: User = {
+        id: 'user123',
+        email,
+        full_name: 'Test User',
+        avatar_url: null
+      }
+      
+      setUser(mockUser)
+      localStorage.setItem('user', JSON.stringify(mockUser))
+      toast.success('Succesvol ingelogd!')
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Sign in error:', error)
+      toast.error('Fout bij inloggen')
+    } finally {
       setLoading(false)
-      throw new Error(error)
     }
-    
-    setUser(updatedUser)
-    router.refresh() // Server state vernieuwen
-    setLoading(false)
   }
 
-  // Context waarde
-  const value = {
+  // Sign up function
+  const signUp = async (email: string, password: string, fullName: string) => {
+    try {
+      setLoading(true)
+      // Mock registration
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const mockUser: User = {
+        id: 'user123',
+        email,
+        full_name: fullName,
+        avatar_url: null
+      }
+      
+      setUser(mockUser)
+      localStorage.setItem('user', JSON.stringify(mockUser))
+      toast.success('Account succesvol aangemaakt!')
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Sign up error:', error)
+      toast.error('Fout bij registreren')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Sign out function
+  const signOut = async () => {
+    try {
+      setLoading(true)
+      setUser(null)
+      localStorage.removeItem('user')
+      toast.success('Succesvol uitgelogd!')
+      router.push('/')
+    } catch (error) {
+      console.error('Sign out error:', error)
+      toast.error('Fout bij uitloggen')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Update profile function
+  const updateProfile = async (updates: Partial<User>) => {
+    try {
+      if (!user) return
+      
+      const updatedUser = { ...user, ...updates }
+      setUser(updatedUser)
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      toast.success('Profiel bijgewerkt!')
+    } catch (error) {
+      console.error('Update profile error:', error)
+      toast.error('Fout bij bijwerken profiel')
+    }
+  }
+
+  const value: AuthContextType = {
     user,
     loading,
-    login,
-    register,
-    logout,
-    updateUser
+    signIn,
+    signUp,
+    signOut,
+    updateProfile,
+    isAuthenticated: !!user
   }
 
   return (
@@ -122,7 +150,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
-// Hook om de auth context te gebruiken
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {
@@ -130,4 +157,3 @@ export const useAuth = () => {
   }
   return context
 }
-

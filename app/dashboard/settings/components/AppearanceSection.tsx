@@ -28,7 +28,13 @@ export default function AppearanceSection() {
   }, [appearanceSettings, theme]);
 
   const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
-    setTheme(newTheme);
+    if (newTheme === 'system') {
+      // Handle system theme
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    } else {
+      setTheme(newTheme);
+    }
     setLocalSettings(prev => {
       const newSettings = { ...prev, theme: newTheme };
       setHasChanges(JSON.stringify(newSettings) !== JSON.stringify(appearanceSettings));

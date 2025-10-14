@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Mail, Lock, UserPlus, User, AlertCircle, Sparkles } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../providers'
 import { useRouter } from 'next/navigation'
 import PublicNav from '../components/PublicNav'
 import OnboardingWizard from './components/OnboardingWizard'
@@ -18,7 +18,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null)
-  const { register } = useAuth()
+  const { signUp } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,18 +27,7 @@ export default function RegisterPage() {
     setError('')
 
     try {
-      const result = await register(form.email, form.password, form.name)
-
-      if (result.status === 202) {
-        // E-mailbevestiging vereist - toon informatief bericht
-        setError('Registratie gestart. Controleer je e-mail om je account te activeren.');
-        setIsLoading(false);
-        return;
-      }
-
-      if (result.error) {
-        throw new Error(result.error)
-      }
+      await signUp(form.email, form.password, form.name)
 
       // Succes — toon onboarding
       setShowOnboarding(true)

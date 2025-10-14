@@ -1,45 +1,64 @@
-import { Metadata, Viewport } from "next";
-import "../styles/globals.css";
-import "../styles/base.css";
-import "../styles/components.css";
-import "../styles/utilities.css";
-import { AppProviders } from "./components/AppProviders";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import '../styles/globals.css'
+import { CustomCursor } from '@/app/components/CustomCursor'
+import { AppProviders } from './providers'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: "QuoteFast - Automatiseer je Bedrijfsprocessen met AI",
-    template: "%s | QuoteFast"
+    default: 'QuoteFast - AI-Powered Quote Generation & Business Management',
+    template: '%s | QuoteFast',
   },
-  description: "Modern SaaS platform voor offertes, facturen, CRM en workflows. Automatiseer je werk en groei sneller met AI-powered tools. Bespaar tijd en verhoog je productiviteit.",
-  keywords: ["saas", "offertes", "facturen", "crm", "automatisatie", "workflows", "ai", "bedrijfssoftware", "business automation"],
-  authors: [{ name: "QuoteFast Team" }],
-  creator: "QuoteFast",
-  publisher: "QuoteFast",
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.svg",
-  },
+  description: 'Automatiseer je offertes met AI. Beheer klanten, facturatie en workflows op één plek. Start vandaag je gratis trial en transformeer je business.',
+  keywords: [
+    'AI offertes',
+    'automatische facturatie',
+    'klantbeheer',
+    'business management',
+    'SaaS',
+    'startup tools',
+    'offerte software'
+  ],
+  authors: [{ name: 'QuoteFast Team', url: 'https://quotefast.com' }],
+  creator: 'QuoteFast',
+  publisher: 'QuoteFast',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  metadataBase: new URL('https://quotefast.com'),
+  alternates: {
+    canonical: '/',
+    languages: {
+      'nl-NL': '/nl',
+      'en-US': '/',
+    },
+  },
   openGraph: {
-    title: "QuoteFast - Modern SaaS Platform voor Bedrijfsautomatisering",
-    description: "Automatiseer je bedrijfsprocessen met AI. Van offertes tot facturen, alles in één platform.",
-    url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    siteName: "QuoteFast",
-    locale: "nl_NL",
-    type: "website",
+    type: 'website',
+    locale: 'nl_NL',
+    url: '/',
+    siteName: 'QuoteFast',
+    description: 'Automatiseer je offertes met AI en beheeer je business efficiënter. Start vandaag je gratis trial!',
+    title: 'QuoteFast - AI Offerte Software & Business Management',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'QuoteFast AI Dashboard',
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: "QuoteFast - Automatiseer je Bedrijf",
-    description: "Modern SaaS platform voor offertes, facturen en workflows",
-    creator: "@quotefest",
+    card: 'summary_large_image',
+    title: 'QuoteFast - AI-Powered Quote Generation',
+    description: 'Transformeer je offerteproces met AI. Sneller, slimmer, professioneler.',
+    images: ['/twitter-image.jpg'],
+    creator: '@QuoteFastApp',
   },
   robots: {
     index: true,
@@ -52,33 +71,41 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" }
-  ]
-};
+  verification: {
+    google: 'google-site-verification-code',
+    yandex: 'yandex-verification-code',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  themeColor: '#000000',
+  applicationName: 'QuoteFast',
+  referrer: 'origin-when-cross-origin',
+  other: {
+    'application-name': 'QuoteFast',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'apple-mobile-web-app-title': 'QuoteFast',
+    'google': 'google-site-verification-code',
+  },
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <html lang="nl" suppressHydrationWarning>
-      <head>
-        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-      </head>
-      <body className="antialiased">
+    <html lang="nl" suppressHydrationWarning className="dark">
+      <body className={`${inter.className} bg-background text-foreground`}>
+        <CustomCursor />
         <AppProviders>
           {children}
         </AppProviders>
-        <SpeedInsights />
       </body>
     </html>
-  );
+  )
 }

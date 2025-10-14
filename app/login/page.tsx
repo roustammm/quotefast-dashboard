@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Lock, Mail, LogIn } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../providers'
 import { useRouter } from 'next/navigation'
 import ErrorMessage from '../../components/ui/ErrorMessage'
 
@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const { login } = useAuth()
+  const { signIn } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,7 +33,7 @@ export default function LoginPage() {
     }
 
     try {
-      await login(email, password)
+      await signIn(email, password)
       
       // Check for redirect parameter
       const searchParams = new URLSearchParams(window.location.search)

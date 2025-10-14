@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { CheckIcon, XMarkIcon, CreditCardIcon } from '@heroicons/react/24/outline'
+import { Check, X, CreditCard } from 'lucide-react'
 import { logger } from '../../../lib/logger'
 
 export default function BillingPage() {
@@ -140,7 +140,7 @@ export default function BillingPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center">
-                    <CreditCardIcon className="w-8 h-8 text-gray-400 mr-3" />
+                    <CreditCard className="w-8 h-8 text-gray-400 mr-3" />
                     <div>
                       <p className="font-medium text-gray-900">**** **** **** 4242</p>
                       <p className="text-sm text-gray-600">Vervalt 12/25</p>
@@ -172,15 +172,15 @@ export default function BillingPage() {
                   <p className="text-sm text-gray-600 mb-3">Perfect voor kleine bedrijven</p>
                   <div className="space-y-2">
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">100 offertes/maand</span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">Basis CRM</span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <XMarkIcon className="w-4 h-4 text-red-500 mr-2" />
+                      <X className="w-4 h-4 text-red-500 mr-2" />
                       <span className="text-gray-400">Geen AI</span>
                     </div>
                   </div>
@@ -194,15 +194,15 @@ export default function BillingPage() {
                   <p className="text-sm text-gray-600 mb-3">Ideal voor groeiende bedrijven</p>
                   <div className="space-y-2">
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">Onbeperkte offertes</span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">AI-suggesties</span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">Automatisatie</span>
                     </div>
                   </div>
@@ -219,15 +219,15 @@ export default function BillingPage() {
                   <p className="text-sm text-gray-600 mb-3">Voor grote organisaties</p>
                   <div className="space-y-2">
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">Alles van Pro</span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">White-label</span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <CheckIcon className="w-4 h-4 text-green-500 mr-2" />
+                      <Check className="w-4 h-4 text-green-500 mr-2" />
                       <span className="text-gray-600">24/7 support</span>
                     </div>
                   </div>

@@ -1,514 +1,355 @@
--- Initial database schema for QuoteFast Dashboard
--- This migration sets up the basic tables and security policies
+/* Complete database schema voor QuoteFast */
 
--- Enable necessary extensions
+-- Enable extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Create profiles table (extends auth.users)
-CREATE TABLE IF NOT EXISTS public.profiles (
-    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-    email TEXT UNIQUE NOT NULL,
-    full_name TEXT,
-    avatar_url TEXT,
-    company_name TEXT,
-    phone TEXT,
-    website TEXT,
-    address TEXT,
-    city TEXT,
-    postal_code TEXT,
-    country TEXT DEFAULT 'NL',
-    timezone TEXT DEFAULT 'Europe/Amsterdam',
-    language TEXT DEFAULT 'nl',
-    currency TEXT DEFAULT 'EUR',
-    subscription_tier TEXT DEFAULT 'free',
-    subscription_status TEXT DEFAULT 'active',
-    trial_ends_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    last_login_at TIMESTAMPTZ,
-    email_confirmed_at TIMESTAMPTZ,
-    onboarding_completed BOOLEAN DEFAULT FALSE,
-    preferences JSONB DEFAULT '{}',
-    metadata JSONB DEFAULT '{}'
+-- Users table (extends Supabase auth.users)
+CREATE TABLE IF NOT EXISTS public.users (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT UNIQUE NOT NULL,
+  full_name TEXT,
+  avatar_url TEXT,
+  phone TEXT,
+  role TEXT DEFAULT 'user' CHECK (role IN ('owner', 'admin', 'user')),
+  company_name TEXT,
+  industry TEXT,
+  team_size INTEGER DEFAULT 1,
+  subscription_tier TEXT DEFAULT 'free' CHECK (role IN ('free', 'pro', 'enterprise')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create customers table
+-- Organizations table
+CREATE TABLE IF NOT EXISTS public.organizations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  owner_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  industry TEXT,
+  max_team_size INTEGER DEFAULT 5,
+  subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'pro', 'enterprise')),
+  stripe_customer_id TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Team members table
+CREATE TABLE IF NOT EXISTS public.team_members (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('owner', 'admin', 'developer', 'designer', 'support')),
+  status TEXT DEFAULT 'invited' CHECK (status IN ('invited', 'active', 'inactive')),
+  joined_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  invited_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(user_id, organization_id)
+);
+
+-- Customers table
 CREATE TABLE IF NOT EXISTS public.customers (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-    name TEXT NOT NULL,
-    email TEXT,
-    phone TEXT,
-    company TEXT,
-    address TEXT,
-    city TEXT,
-    postal_code TEXT,
-    country TEXT DEFAULT 'NL',
-    vat_number TEXT,
-    notes TEXT,
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  company TEXT,
+  address JSONB,
+  status TEXT DEFAULT 'lead' CHECK (status IN ('lead', 'customer', 'vip', 'inactive')),
+  source TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create invoices table
-CREATE TABLE IF NOT EXISTS public.invoices (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-    customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
-    invoice_number TEXT NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'paid', 'overdue', 'cancelled')),
-    subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
-    tax_rate DECIMAL(5,2) DEFAULT 21.00,
-    tax_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
-    total DECIMAL(10,2) NOT NULL DEFAULT 0,
-    currency TEXT DEFAULT 'EUR',
-    due_date DATE,
-    sent_date TIMESTAMPTZ,
-    paid_date TIMESTAMPTZ,
-    payment_method TEXT,
-    payment_reference TEXT,
-    notes TEXT,
-    terms TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
-);
-
--- Create invoice_items table
-CREATE TABLE IF NOT EXISTS public.invoice_items (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    invoice_id UUID REFERENCES public.invoices(id) ON DELETE CASCADE NOT NULL,
-    description TEXT NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL DEFAULT 1,
-    unit_price DECIMAL(10,2) NOT NULL,
-    tax_rate DECIMAL(5,2) DEFAULT 21.00,
-    total DECIMAL(10,2) NOT NULL,
-    sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Create offers table
+-- Offers table
 CREATE TABLE IF NOT EXISTS public.offers (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-    customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
-    offer_number TEXT NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'accepted', 'rejected', 'expired')),
-    subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
-    tax_rate DECIMAL(5,2) DEFAULT 21.00,
-    tax_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
-    total DECIMAL(10,2) NOT NULL DEFAULT 0,
-    currency TEXT DEFAULT 'EUR',
-    valid_until DATE,
-    sent_date TIMESTAMPTZ,
-    accepted_date TIMESTAMPTZ,
-    rejected_date TIMESTAMPTZ,
-    notes TEXT,
-    terms TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  client_name TEXT NOT NULL,
+  client_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  currency TEXT DEFAULT 'EUR' CHECK (currency IN ('EUR', 'USD')),
+  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'viewed', 'accepted', 'rejected', 'expired')),
+  due_date DATE,
+  terms JSONB,
+  products JSONB,
+  pdf_url TEXT,
+  viewed_at TIMESTAMP WITH TIME ZONE,
+  created_by UUID REFERENCES public.users(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create offer_items table
-CREATE TABLE IF NOT EXISTS public.offer_items (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    offer_id UUID REFERENCES public.offers(id) ON DELETE CASCADE NOT NULL,
-    description TEXT NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL DEFAULT 1,
-    unit_price DECIMAL(10,2) NOT NULL,
-    tax_rate DECIMAL(5,2) DEFAULT 21.00,
-    total DECIMAL(10,2) NOT NULL,
-    sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+-- Invoices table
+CREATE TABLE IF NOT EXISTS public.invoices (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+  offer_id UUID REFERENCES public.offers(id) ON DELETE SET NULL,
+  customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
+  invoice_number TEXT UNIQUE NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  currency TEXT DEFAULT 'EUR' CHECK (currency IN ('EUR', 'USD')),
+  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'paid', 'overdue', 'cancelled')),
+  due_date DATE NOT NULL,
+  paid_at TIMESTAMP WITH TIME ZONE,
+  pdf_url TEXT,
+  stripe_invoice_id TEXT,
+  created_by UUID REFERENCES public.users(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create projects table
-CREATE TABLE IF NOT EXISTS public.projects (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-    customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
-    name TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'completed', 'on_hold', 'cancelled')),
-    start_date DATE,
-    end_date DATE,
-    budget DECIMAL(10,2),
-    currency TEXT DEFAULT 'EUR',
-    progress INTEGER DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
+-- Email templates table
+CREATE TABLE IF NOT EXISTS public.email_templates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('welcome', 'offer', 'invoice', 'team_invite', 'password_reset', 'newsletter')),
+  subject TEXT NOT NULL,
+  html_content TEXT,
+  text_content TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create activities table (for activity feed)
-CREATE TABLE IF NOT EXISTS public.activities (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-    type TEXT NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    entity_type TEXT, -- 'invoice', 'offer', 'customer', etc.
-    entity_id UUID,
-    metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMPTZ DEFAULT NOW()
+-- API keys table
+CREATE TABLE IF NOT EXISTS public.api_keys (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  key_hash TEXT UNIQUE NOT NULL,
+  permissions JSONB,
+  last_used TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create settings table
-CREATE TABLE IF NOT EXISTS public.settings (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-    category TEXT NOT NULL,
-    key TEXT NOT NULL,
-    value JSONB NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(user_id, category, key)
+-- Activity log table
+CREATE TABLE IF NOT EXISTS public.activity_log (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.users(id),
+  action TEXT NOT NULL,
+  resource_type TEXT,
+  resource_id UUID,
+  metadata JSONB,
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create storage bucket for file uploads
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('uploads', 'uploads', true)
-ON CONFLICT (id) DO NOTHING;
-
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
-CREATE INDEX IF NOT EXISTS idx_customers_user_id ON public.customers(user_id);
-CREATE INDEX IF NOT EXISTS idx_customers_email ON public.customers(email);
-CREATE INDEX IF NOT EXISTS idx_invoices_user_id ON public.invoices(user_id);
-CREATE INDEX IF NOT EXISTS idx_invoices_customer_id ON public.invoices(customer_id);
-CREATE INDEX IF NOT EXISTS idx_invoices_status ON public.invoices(status);
-CREATE INDEX IF NOT EXISTS idx_invoices_created_at ON public.invoices(created_at);
-CREATE INDEX IF NOT EXISTS idx_offers_user_id ON public.offers(user_id);
-CREATE INDEX IF NOT EXISTS idx_offers_customer_id ON public.offers(customer_id);
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
+CREATE INDEX IF NOT EXISTS idx_organizations_slug ON public.organizations(slug);
+CREATE INDEX IF NOT EXISTS idx_team_members_user_id ON public.team_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_team_members_org_id ON public.team_members(organization_id);
+CREATE INDEX IF NOT EXISTS idx_customers_org_id ON public.customers(organization_id);
+CREATE INDEX IF NOT EXISTS idx_offers_org_id ON public.offers(organization_id);
 CREATE INDEX IF NOT EXISTS idx_offers_status ON public.offers(status);
-CREATE INDEX IF NOT EXISTS idx_projects_user_id ON public.projects(user_id);
-CREATE INDEX IF NOT EXISTS idx_activities_user_id ON public.activities(user_id);
-CREATE INDEX IF NOT EXISTS idx_activities_created_at ON public.activities(created_at);
-CREATE INDEX IF NOT EXISTS idx_settings_user_id ON public.settings(user_id);
+CREATE INDEX IF NOT EXISTS idx_offers_created_at ON public.offers(created_at);
+CREATE INDEX IF NOT EXISTS idx_invoices_org_id ON public.invoices(organization_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_status ON public.invoices(status);
+CREATE INDEX IF NOT EXISTS idx_invoices_due_date ON public.invoices(due_date);
+CREATE INDEX IF NOT EXISTS idx_activity_log_org_id ON public.activity_log(organization_id);
+CREATE INDEX IF NOT EXISTS idx_activity_log_created_at ON public.activity_log(created_at);
 
--- Create updated_at trigger function
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Add updated_at triggers
-DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
-CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_customers_updated_at ON public.customers;
-CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON public.customers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_invoices_updated_at ON public.invoices;
-CREATE TRIGGER update_invoices_updated_at BEFORE UPDATE ON public.invoices FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_invoice_items_updated_at ON public.invoice_items;
-CREATE TRIGGER update_invoice_items_updated_at BEFORE UPDATE ON public.invoice_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_offers_updated_at ON public.offers;
-CREATE TRIGGER update_offers_updated_at BEFORE UPDATE ON public.offers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_offer_items_updated_at ON public.offer_items;
-CREATE TRIGGER update_offer_items_updated_at BEFORE UPDATE ON public.offer_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_projects_updated_at ON public.projects;
-CREATE TRIGGER update_projects_updated_at BEFORE UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_settings_updated_at ON public.settings;
-CREATE TRIGGER update_settings_updated_at BEFORE UPDATE ON public.settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Create function to handle new user registration
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO public.profiles (id, email, full_name, company_name, avatar_url, created_at, updated_at)
-    VALUES (
-        NEW.id,
-        NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name'),
-        NEW.raw_user_meta_data->>'company_name',
-        NEW.raw_user_meta_data->>'avatar_url',
-        NOW(),
-        NOW()
-    );
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Create trigger for new user registration
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- Enable Row Level Security (RLS)
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+-- RLS policies (Row Level Security)
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.invoice_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.offers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.offer_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.api_keys ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for profiles
-DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
-CREATE POLICY "Users can view own profile" ON public.profiles
-    FOR SELECT USING (auth.uid() = id);
+-- User can view own profile
+CREATE POLICY "Users can view own profile" ON public.users
+  FOR SELECT USING (auth.uid() = id);
 
-DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
-CREATE POLICY "Users can update own profile" ON public.profiles
-    FOR UPDATE USING (auth.uid() = id);
+-- Organization owner can manage everything
+CREATE POLICY "Organization owners can manage everything" ON public.organizations
+  FOR ALL USING (owner_id = auth.uid())
+  WITH CHECK (owner_id = auth.uid());
 
-DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+-- Team members can view their organization
+CREATE POLICY "Team members can view their organization" ON public.organizations
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members 
+      WHERE team_members.user_id = auth.uid() 
+      AND team_members.organization_id = organizations.id
+    )
+  );
 
--- Create RLS policies for customers
-DROP POLICY IF EXISTS "Users can view own customers" ON public.customers;
-CREATE POLICY "Users can view own customers" ON public.customers
-    FOR SELECT USING (auth.uid() = user_id);
+-- Users can view their team members
+CREATE POLICY "Users can view team members" ON public.team_members
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members 
+      WHERE team_members.user_id = auth.uid() 
+      AND team_members.organization_id = team_members.organization_id
+    )
+  );
 
-DROP POLICY IF EXISTS "Users can insert own customers" ON public.customers;
-CREATE POLICY "Users can insert own customers" ON public.customers
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- Users can manage their customers
+CREATE POLICY "Users can manage customers" ON public.customers
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members 
+      WHERE team_members.user_id = auth.uid() 
+      AND team_members.organization_id = customers.organization_id
+    )
+  );
 
-DROP POLICY IF EXISTS "Users can update own customers" ON public.customers;
-CREATE POLICY "Users can update own customers" ON public.customers
-    FOR UPDATE USING (auth.uid() = user_id);
+-- Users can manage their offers
+CREATE POLICY "Users can manage offers" ON public.offers
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members 
+      WHERE team_members.user_id = auth.uid() 
+      AND team_members.organization_id = offers.organization_id
+    )
+  );
 
-DROP POLICY IF EXISTS "Users can delete own customers" ON public.customers;
-CREATE POLICY "Users can delete own customers" ON public.customers
-    FOR DELETE USING (auth.uid() = user_id);
+-- Users can manage their invoices
+CREATE POLICY "Users can manage invoices" ON public.invoices
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members 
+      WHERE team_members.user_id = auth.uid() 
+      AND team_members.organization_id = invoices.organization_id
+    )
+  );
 
--- Create RLS policies for invoices
-DROP POLICY IF EXISTS "Users can view own invoices" ON public.invoices;
-CREATE POLICY "Users can view own invoices" ON public.invoices
-    FOR SELECT USING (auth.uid() = user_id);
+-- API keys only for organization members
+CREATE POLICY "API keys for organization members" ON public.api_keys
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members 
+      WHERE team_members.user_id = auth.uid() 
+      AND team_members.organization_id = api_keys.organization_id
+    )
+  );
 
-DROP POLICY IF EXISTS "Users can insert own invoices" ON public.invoices;
-CREATE POLICY "Users can insert own invoices" ON public.invoices
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- Activity log for organization members
+CREATE POLICY "Activity log for organization" ON public.activity_log
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.team_members 
+      WHERE team_members.user_id = auth.uid() 
+      AND team_members.organization_id = activity_log.organization_id
+    )
+  );
 
-DROP POLICY IF EXISTS "Users can update own invoices" ON public.invoices;
-CREATE POLICY "Users can update own invoices" ON public.invoices
-    FOR UPDATE USING (auth.uid() = user_id);
+-- Enable realtime for offers and invoices
+ALTER TABLE public.offers ENABLE REPLICATION;
+ALTER TABLE public.invoices ENABLE REPLICATION;
+ALTER TABLE public.customers ENABLE REPLICATION;
 
-DROP POLICY IF EXISTS "Users can delete own invoices" ON public.invoices;
-CREATE POLICY "Users can delete own invoices" ON public.invoices
-    FOR DELETE USING (auth.uid() = user_id);
+-- Default data (for development)
+INSERT INTO public.users (id, email, full_name, role, company_name, industry, team_size)
+VALUES 
+  (gen_random_uuid(), 'admin@quotefast.com', 'Admin User', 'owner', 'QuoteFast Demo', 'SaaS', 5),
+  (gen_random_uuid(), 'user@quotefast.com', 'Regular User', 'admin', 'QuoteFast Demo', 'SaaS', 5);
 
--- Create RLS policies for invoice_items
-DROP POLICY IF EXISTS "Users can view own invoice items" ON public.invoice_items;
-CREATE POLICY "Users can view own invoice items" ON public.invoice_items
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.invoices 
-            WHERE invoices.id = invoice_items.invoice_id 
-            AND invoices.user_id = auth.uid()
-        )
-    );
+INSERT INTO public.organizations (id, name, slug, owner_id, industry, max_team_size, subscription_tier)
+VALUES 
+  (gen_random_uuid(), 'QuoteFast Demo', 'quotefast-demo', (SELECT id FROM public.users WHERE email = 'admin@quotefast.com'), 'SaaS', 10, 'pro');
 
-DROP POLICY IF EXISTS "Users can insert own invoice items" ON public.invoice_items;
-CREATE POLICY "Users can insert own invoice items" ON public.invoice_items
-    FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.invoices 
-            WHERE invoices.id = invoice_items.invoice_id 
-            AND invoices.user_id = auth.uid()
-        )
-    );
+INSERT INTO public.team_members (user_id, organization_id, role, status)
+VALUES 
+  ((SELECT id FROM public.users WHERE email = 'admin@quotefast.com'), (SELECT id FROM public.organizations WHERE slug = 'quotefast-demo'), 'owner', 'active'),
+  ((SELECT id FROM public.users WHERE email = 'user@quotefast.com'), (SELECT id FROM public.organizations WHERE slug = 'quotefast-demo'), 'admin', 'active');
 
-DROP POLICY IF EXISTS "Users can update own invoice items" ON public.invoice_items;
-CREATE POLICY "Users can update own invoice items" ON public.invoice_items
-    FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM public.invoices 
-            WHERE invoices.id = invoice_items.invoice_id 
-            AND invoices.user_id = auth.uid()
-        )
-    );
+-- Views voor complex queries
+CREATE OR REPLACE VIEW public.organization_stats AS
+SELECT 
+  o.id,
+  o.name,
+  o.slug,
+  o.subscription_tier,
+  COUNT(DISTINCT tm.user_id) as team_size,
+  COUNT(DISTINCT c.id) as customer_count,
+  COUNT(DISTINCT off.id) as offer_count,
+  COUNT(DISTINCT i.id) as invoice_count,
+  COALESCE(SUM(off.amount), 0) as total_offers_value,
+  COALESCE(SUM(i.amount), 0) as total_invoices_value
+FROM public.organizations o
+LEFT JOIN public.team_members tm ON o.id = tm.organization_id
+LEFT JOIN public.customers c ON o.id = c.organization_id
+LEFT JOIN public.offers off ON o.id = off.organization_id
+LEFT JOIN public.invoices i ON o.id = i.organization_id
+GROUP BY o.id, o.name, o.slug, o.subscription_tier;
 
-DROP POLICY IF EXISTS "Users can delete own invoice items" ON public.invoice_items;
-CREATE POLICY "Users can delete own invoice items" ON public.invoice_items
-    FOR DELETE USING (
-        EXISTS (
-            SELECT 1 FROM public.invoices 
-            WHERE invoices.id = invoice_items.invoice_id 
-            AND invoices.user_id = auth.uid()
-        )
-    );
+-- Functions voor business logic
+CREATE OR REPLACE FUNCTION public.calculate_invoice_total(
+  offer_id UUID
+)
+RETURNS DECIMAL(10,2)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  total DECIMAL(10,2) := 0;
+BEGIN
+  SELECT COALESCE(SUM((p->>'price')::DECIMAL * (p->>'quantity')::INTEGER), 0)
+  INTO total
+  FROM public.offers o,
+  jsonb_array_elements(o.products) p
+  WHERE o.id = offer_id;
+  
+  RETURN total;
+END;
+$$;
 
--- Create RLS policies for offers
-DROP POLICY IF EXISTS "Users can view own offers" ON public.offers;
-CREATE POLICY "Users can view own offers" ON public.offers
-    FOR SELECT USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can insert own offers" ON public.offers;
-CREATE POLICY "Users can insert own offers" ON public.offers
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can update own offers" ON public.offers;
-CREATE POLICY "Users can update own offers" ON public.offers
-    FOR UPDATE USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can delete own offers" ON public.offers;
-CREATE POLICY "Users can delete own offers" ON public.offers
-    FOR DELETE USING (auth.uid() = user_id);
-
--- Create RLS policies for offer_items
-DROP POLICY IF EXISTS "Users can view own offer items" ON public.offer_items;
-CREATE POLICY "Users can view own offer items" ON public.offer_items
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.offers 
-            WHERE offers.id = offer_items.offer_id 
-            AND offers.user_id = auth.uid()
-        )
-    );
-
-DROP POLICY IF EXISTS "Users can insert own offer items" ON public.offer_items;
-CREATE POLICY "Users can insert own offer items" ON public.offer_items
-    FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.offers 
-            WHERE offers.id = offer_items.offer_id 
-            AND offers.user_id = auth.uid()
-        )
-    );
-
-DROP POLICY IF EXISTS "Users can update own offer items" ON public.offer_items;
-CREATE POLICY "Users can update own offer items" ON public.offer_items
-    FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM public.offers 
-            WHERE offers.id = offer_items.offer_id 
-            AND offers.user_id = auth.uid()
-        )
-    );
-
-DROP POLICY IF EXISTS "Users can delete own offer items" ON public.offer_items;
-CREATE POLICY "Users can delete own offer items" ON public.offer_items
-    FOR DELETE USING (
-        EXISTS (
-            SELECT 1 FROM public.offers 
-            WHERE offers.id = offer_items.offer_id 
-            AND offers.user_id = auth.uid()
-        )
-    );
-
--- Create RLS policies for projects
-DROP POLICY IF EXISTS "Users can view own projects" ON public.projects;
-CREATE POLICY "Users can view own projects" ON public.projects
-    FOR SELECT USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can insert own projects" ON public.projects;
-CREATE POLICY "Users can insert own projects" ON public.projects
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can update own projects" ON public.projects;
-CREATE POLICY "Users can update own projects" ON public.projects
-    FOR UPDATE USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can delete own projects" ON public.projects;
-CREATE POLICY "Users can delete own projects" ON public.projects
-    FOR DELETE USING (auth.uid() = user_id);
-
--- Create RLS policies for activities
-DROP POLICY IF EXISTS "Users can view own activities" ON public.activities;
-CREATE POLICY "Users can view own activities" ON public.activities
-    FOR SELECT USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can insert own activities" ON public.activities;
-CREATE POLICY "Users can insert own activities" ON public.activities
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- Create RLS policies for settings
-DROP POLICY IF EXISTS "Users can view own settings" ON public.settings;
-CREATE POLICY "Users can view own settings" ON public.settings
-    FOR SELECT USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can insert own settings" ON public.settings;
-CREATE POLICY "Users can insert own settings" ON public.settings
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can update own settings" ON public.settings;
-CREATE POLICY "Users can update own settings" ON public.settings
-    FOR UPDATE USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can delete own settings" ON public.settings;
-CREATE POLICY "Users can delete own settings" ON public.settings
-    FOR DELETE USING (auth.uid() = user_id);
-
--- Create storage policies
-DROP POLICY IF EXISTS "Users can upload own files" ON storage.objects;
-CREATE POLICY "Users can upload own files" ON storage.objects
-    FOR INSERT WITH CHECK (
-        bucket_id = 'uploads' AND 
-        auth.uid()::text = (storage.foldername(name))[1]
-    );
-
-DROP POLICY IF EXISTS "Users can view own files" ON storage.objects;
-CREATE POLICY "Users can view own files" ON storage.objects
-    FOR SELECT USING (
-        bucket_id = 'uploads' AND 
-        auth.uid()::text = (storage.foldername(name))[1]
-    );
-
-DROP POLICY IF EXISTS "Users can update own files" ON storage.objects;
-CREATE POLICY "Users can update own files" ON storage.objects
-    FOR UPDATE USING (
-        bucket_id = 'uploads' AND 
-        auth.uid()::text = (storage.foldername(name))[1]
-    );
-
-DROP POLICY IF EXISTS "Users can delete own files" ON storage.objects;
-CREATE POLICY "Users can delete own files" ON storage.objects
-    FOR DELETE USING (
-        bucket_id = 'uploads' AND 
-        auth.uid()::text = (storage.foldername(name))[1]
-    );
-
--- Insert default settings for new users
-CREATE OR REPLACE FUNCTION public.setup_default_settings()
+-- Triggers voor automatic updates
+CREATE OR REPLACE FUNCTION public.handle_offer_status_change()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Insert default user settings
-    INSERT INTO public.settings (user_id, category, key, value) VALUES
-    (NEW.id, 'appearance', 'theme', '"light"'),
-    (NEW.id, 'appearance', 'language', '"nl"'),
-    (NEW.id, 'appearance', 'currency', '"EUR"'),
-    (NEW.id, 'appearance', 'timezone', '"Europe/Amsterdam"'),
-    (NEW.id, 'notifications', 'email', 'true'),
-    (NEW.id, 'notifications', 'push', 'true'),
-    (NEW.id, 'billing', 'tax_rate', '21.00'),
-    (NEW.id, 'billing', 'currency', '"EUR"'),
-    (NEW.id, 'company', 'name', '""'),
-    (NEW.id, 'company', 'address', '""'),
-    (NEW.id, 'company', 'phone', '""'),
-    (NEW.id, 'company', 'email', '""'),
-    (NEW.id, 'company', 'website', '""'),
-    (NEW.id, 'company', 'vat_number', '""');
-    
-    RETURN NEW;
+  -- Log activity when offer status changes
+  INSERT INTO public.activity_log (
+    organization_id,
+    user_id,
+    action,
+    resource_type,
+    resource_id,
+    metadata
+  )
+  VALUES (
+    NEW.organization_id,
+    auth.uid(),
+    CONCAT('offer_status_changed:', NEW.status),
+    'offer',
+    NEW.id,
+    jsonb_build_object(
+      'old_status', OLD.status,
+      'new_status', NEW.status,
+      'offer_id', NEW.id,
+      'amount', NEW.amount
+    )
+  );
+  
+  -- Send email notifications for certain status changes
+  IF NEW.status = 'sent' AND OLD.status != 'sent' THEN
+    -- Trigger email service (in application layer)
+    PERFORM pg_notify(
+      'offer_status_change',
+      jsonb_build_object(
+        'event', 'offer_sent',
+        'offer_id', NEW.id,
+        'client_id', NEW.client_id
+      )::text
+    );
+  END IF;
+  
+  RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
 
--- Create trigger for default settings
-DROP TRIGGER IF EXISTS setup_default_settings_trigger ON public.profiles;
-CREATE TRIGGER setup_default_settings_trigger
-    AFTER INSERT ON public.profiles
-    FOR EACH ROW EXECUTE FUNCTION public.setup_default_settings();
+CREATE TRIGGER trigger_offer_status_change
+  AFTER UPDATE OF status ON public.offers
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_offer_status_change();

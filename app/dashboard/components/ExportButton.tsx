@@ -2,6 +2,7 @@
 import { useTheme } from '../../../contexts/ThemeContext';
 import { Download, FileText, FileSpreadsheet, Camera, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ExportButtonProps {
   className?: string;
@@ -128,64 +129,98 @@ export default function ExportButton({ className = '' }: ExportButtonProps) {
 
   return (
     <div className={`relative ${className}`} ref={buttonRef}>
-      <button
+      <motion.button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isExporting}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200 ${
+        className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-300 backdrop-blur-xl ${
           isDark
-            ? 'bg-gray-800/50 border-gray-700/30 text-white hover:bg-gray-700/50 hover:border-gray-600/50'
-            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-        } ${isExporting ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'}`}
+            ? 'bg-white/10 border-white/20 text-white hover:bg-white/15 hover:border-blue-500/50'
+            : 'bg-gray-50/90 border-gray-400/60 text-gray-700 hover:bg-white hover:border-blue-500/50 shadow-sm'
+        } ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+        whileHover={{ scale: isExporting ? 1 : 1.05 }}
+        whileTap={{ scale: isExporting ? 1 : 0.95 }}
       >
-        <Download className={`w-4 h-4 ${isExporting ? 'animate-spin' : ''}`} />
+        <motion.div
+          animate={{ rotate: isExporting ? 360 : 0 }}
+          transition={{ duration: 1, repeat: isExporting ? Infinity : 0, ease: "linear" }}
+        >
+          <Download className="w-4 h-4" />
+        </motion.div>
         <span className="text-sm font-medium">
           {isExporting ? 'Exporteren...' : 'Export'}
         </span>
-        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ChevronDown className="w-4 h-4" />
+        </motion.div>
+      </motion.button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
-        <div className={`absolute top-full right-0 mt-2 w-64 rounded-lg border shadow-lg z-50 ${
-          isDark
-            ? 'bg-gray-800 border-gray-700'
-            : 'bg-white border-gray-200'
-        }`}>
-          <div className="p-2">
-            <div className={`px-3 py-2 text-xs font-medium ${
-              isDark ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-              Export opties
-            </div>
-            {exportOptions.map((option) => (
-              <button
-                key={option.id}
-                onClick={option.action}
-                disabled={isExporting}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors ${
-                  isDark
-                    ? 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                } ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className={`absolute top-full right-0 mt-2 w-64 rounded-xl border shadow-xl z-50 backdrop-blur-xl ${
+              isDark
+                ? 'bg-white/10 border-white/20'
+                : 'bg-gray-50/90 border-gray-400/60'
+            }`}
+          >
+            <div className="p-3">
+              <motion.div 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className={`px-3 py-2 text-xs font-semibold ${
+                  isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}
               >
-                <div className={`p-1 rounded ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  {option.icon}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-medium">{option.label}</div>
-                  <div className={`text-xs ${
-                    isDark ? 'text-gray-500' : 'text-gray-500'
-                  }`}>
-                    {option.description}
+                Export opties
+              </motion.div>
+              {exportOptions.map((option, index) => (
+                <motion.button
+                  key={option.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
+                  onClick={option.action}
+                  disabled={isExporting}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all duration-300 ${
+                    isDark
+                      ? 'text-gray-300 hover:bg-white/10 hover:text-white'
+                      : 'text-gray-700 hover:bg-gray-200/50 hover:text-gray-900'
+                  } ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  whileHover={{ scale: isExporting ? 1 : 1.02, x: 4 }}
+                  whileTap={{ scale: isExporting ? 1 : 0.98 }}
+                >
+                  <motion.div 
+                    className={`p-1.5 rounded-lg ${
+                      isDark ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                    whileHover={{ rotate: 5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {option.icon}
+                  </motion.div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">{option.label}</div>
+                    <div className={`text-xs ${
+                      isDark ? 'text-gray-500' : 'text-gray-500'
+                    }`}>
+                      {option.description}
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

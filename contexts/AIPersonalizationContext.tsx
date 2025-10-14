@@ -28,7 +28,7 @@ export function AIPersonalizationProvider({ children }: { children: ReactNode })
       // In a real app, you would fetch this from Supabase
       // For now, we'll simulate loading the onboarding data
       const mockOnboardingData: OnboardingData = {
-        companyName: user.company || 'Mijn Bedrijf',
+        companyName: 'Mijn Bedrijf', // Company not available in current User type
         industry: 'it',
         teamSize: '6-20',
         usageGoals: ['offertes', 'factureren', 'crm'],

@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/client';
 import { Customer, Invoice, ApiResponse } from '../types/dashboard';
 import { logger } from './logger';
+import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient();
+const supabase = createClient() as SupabaseClient;
 
 // Cache voor API responses met proper typing
 const apiCache = new Map<string, { data: unknown; timestamp: number }>();
@@ -43,13 +44,12 @@ async function fetchWithCache<T>(
 
     // Handle error
     if (error) {
-      console.error(`[API] Error fetching ${cacheKey}:`, error);
-      const errorMessage = error instanceof Error ? error.message : 'Er is een fout opgetreden';
-      const errorStatus = (error as any)?.status || 500;
-      return { 
-        data: null, 
-        error: errorMessage, 
-        status: errorStatus 
+            const errorMessage = error instanceof Error ? error.message : 'Er is een fout opgetreden';
+      const errorStatus = (error as PostgrestError)?.code ? 400 : 500;
+      return {
+        data: null,
+        error: errorMessage,
+        status: errorStatus
       };
     }
 
@@ -58,8 +58,7 @@ async function fetchWithCache<T>(
     
     return { data, error: null, status: 200 };
   } catch (error: unknown) {
-    console.error(`[API] Unexpected error for ${cacheKey}:`, error);
-    const errorMessage = error instanceof Error ? error.message : 'Er is een onverwachte fout opgetreden';
+        const errorMessage = error instanceof Error ? error.message : 'Er is een onverwachte fout opgetreden';
     return { 
       data: null, 
       error: errorMessage, 
@@ -113,7 +112,9 @@ export const customersApi = {
         .single();
       
       if (error) {
-        return { data: null, error: error.message, status: 500 };
+        const errorMessage = error instanceof Error ? error.message : 'Fout bij het aanmaken van de klant';
+        const errorStatus = (error as PostgrestError)?.code ? 400 : 500;
+        return { data: null, error: errorMessage, status: errorStatus };
       }
       
       // Invalidate cache
@@ -140,7 +141,9 @@ export const customersApi = {
         .single();
       
       if (error) {
-        return { data: null, error: error.message, status: 500 };
+        const errorMessage = error instanceof Error ? error.message : 'Fout bij het bijwerken van de klant';
+        const errorStatus = (error as PostgrestError)?.code ? 400 : 500;
+        return { data: null, error: errorMessage, status: errorStatus };
       }
       
       // Invalidate cache
@@ -166,7 +169,9 @@ export const customersApi = {
         .eq('id', id);
       
       if (error) {
-        return { data: null, error: error.message, status: 500 };
+        const errorMessage = error instanceof Error ? error.message : 'Fout bij het verwijderen van de klant';
+        const errorStatus = (error as PostgrestError)?.code ? 400 : 500;
+        return { data: null, error: errorMessage, status: errorStatus };
       }
       
       // Invalidate cache
@@ -243,7 +248,9 @@ export const invoicesApi = {
         .single();
       
       if (error) {
-        return { data: null, error: error.message, status: 500 };
+        const errorMessage = error instanceof Error ? error.message : 'Fout bij het aanmaken van de factuur';
+        const errorStatus = (error as PostgrestError)?.code ? 400 : 500;
+        return { data: null, error: errorMessage, status: errorStatus };
       }
       
       // Invalidate cache
@@ -270,7 +277,9 @@ export const invoicesApi = {
         .single();
       
       if (error) {
-        return { data: null, error: error.message, status: 500 };
+        const errorMessage = error instanceof Error ? error.message : 'Fout bij het bijwerken van de factuur';
+        const errorStatus = (error as PostgrestError)?.code ? 400 : 500;
+        return { data: null, error: errorMessage, status: errorStatus };
       }
       
       // Invalidate cache
@@ -296,7 +305,9 @@ export const invoicesApi = {
         .eq('id', id);
       
       if (error) {
-        return { data: null, error: error.message, status: 500 };
+        const errorMessage = error instanceof Error ? error.message : 'Fout bij het verwijderen van de factuur';
+        const errorStatus = (error as PostgrestError)?.code ? 400 : 500;
+        return { data: null, error: errorMessage, status: errorStatus };
       }
       
       // Invalidate cache

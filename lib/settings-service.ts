@@ -20,7 +20,7 @@ export const settingsService = {
         .single();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = not found (ok voor nieuwe users)
-        console.error('Error fetching notification settings:', error);
+        logger.error('Error fetching notification settings:', 'service', error);
         return { data: null, error: error.message };
       }
 
@@ -36,7 +36,7 @@ export const settingsService = {
         error: null,
       };
     } catch (error: any) {
-      console.error('Unexpected error in getNotificationSettings:', error);
+      logger.error('Unexpected error in getNotificationSettings:', 'service', error);
       return { data: null, error: error.message || 'Onbekende fout' };
     }
   },
@@ -58,13 +58,13 @@ export const settingsService = {
         });
 
       if (error) {
-        console.error('Error updating notification settings:', error);
+        logger.error('Error updating notification settings:', 'service', error);
         return { data: false, error: error.message };
       }
 
       return { data: true, error: null };
     } catch (error: any) {
-      console.error('Unexpected error in updateNotificationSettings:', error);
+      logger.error('Unexpected error in updateNotificationSettings:', 'service', error);
       return { data: false, error: error.message || 'Onbekende fout' };
     }
   },
@@ -79,7 +79,7 @@ export const settingsService = {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching appearance settings:', error);
+        logger.error('Error fetching appearance settings:', 'service', error);
         return { data: null, error: error.message };
       }
 
@@ -92,7 +92,7 @@ export const settingsService = {
         error: null,
       };
     } catch (error: any) {
-      console.error('Unexpected error in getAppearanceSettings:', error);
+      logger.error('Unexpected error in getAppearanceSettings:', 'service', error);
       return { data: null, error: error.message || 'Onbekende fout' };
     }
   },
@@ -114,13 +114,13 @@ export const settingsService = {
         });
 
       if (error) {
-        console.error('Error updating appearance settings:', error);
+        logger.error('Error updating appearance settings:', 'service', error);
         return { data: false, error: error.message };
       }
 
       return { data: true, error: null };
     } catch (error: any) {
-      console.error('Unexpected error in updateAppearanceSettings:', error);
+      logger.error('Unexpected error in updateAppearanceSettings:', 'service', error);
       return { data: false, error: error.message || 'Onbekende fout' };
     }
   },
@@ -135,7 +135,7 @@ export const settingsService = {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching AI personalization settings:', error);
+        logger.error('Error fetching AI personalization settings:', 'service', error);
         return { data: null, error: error.message };
       }
 
@@ -148,7 +148,7 @@ export const settingsService = {
         error: null,
       };
     } catch (error: any) {
-      console.error('Unexpected error in getAIPersonalizationSettings:', error);
+      logger.error('Unexpected error in getAIPersonalizationSettings:', 'service', error);
       return { data: null, error: error.message || 'Onbekende fout' };
     }
   },
@@ -170,13 +170,13 @@ export const settingsService = {
         });
 
       if (error) {
-        console.error('Error updating AI personalization settings:', error);
+        logger.error('Error updating AI personalization settings:', 'service', error);
         return { data: false, error: error.message };
       }
 
       return { data: true, error: null };
     } catch (error: any) {
-      console.error('Unexpected error in updateAIPersonalizationSettings:', error);
+      logger.error('Unexpected error in updateAIPersonalizationSettings:', 'service', error);
       return { data: false, error: error.message || 'Onbekende fout' };
     }
   },

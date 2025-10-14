@@ -87,11 +87,18 @@ export default function ProjectsPage() {
             theme === "dark" ? "text-gray-400" : "text-gray-600"
           }`}>Manage all your projects and track progress</p>
         </div>
-        <button className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
-          theme === "dark"
-            ? "bg-blue-600 hover:bg-blue-700 text-white"
-            : "bg-blue-600 hover:bg-blue-700 text-white"
-        }`}>
+        <button 
+          onClick={() => {
+            // Hier zou je een modal kunnen openen om een nieuw project aan te maken
+            console.log('Nieuw project aanmaken');
+            // Je kunt hier navigeren naar een project editor of een modal openen
+          }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
+            theme === "dark"
+              ? "bg-blue-600 hover:bg-blue-700 text-white"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
           <Plus className="h-4 w-4" />
           New Project
         </button>
@@ -106,18 +113,24 @@ export default function ProjectsPage() {
           <input
             type="text"
             placeholder="Search projects..."
-            className={`w-full pl-10 pr-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+            className={`w-full pl-10 pr-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors backdrop-blur-xl ${
               theme === "dark"
-                ? "bg-white/10 border border-white/20 text-white placeholder-gray-400"
-                : "bg-gray-100/80 border border-gray-400 text-gray-900 placeholder-gray-600 border-opacity-60"
+                ? "bg-white/10 border-white/20 text-white placeholder-gray-400"
+                : "bg-gray-50/90 border-gray-400/60 text-gray-900 placeholder-gray-600 shadow-sm"
             }`}
           />
         </div>
-        <button className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
-          theme === "dark"
-            ? "bg-white/10 hover:bg-white/20 border border-white/20"
-            : "bg-gray-100/80 hover:bg-gray-200/90 border border-gray-300/50 shadow-sm"
-        }`}>
+        <button 
+          onClick={() => {
+            // Hier zou je een filter modal kunnen openen
+            console.log('Filter modal openen');
+          }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors backdrop-blur-xl ${
+            theme === "dark"
+              ? "bg-white/10 hover:bg-white/15 border-white/20"
+              : "bg-gray-50/90 hover:bg-gray-100/90 border-gray-400/60 shadow-sm"
+          }`}
+        >
           <Filter className="h-4 w-4" />
           Filter
         </button>
@@ -126,8 +139,8 @@ export default function ProjectsPage() {
       {/* AI Summary Card */}
       <Card className={`backdrop-blur-xl ${
         theme === "dark"
-          ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-white/20"
-          : "bg-gradient-to-r from-purple-100/80 to-blue-100/80 border border-gray-400 shadow-md border-opacity-60"
+          ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-white/20"
+          : "bg-gradient-to-r from-purple-100/80 to-blue-100/80 border-gray-400/60 shadow-md"
       }`}>
         <CardHeader>
           <CardTitle className={`flex items-center gap-2 ${
@@ -155,8 +168,8 @@ export default function ProjectsPage() {
         {projects.map((project) => (
           <Card key={project.id} className={`backdrop-blur-xl transition-all duration-300 group ${
             theme === "dark"
-              ? "bg-white/10 border border-white/20 hover:bg-white/15"
-              : "bg-gray-50/90 border border-gray-400 hover:bg-gray-100/90 shadow-md border-opacity-60"
+              ? "bg-white/10 border-white/20 hover:bg-white/15"
+              : "bg-gray-50/90 border-gray-400/60 hover:bg-gray-100/90 shadow-md"
           }`}>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">

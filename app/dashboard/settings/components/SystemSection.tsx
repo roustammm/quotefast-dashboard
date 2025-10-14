@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { Settings, Download, Trash2, LogOut, Activity } from "lucide-react";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuth } from "../../../providers";
 import { useToast } from "../hooks/useToast";
 import { SystemStats, ActiveSession } from "../../../../types/settings";
 
 export default function SystemSection() {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const toast = useToast();
   const [exporting, setExporting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -52,9 +52,9 @@ export default function SystemSection() {
       const exportData = {
         user: {
           id: user?.id,
-          name: user?.name,
+          name: user?.full_name,
           email: user?.email,
-          company: user?.company,
+          company: null, // Company not available in current User type
         },
         exportDate: new Date().toISOString(),
         stats,

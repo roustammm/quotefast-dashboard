@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { User, Edit, Upload } from "lucide-react";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuth } from "../../../providers";
 import { useToast } from "../hooks/useToast";
 import { profileSchema } from "../utils/validation";
 import { ProfileFormData } from "../../../../types/settings";
 
 export default function ProfileSection() {
-  const { user, updateUser } = useAuth();
+  const { user, updateProfile } = useAuth();
   const toast = useToast();
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof ProfileFormData, string>>>({});
@@ -24,7 +24,7 @@ export default function ProfileSection() {
   // Initialize form data from user
   useEffect(() => {
     if (user) {
-      const nameParts = user.name?.split(' ') || ['', ''];
+      const nameParts = user.full_name?.split(' ') || ['', ''];
       setFormData({
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
@@ -70,8 +70,8 @@ export default function ProfileSection() {
 
     try {
       const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-      await updateUser({
-        name: fullName,
+      await updateProfile({
+        full_name: fullName,
         email: formData.email,
       });
 
@@ -119,9 +119,9 @@ export default function ProfileSection() {
             </button>
           </div>
           <div className="flex-1">
-            <h3 className="text-white text-lg font-semibold">{user.name}</h3>
+            <h3 className="text-white text-lg font-semibold">{user.full_name}</h3>
             <p className="text-gray-400">{user.email}</p>
-            {user.company && <p className="text-gray-500 text-sm">{user.company}</p>}
+            {/* Company field not available in current User type */}
           </div>
         </div>
 
