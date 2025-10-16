@@ -1,26 +1,26 @@
 import { authService } from '@/lib/auth-service'
 
 // Mock Supabase client
-jest.mock('@/lib/supabase/client', () => ({
-  createClient: jest.fn(() => ({
+vi.mock('@/lib/supabase/client', () => ({
+  createClient: vi.fn(() => ({
     auth: {
-      signInWithPassword: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      getUser: jest.fn(),
-      resetPasswordForEmail: jest.fn(),
-      updateUser: jest.fn()
+      signInWithPassword: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+      getUser: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updateUser: vi.fn()
     },
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          single: jest.fn()
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn()
         }))
       })),
-      update: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn()
+      update: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn()
           }))
         }))
       }))
@@ -29,17 +29,17 @@ jest.mock('@/lib/supabase/client', () => ({
 }))
 
 // Mock logger
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    error: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn()
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn()
   }
 }))
 
 describe('AuthService - Simple Tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Input Validation', () => {

@@ -16,6 +16,11 @@
 import '@testing-library/jest-dom';
 import { vi, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import React from 'react';
+
+// Make React globally available for tests
+(global as any).React = React;
+(global as any).jest = vi; // Map jest to vi for compatibility
 
 // Global test cleanup
 afterEach(() => {

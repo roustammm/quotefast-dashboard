@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Save } from "lucide-react";
 import { Toaster } from 'react-hot-toast';
@@ -16,7 +16,8 @@ import { SETTINGS_TABS, SettingsTab } from './utils/constants';
 // Force dynamic rendering for pages that use search params
 export const dynamic = 'force-dynamic';
 
-export default function SettingsPage() {
+// Component that uses useSearchParams must be wrapped in Suspense
+function SettingsContent() {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams?.get('tab') as SettingsTab;
 
@@ -185,5 +186,14 @@ export default function SettingsPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+// Main export with Suspense wrapper
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div>Loading settings...</div>}>
+      <SettingsContent />
+    </Suspense>
   );
 }

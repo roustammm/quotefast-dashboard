@@ -4,9 +4,9 @@ import { createServer } from '@/lib/supabase/server'
 
 // Mock Supabase server
 const mockSupabaseServerServer = {
-  from: jest.fn(() => ({
-    select: jest.fn(() => ({
-      order: jest.fn(() => ({
+  from: vi.fn(() => ({
+    select: vi.fn(() => ({
+      order: vi.fn(() => ({
         data: [
           {
             id: '1',
@@ -19,9 +19,9 @@ const mockSupabaseServerServer = {
         error: null
       }))
     })),
-    insert: jest.fn(() => ({
-      select: jest.fn(() => ({
-        single: jest.fn(() => ({
+    insert: vi.fn(() => ({
+      select: vi.fn(() => ({
+        single: vi.fn(() => ({
           data: {
             id: '2',
             name: 'New Customer',
@@ -35,20 +35,20 @@ const mockSupabaseServerServer = {
     }))
   })),
   auth: {
-    getUser: jest.fn(() => ({
+    getUser: vi.fn(() => ({
       data: { user: { id: '1' } },
       error: null
     }))
   }
 }
 
-jest.mock('@/lib/supabase/server', () => ({
-  createServer: jest.fn(() => mockSupabaseServerServer)
+vi.mock('@/lib/supabase/server', () => ({
+  createServer: vi.fn(() => mockSupabaseServerServer)
 }))
 
 describe('/api/customers', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('GET /api/customers', () => {

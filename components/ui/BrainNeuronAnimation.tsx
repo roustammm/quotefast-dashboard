@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
 interface Neuron {
@@ -190,7 +190,7 @@ export default function BrainNeuronAnimation({ className = '' }: BrainNeuronAnim
   }
 
   // Animation function
-  const animate = () => {
+  const animate = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -235,7 +235,7 @@ export default function BrainNeuronAnimation({ className = '' }: BrainNeuronAnim
     }
 
     animationRef.current = requestAnimationFrame(animate)
-  }
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -269,7 +269,7 @@ export default function BrainNeuronAnimation({ className = '' }: BrainNeuronAnim
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [])
+  }, [animate, canvasRef])
 
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>

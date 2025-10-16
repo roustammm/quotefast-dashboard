@@ -237,7 +237,7 @@ export default function ProfileSection({ className, onProfileUpdate }: ProfileSe
     return (
       <Card className={`bg-white/10 backdrop-blur-xl border border-white/20 ${className || ''}`}>
         <CardContent className="p-6">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center" role="status" aria-live="polite">
             <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
             <span className="ml-2 text-gray-400">Profiel laden...</span>
           </div>
@@ -406,10 +406,6 @@ export default function ProfileSection({ className, onProfileUpdate }: ProfileSe
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>Lid sinds {accountStats.joinDate}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4" />
                 <span>Laatste login: {accountStats.lastLogin}</span>
               </div>
             </div>

@@ -1,49 +1,49 @@
 import { authService } from '@/lib/auth-service'
 
 // Mock the logger first
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn()
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn()
   }
 }))
 
 // Mock Supabase client
-jest.mock('@/lib/supabase/client', () => ({
-  createClient: jest.fn()
+vi.mock('@/lib/supabase/client', () => ({
+  createClient: vi.fn()
 }))
 
 describe('AuthService Improved Tests', () => {
   let mockSupabaseClient: any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Create fresh mock for each test
     mockSupabaseClient = {
       auth: {
-        signUp: jest.fn(),
-        signInWithPassword: jest.fn(),
-        signOut: jest.fn(),
-        getUser: jest.fn(),
-        updateUser: jest.fn(),
-        resetPasswordForEmail: jest.fn()
+        signUp: vi.fn(),
+        signInWithPassword: vi.fn(),
+        signOut: vi.fn(),
+        getUser: vi.fn(),
+        updateUser: vi.fn(),
+        resetPasswordForEmail: vi.fn()
       },
-      from: jest.fn(() => ({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn(),
-            maybeSingle: jest.fn()
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn(),
+            maybeSingle: vi.fn()
           }))
         })),
-        insert: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn()
+        insert: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn()
           }))
         }))
       })),
-      rpc: jest.fn()
+      rpc: vi.fn()
     }
 
     // Mock the createClient function to return our mock
@@ -61,9 +61,9 @@ describe('AuthService Improved Tests', () => {
 
       // Mock profile not found initially
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: null,
               error: { code: 'PGRST116' }
             })
@@ -87,9 +87,9 @@ describe('AuthService Improved Tests', () => {
 
       // Reset mock for the second call
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: mockProfile,
               error: null
             })
@@ -124,9 +124,9 @@ describe('AuthService Improved Tests', () => {
 
       // Mock profile not found initially
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: null,
               error: { code: 'PGRST116' }
             })
@@ -150,9 +150,9 @@ describe('AuthService Improved Tests', () => {
 
       // Reset mock for direct insert
       mockSupabaseClient.from.mockReturnValue({
-        insert: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        insert: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: mockProfile,
               error: null
             })
@@ -181,9 +181,9 @@ describe('AuthService Improved Tests', () => {
 
       // Mock profile not found initially
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: null,
               error: { code: 'PGRST116' }
             })
@@ -199,9 +199,9 @@ describe('AuthService Improved Tests', () => {
 
       // Mock failed direct insert
       mockSupabaseClient.from.mockReturnValue({
-        insert: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        insert: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: null,
               error: { message: 'Insert failed' }
             })
@@ -237,9 +237,9 @@ describe('AuthService Improved Tests', () => {
       }
 
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: mockProfile,
               error: null
             })
@@ -278,9 +278,9 @@ describe('AuthService Improved Tests', () => {
       }
 
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: mockProfile,
               error: null
             })
@@ -310,9 +310,9 @@ describe('AuthService Improved Tests', () => {
 
       // Mock profile not found initially
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: null,
               error: { code: 'PGRST116' }
             })
@@ -336,9 +336,9 @@ describe('AuthService Improved Tests', () => {
 
       // Reset mock for the second call
       mockSupabaseClient.from.mockReturnValue({
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
               data: mockProfile,
               error: null
             })
