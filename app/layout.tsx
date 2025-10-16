@@ -13,9 +13,13 @@ export const metadata: Metadata = {
   creator: 'QuoteFast',
   publisher: 'QuoteFast',
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/logo.png', sizes: '32x32' }
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
   formatDetection: {
