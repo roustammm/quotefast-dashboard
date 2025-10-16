@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { Slot } from '@radix-ui/react-slot'
 import Link from 'next/link'
 import { motion, MotionProps } from 'framer-motion'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -8,7 +9,7 @@ import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all',
-  {
+  { // Note: some variants like 'glass' and 'premium' rely on global CSS.
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -33,24 +34,43 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  href?: string
+  href?: string;
+  asChild?: boolean;
+  isLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, href, ...props }, ref) => {
-    const isLink = !!href
-    const MotionComponent = isLink ? motion(Link) : motion.button
+  ({ className, variant, size, href, asChild = false, isLoading = false, ...props }, ref) => {
+    const isLink = !!href;
+    const Comp = asChild ? Slot : (isLink ? Link : 'button');
+    const MotionComponent = motion(Comp as React.ElementType);
 
     const motionProps: MotionProps & { href?: string } = {
-      whileHover: { scale: 1.05 },
-      whileTap: { scale: 0.95 },
+      whileHover: { scale: isLoading ? 1 : 1.05 },
+      whileTap: { scale: isLoading ? 1 : 0.95 },
+      transition: { type: 'spring', stiffness: 400, damping: 17 },
       ...(isLink ? { href } : {}),
     }
 
     return (
-      <MotionComponent className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...motionProps} {...props}>
-        {props.children}
-        {variant === 'underline' && <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-green-600 transition-all group-hover:w-full"></span>}
+      <MotionComponent
+        className={cn(buttonVariants({ variant, size, className }), {
+          'opacity-75 cursor-not-allowed': isLoading,
+        })}
+        ref={ref}
+        disabled={isLoading || props.disabled}
+        {...motionProps}
+        {...props}
+      >
+        {asChild ? (
+          props.children
+        ) : (
+          <>
+            {isLoading && <motion.div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />}
+            {props.children}
+          </>
+        )}
+        {variant === 'underline' && <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-blue-600 transition-all group-hover:w-full"></span>}
       </MotionComponent>
     )
   }

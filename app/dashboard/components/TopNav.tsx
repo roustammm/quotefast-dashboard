@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useTheme } from '@/contexts/ThemeContext'
 import { Bell, Settings, User, LogOut, ChevronDown, Sun, Moon } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { logger } from '@/lib/logger'
 
 // Mock auth function for now (replace with real auth later)
 const mockSignOut = () => {
@@ -20,8 +21,8 @@ export default function TopNav() {
 
   // Navigation click handler
   const handleNavClick = (label: string) => {
-    console.log(`Nav clicked: ${label}`)
     // Add analytics tracking here later
+    logger.info(`Nav clicked: ${label}`, 'topnav')
   }
 
   // Sign out handler
@@ -63,7 +64,7 @@ export default function TopNav() {
     const timeoutId = setTimeout(handleStart, 100)
     return () => clearTimeout(timeoutId)
   }, [router])
-
+  
   return (
     <>
       {/* Desktop Navigation */}
@@ -81,51 +82,51 @@ export default function TopNav() {
             </Link>
 
             {/* Navigation Links */}
-            <div className="flex items-center gap-8">
-              <Link 
-                href="/dashboard" 
-                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md"
+            <div className="flex items-center justify-center gap-8">
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md text-center"
                 onClick={() => handleNavClick('dashboard')}
               >
                 Dashboard
               </Link>
-              <Link 
-                href="/dashboard/offertes" 
-                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md"
+              <Link
+                href="/dashboard/offertes"
+                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md text-center"
                 onClick={() => handleNavClick('offertes')}
               >
                 Offertes
               </Link>
-              <Link 
-                href="/dashboard/klanten" 
-                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md"
+              <Link
+                href="/dashboard/klanten"
+                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md text-center"
                 onClick={() => handleNavClick('klanten')}
               >
                 Klanten
               </Link>
-              <Link 
-                href="/dashboard/team" 
-                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md"
+              <Link
+                href="/dashboard/team"
+                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md text-center"
                 onClick={() => handleNavClick('team')}
               >
                 Team
               </Link>
-              <Link 
-                href="/dashboard/settings" 
-                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md"
+              <Link
+                href="/dashboard/settings"
+                className="text-sm font-medium text-white/80 hover:text-primary transition-colors px-3 py-2 rounded-md text-center"
                 onClick={() => handleNavClick('settings')}
               >
                 Settings
               </Link>
             </div>
-
+        
             {/* Right side - Actions */}
             <div className="flex items-center gap-3">
-              {/* Notifications */}
+          {/* Notifications */}
               <button 
                 className="relative p-2 text-white/70 hover:text-white rounded-lg transition-colors"
                 onClick={() => {
-                  console.log('Notifications clicked')
+                  logger.info('Notifications clicked', 'topnav')
                 }}
                 aria-label="Meldingen"
               >
@@ -141,7 +142,7 @@ export default function TopNav() {
                 className="p-2 text-white/70 hover:text-white rounded-lg transition-colors"
                 onClick={() => {
                   toggleTheme()
-                  console.log('Theme toggled to:', theme === 'dark' ? 'light' : 'dark')
+                  logger.info(`Theme toggled to: ${theme === 'dark' ? 'light' : 'dark'}`, 'topnav')
                 }}
                 aria-label="Thema wisselen"
               >
@@ -154,7 +155,7 @@ export default function TopNav() {
 
               {/* User Menu */}
               <div className="relative">
-                <button 
+          <button
                   className="flex items-center gap-2 p-2 text-white/70 hover:text-white rounded-lg transition-colors"
                   onClick={toggleUserMenu}
                   aria-label="Gebruikersmenu"
@@ -162,7 +163,7 @@ export default function TopNav() {
                   <User className="h-5 w-5" />
                   <ChevronDown className={`h-4 w-4 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                   <span className="sr-only">Gebruikersmenu</span>
-                </button>
+          </button>
 
                 {/* User Menu Dropdown */}
                 <div 
@@ -184,8 +185,8 @@ export default function TopNav() {
                   >
                     Mijn Profiel
                   </Link>
-                  <Link 
-                    href="/dashboard/settings" 
+          <Link
+            href="/dashboard/settings"
                     className="block px-4 py-2 text-sm text-white hover:bg-white/10 rounded"
                     onClick={() => {
                       setIsUserMenuOpen(false)
@@ -193,7 +194,7 @@ export default function TopNav() {
                     }}
                   >
                     Instellingen
-                  </Link>
+          </Link>
                   <div className="border-t border-white/10">
                     <button 
                       className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 rounded"
@@ -238,10 +239,10 @@ export default function TopNav() {
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="border-t border-white/10 bg-black/90 backdrop-blur-sm">
-              <div className="px-2 py-2 space-y-1">
-                <Link 
-                  href="/dashboard" 
-                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10"
+              <div className="px-2 py-2 space-y-1 text-center">
+                <Link
+                  href="/dashboard"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 w-full text-center"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleNavClick('dashboard')
@@ -249,9 +250,9 @@ export default function TopNav() {
                 >
                   Dashboard
                 </Link>
-                <Link 
-                  href="/dashboard/offertes" 
-                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10"
+                <Link
+                  href="/dashboard/offertes"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 w-full text-center"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleNavClick('offertes')
@@ -259,9 +260,9 @@ export default function TopNav() {
                 >
                   Offertes
                 </Link>
-                <Link 
-                  href="/dashboard/klanten" 
-                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10"
+                <Link
+                  href="/dashboard/klanten"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 w-full text-center"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleNavClick('klanten')
@@ -269,9 +270,9 @@ export default function TopNav() {
                 >
                   Klanten
                 </Link>
-                <Link 
-                  href="/dashboard/team" 
-                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10"
+                <Link
+                  href="/dashboard/team"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 w-full text-center"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleNavClick('team')
@@ -279,9 +280,9 @@ export default function TopNav() {
                 >
                   Team
                 </Link>
-                <Link 
-                  href="/dashboard/settings" 
-                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10"
+                <Link
+                  href="/dashboard/settings"
+                  className="block px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 w-full text-center"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleNavClick('settings')

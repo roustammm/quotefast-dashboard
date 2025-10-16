@@ -46,6 +46,8 @@ module.exports = {
         // Makerkit kleuren
         'dark-bg': 'rgb(3, 7, 18)',
         'brand-primary': 'oklch(0.637 0.237 25.331)',
+        'brand-primary-dark': 'oklch(0.557 0.237 25.331)',
+        'brand-primary-light': 'oklch(0.717 0.237 25.331)',
         'brand-secondary': 'oklch(0.723 0.219 149.579)',
         'brand-accent': 'oklch(0.685 0.169 237.323)',
         'brand-text': 'rgb(249, 250, 251)',

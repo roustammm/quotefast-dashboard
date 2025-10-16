@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from './supabase/client';
 import { logger } from './logger';
 import { User } from '../types/user';
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';

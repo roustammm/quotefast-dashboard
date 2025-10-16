@@ -12,5 +12,5 @@ Disallow: /register
 Disallow: /api/*
 
 # Sitemap
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://quotefast-dashboard.vercel.app/sitemap.xml
 

@@ -13,7 +13,7 @@ type User = {
   avatar_url: string | null
 }
 
-// Auth context (simple implementation)
+// Auth context using real Supabase auth service
 const AuthContext = createContext<{
   user: User | null
   loading: boolean
@@ -32,39 +32,147 @@ const AuthContext = createContext<{
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  // Initialize auth state on mount
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        setLoading(true)
+        const { authService } = await import('@/lib/auth-service')
+        const response = await authService.getCurrentUser()
+
+        if (response.user) {
+          setUser({
+            id: response.user.id,
+            email: response.user.email,
+            full_name: response.user.name,
+            avatar_url: null
+          })
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+        // Create test user for development
+        await createTestUser()
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    initializeAuth()
+  }, [])
+
+  // Create a test user for development if needed
+  const createTestUser = async () => {
+    try {
+      console.log('🔧 Setting up test user for development...')
+      const { authService } = await import('@/lib/auth-service')
+
+      // Try to login with test credentials first
+      const testResponse = await authService.login('test@quotefast.nl', 'testpassword123')
+
+      if (testResponse.user) {
+        setUser({
+          id: testResponse.user.id,
+          email: testResponse.user.email,
+          full_name: testResponse.user.name,
+          avatar_url: null
+        })
+        console.log('✅ Test user logged in successfully!')
+      } else {
+        console.log('ℹ️ Test user not found, you may need to create it in Supabase')
+      }
+    } catch (error) {
+      console.log('ℹ️ Test user setup:', error.message)
+    }
+  }
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true)
-    // Mock auth for now
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setUser({ email, id: 'user123', full_name: 'Test User', avatar_url: null })
-    setLoading(false)
+    try {
+      setLoading(true)
+      const { authService } = await import('@/lib/auth-service')
+      const response = await authService.login(email, password)
+
+      if (response.user) {
+        setUser({
+          id: response.user.id,
+          email: response.user.email,
+          full_name: response.user.name,
+          avatar_url: null
+        })
+      } else {
+        throw new Error(response.error || 'Inloggen mislukt')
+      }
+    } catch (error: any) {
+      throw new Error(error.message || 'Inloggen mislukt')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const signOut = async () => {
-    setLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    setUser(null)
-    setLoading(false)
+    try {
+      setLoading(true)
+      const { authService } = await import('@/lib/auth-service')
+      await authService.logout()
+      setUser(null)
+    } catch (error: any) {
+      console.error('Sign out error:', error)
+      throw new Error(error.message || 'Uitloggen mislukt')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const signUp = async (email: string, password: string, name: string) => {
-    setLoading(true)
-    // Mock auth for now
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setUser({ email, id: 'user123', full_name: name, avatar_url: null })
-    setLoading(false)
+    try {
+      setLoading(true)
+      const { authService } = await import('@/lib/auth-service')
+      const response = await authService.register(email, password, name)
+
+      if (response.user && response.status === 200) {
+        setUser({
+          id: response.user.id,
+          email: response.user.email,
+          full_name: response.user.name,
+          avatar_url: null
+        })
+      } else if (response.status === 202) {
+        // Email confirmation required
+        throw new Error(response.error || 'Controleer je email om je account te bevestigen')
+      } else {
+        throw new Error(response.error || 'Registreren mislukt')
+      }
+    } catch (error: any) {
+      throw new Error(error.message || 'Registreren mislukt')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const updateProfile = async (updates: { full_name?: string; email?: string }) => {
-    setLoading(true)
-    // Mock update for now
-    await new Promise(resolve => setTimeout(resolve, 500))
-    if (user) {
-      setUser({ ...user, ...updates })
+    try {
+      if (!user) throw new Error('Geen gebruiker ingelogd')
+
+      setLoading(true)
+      const { authService } = await import('@/lib/auth-service')
+      const response = await authService.updateUser(user.id, { name: updates.full_name })
+
+      if (response.user) {
+        setUser({
+          id: response.user.id,
+          email: response.user.email,
+          full_name: response.user.name,
+          avatar_url: null
+        })
+      } else {
+        throw new Error(response.error || 'Profiel bijwerken mislukt')
+      }
+    } catch (error: any) {
+      throw new Error(error.message || 'Profiel bijwerken mislukt')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

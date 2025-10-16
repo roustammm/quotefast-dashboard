@@ -1,64 +1,54 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '../styles/globals.css'
-import { CustomCursor } from '@/app/components/CustomCursor'
 import { AppProviders } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: {
-    default: 'QuoteFast - AI-Powered Quote Generation & Business Management',
-    template: '%s | QuoteFast',
-  },
-  description: 'Automatiseer je offertes met AI. Beheer klanten, facturatie en workflows op één plek. Start vandaag je gratis trial en transformeer je business.',
-  keywords: [
-    'AI offertes',
-    'automatische facturatie',
-    'klantbeheer',
-    'business management',
-    'SaaS',
-    'startup tools',
-    'offerte software'
-  ],
-  authors: [{ name: 'QuoteFast Team', url: 'https://quotefast.com' }],
+  title: 'QuoteFast Dashboard - AI Offertegenerator | Automatiseer je Offerteproces',
+  description: 'Automatiseer je offertes met AI. Bespaar uren werk en verhoog je conversie met QuoteFast Dashboard. CRM, facturatie en workflow automatisering in één platform.',
+  keywords: 'offertes, AI, automatisering, CRM, facturatie, offertegenerator, business management, SaaS',
+  authors: [{ name: 'QuoteFast Team' }],
   creator: 'QuoteFast',
   publisher: 'QuoteFast',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
+  manifest: '/manifest.json',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://quotefast.com'),
+  metadataBase: new URL('https://quotefast-dashboard.vercel.app'),
   alternates: {
     canonical: '/',
-    languages: {
-      'nl-NL': '/nl',
-      'en-US': '/',
-    },
   },
   openGraph: {
-    type: 'website',
-    locale: 'nl_NL',
-    url: '/',
-    siteName: 'QuoteFast',
-    description: 'Automatiseer je offertes met AI en beheeer je business efficiënter. Start vandaag je gratis trial!',
-    title: 'QuoteFast - AI Offerte Software & Business Management',
+    title: 'QuoteFast Dashboard - AI Offertegenerator',
+    description: 'Automatiseer je offertes met AI. Bespaar tijd en verhoog je conversie met QuoteFast Dashboard.',
+    url: 'https://quotefast-dashboard.vercel.app',
+    siteName: 'QuoteFast Dashboard',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'QuoteFast AI Dashboard',
+        alt: 'QuoteFast Dashboard - AI Offertegenerator',
       },
     ],
+    locale: 'nl_NL',
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'QuoteFast - AI-Powered Quote Generation',
-    description: 'Transformeer je offerteproces met AI. Sneller, slimmer, professioneler.',
-    images: ['/twitter-image.jpg'],
-    creator: '@QuoteFastApp',
+    title: 'QuoteFast Dashboard - AI Offertegenerator',
+    description: 'Automatiseer je offertes met AI. Bespaar tijd en verhoog je conversie.',
+    images: ['/og-image.jpg'],
+    creator: '@quotefast',
   },
   robots: {
     index: true,
@@ -72,24 +62,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'google-site-verification-code',
-    yandex: 'yandex-verification-code',
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-  themeColor: '#000000',
-  applicationName: 'QuoteFast',
-  referrer: 'origin-when-cross-origin',
-  other: {
-    'application-name': 'QuoteFast',
-    'apple-mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-status-bar-style': 'default',
-    'apple-mobile-web-app-title': 'QuoteFast',
-    'google': 'google-site-verification-code',
+    google: 'your-google-verification-code',
   },
 }
 
@@ -99,9 +72,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="nl" suppressHydrationWarning className="dark">
-      <body className={`${inter.className} bg-background text-foreground`}>
-        <CustomCursor />
+    <html lang="nl" suppressHydrationWarning>
+      <body className={inter.className}>
         <AppProviders>
           {children}
         </AppProviders>

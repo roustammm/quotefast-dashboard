@@ -4,6 +4,7 @@ import { Bot, Settings, Play, TestTube, Zap, Brain, Code, Shield, CheckCircle, A
 import { useState } from "react";
 import ModelConfigModal from "../components/ModelConfigModal";
 import { logger } from '../../../lib/logger';
+import { geminiService } from '../../../lib/gemini-service';
 
 interface Model {
   id: string;
@@ -72,14 +73,14 @@ export default function ModelsPage() {
     },
     {
       id: "gemini-pro",
-      name: "Google Gemini Pro",
+      name: "Google Gemini 2.0 Flash",
       provider: "Google",
       endpoint: "https://generativelanguage.googleapis.com/v1beta",
-      status: "inactive",
-      capabilities: ["Multimodal Analysis", "Code Documentation", "Security Review", "Architecture Advisory"],
-      description: "Advanced multimodal model for code review, documentation, and security analysis.",
-      lastUsed: "1 hour ago",
-      responseTime: 3.5
+      status: geminiService.isConfigured() ? "active" : "inactive",
+      capabilities: ["Code Generation", "Code Refactoring", "Debugging", "Code Explanation", "Performance Optimization", "Test Generation"],
+      description: "Advanced AI model for comprehensive code assistance, debugging, and optimization. Powered by Gemini 2.0 Flash.",
+      lastUsed: geminiService.isConfigured() ? "Just now" : "Not configured",
+      responseTime: geminiService.isConfigured() ? 2.1 : 3.5
     }
   ];
 
@@ -112,12 +113,23 @@ export default function ModelsPage() {
   const testModel = async (modelId: string) => {
     setIsTesting(true);
     setTestResult(null);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const mockResponse = `// Counter Component
+      let response: string;
+
+      if (modelId === 'gemini-pro' && geminiService.isConfigured()) {
+        // Use actual Gemini service for Gemini Pro
+        response = await geminiService.generateCode({
+          prompt: testPrompt,
+          language: 'javascript',
+          temperature: 0.3,
+          maxTokens: 1000
+        });
+      } else {
+        // Use mock response for other models or when Gemini is not configured
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        response = `// Counter Component
 import React, { useState } from 'react';
 
 const Counter = () => {
@@ -140,10 +152,11 @@ const Counter = () => {
 };
 
 export default Counter;`;
-      
-      setTestResult(mockResponse);
+      }
+
+      setTestResult(response);
     } catch (error) {
-      setTestResult("Error testing model: " + error);
+      setTestResult("Error testing model: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setIsTesting(false);
     }
@@ -338,7 +351,7 @@ export default Counter;`;
             <div className="p-4 bg-white/5 rounded-lg">
               <h4 className="text-white font-medium mb-2">2. API Keys</h4>
               <p className="text-gray-400 text-sm">
-                Configure API keys for external services like Gemini in the settings.
+                Configure API keys for external services like Gemini in your .env.local file. Gemini 2.0 Flash is {geminiService.isConfigured() ? 'ready to use' : 'not configured'}.
               </p>
             </div>
             <div className="p-4 bg-white/5 rounded-lg">

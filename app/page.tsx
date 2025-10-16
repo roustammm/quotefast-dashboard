@@ -10,12 +10,114 @@ import FloatingElements from '@/components/ui/FloatingElements'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import { motion } from 'framer-motion'
 import { Button } from '@/lib/Button'
+import { memo, useMemo } from 'react'
+
+// Memoized components for better performance
+const FeatureCard = memo(({ icon: Icon, title, description, delay = 0 }) => (
+  <motion.div 
+    whileHover={{ scale: 1.05, y: -5 }}
+    transition={{ duration: 0.3 }}
+    className="glass-card p-8 rounded-2xl border-border hover:shadow-lg"
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8, delay }}
+    viewport={{ once: true }}
+  >
+    <motion.div 
+      whileHover={{ rotate: [0, 5, -5, 0] }}
+      transition={{ duration: 0.3 }}
+      className="w-12 h-12 glass-card rounded-lg flex items-center justify-center mb-4 mx-auto"
+    >
+      <Icon className="w-6 h-6 text-primary" />
+    </motion.div>
+    <h3 className="text-xl font-semibold text-foreground mb-3">{title}</h3>
+    <p className="text-muted-foreground text-sm leading-relaxed">
+      {description}
+    </p>
+  </motion.div>
+))
+
+const DashboardCard = memo(({ title, value, change, changeType, progress, icon: Icon, delay = 0 }) => (
+  <motion.div 
+    className="glass-card p-6 rounded-xl border-border"
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay }}
+    viewport={{ once: true }}
+  >
+    <div className="flex items-center justify-between mb-4">
+      <h3 className="text-sm font-medium text-foreground/80">{title}</h3>
+      <Button variant="glass" size="icon" className="!w-auto !h-auto p-1 hover:bg-accent rounded !border-none">
+        <Icon className="w-4 h-4 text-primary" />
+      </Button>
+    </div>
+    <div className="text-3xl font-bold text-foreground mb-2">{value}</div>
+    <div className="flex items-center gap-2 mb-3">
+      <div className={`modern-glass-button px-2 py-1 text-xs ${
+        changeType === 'positive' ? '' : 'bg-destructive/10 text-destructive'
+      }`}>
+        {changeType === 'positive' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+        {change}
+      </div>
+    </div>
+    <div className="w-full bg-muted rounded-full h-2 mb-2">
+      <motion.div 
+        className={`h-2 rounded-full ${
+          changeType === 'positive' ? 'bg-success-gradient' : 
+          changeType === 'negative' ? 'bg-destructive-gradient' : 'bg-warning-gradient'
+        }`}
+        initial={{ width: 0 }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 1.5, delay: delay + 0.2 }}
+      />
+    </div>
+    <div className="flex justify-between text-xs text-muted-foreground">
+      <span>{progress}%</span>
+      <span>Last updated: Just now</span>
+    </div>
+  </motion.div>
+))
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme()
 
+  // Memoized data for better performance
+  const features = useMemo(() => [
+    {
+      icon: Zap,
+      title: "AI Offertegenerator",
+      description: "Laat AI automatisch professionele offertes genereren. Slimme productherkenning en automatische prijsberekening."
+    },
+    {
+      icon: Users,
+      title: "CRM & Klantbeheer",
+      description: "Beheer al je klanten, leads en contacten op één plek. Track conversaties en follow-ups voor betere klantrelaties."
+    },
+    {
+      icon: Shield,
+      title: "Facturatie & Betalingen",
+      description: "Automatische facturatie, betalingsherinneringen en Stripe integratie. Accepteer betalingen online."
+    },
+    {
+      icon: Rocket,
+      title: "Workflow Automatisering",
+      description: "Automatiseer repetitieve taken. Van lead capture tot factuur verzending - alles draait automatisch."
+    }
+  ], [])
+
+  const dashboardCards = useMemo(() => [
+    { title: "Executions", value: "340", change: "204%", changeType: "positive", progress: 75, icon: Zap, delay: 0 },
+    { title: "Projects", value: "12", change: "18%", changeType: "positive", progress: 60, icon: Folder, delay: 0.2 },
+    { title: "Team Reviews", value: "5", change: "-12%", changeType: "negative", progress: 40, icon: Users, delay: 0.4 },
+    { title: "Active Users", value: "1.284", change: "8%", changeType: "positive", progress: 82, icon: Users, delay: 0.6 },
+    { title: "Revenue", value: "$45.2K", change: "32%", changeType: "positive", progress: 91, icon: DollarSign, delay: 0.8 },
+    { title: "Conversion", value: "3.2%", change: "-5%", changeType: "negative", progress: 28, icon: TrendingUp, delay: 1.0 },
+    { title: "Avg. Response", value: "1.2s", change: "15%", changeType: "positive", progress: 67, icon: Clock, delay: 1.2 },
+    { title: "Offers Generated", value: "127", change: "24%", changeType: "positive", progress: 76, icon: FileText, delay: 1.4 }
+  ], [])
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-950/30 to-gray-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-blue-950/30 to-background relative overflow-hidden">
       <ScrollProgress />
       <FloatingElements />
       
@@ -99,11 +201,11 @@ export default function Home() {
         </motion.div>
 
         {/* CTA Buttons - Glass styled */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex flex-col sm:flex-row gap-4 mt-12"
+          className="flex flex-col sm:flex-row gap-4 mt-12 justify-center"
         >
           <Button href="/register" variant="premium" size="lg" className="shadow-lg">
             <Sparkles className="w-5 h-5" />
@@ -445,81 +547,15 @@ export default function Home() {
         </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Feature 1 */}
-          <motion.div 
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ duration: 0.3 }}
-            className="glass-card p-8 rounded-2xl border-border hover:shadow-lg"
-          >
-            <motion.div 
-              whileHover={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 0.3 }}
-              className="w-12 h-12 glass-card rounded-lg flex items-center justify-center mb-4 mx-auto"
-            >
-              <Zap className="w-6 h-6 text-primary" />
-            </motion.div>
-            <h3 className="text-xl font-semibold text-foreground mb-3">AI Offertegenerator</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Laat AI automatisch professionele offertes genereren. Slimme productherkenning en automatische prijsberekening.
-            </p>
-          </motion.div>
-
-          {/* Feature 2 */}
-          <motion.div 
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ duration: 0.3 }}
-            className="glass-card p-8 rounded-2xl border-border hover:shadow-lg"
-          >
-            <motion.div 
-              whileHover={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 0.3 }}
-              className="w-12 h-12 glass-card rounded-lg flex items-center justify-center mb-4 mx-auto"
-            >
-              <Users className="w-6 h-6 text-primary" />
-            </motion.div>
-            <h3 className="text-xl font-semibold text-foreground mb-3">CRM & Klantbeheer</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Beheer al je klanten, leads en contacten op één plek. Track conversaties en follow-ups voor betere klantrelaties.
-            </p>
-          </motion.div>
-
-          {/* Feature 3 */}
-          <motion.div 
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ duration: 0.3 }}
-            className="glass-card p-8 rounded-2xl border-border hover:shadow-lg"
-          >
-            <motion.div 
-              whileHover={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 0.3 }}
-              className="w-12 h-12 glass-card rounded-lg flex items-center justify-center mb-4 mx-auto"
-            >
-              <Shield className="w-6 h-6 text-primary" />
-            </motion.div>
-            <h3 className="text-xl font-semibold text-foreground mb-3">Facturatie & Betalingen</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Automatische facturatie, betalingsherinneringen en Stripe integratie. Accepteer betalingen online.
-            </p>
-          </motion.div>
-
-          {/* Feature 4 */}
-          <motion.div 
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ duration: 0.3 }}
-            className="glass-card p-8 rounded-2xl border-border hover:shadow-lg"
-          >
-            <motion.div 
-              whileHover={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 0.3 }}
-              className="w-12 h-12 glass-card rounded-lg flex items-center justify-center mb-4 mx-auto"
-            >
-              <Rocket className="w-6 h-6 text-primary" />
-            </motion.div>
-            <h3 className="text-xl font-semibold text-foreground mb-3">Workflow Automatisering</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Automatiseer repetitieve taken. Van lead capture tot factuur verzending - alles draait automatisch.
-            </p>
-          </motion.div>
+          {features.map((feature, index) => (
+            <FeatureCard
+              key={feature.title}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+              delay={index * 0.1}
+            />
+          ))}
         </div>
       </section>
 
@@ -901,7 +937,7 @@ export default function Home() {
             Sluit je aan bij honderden ondernemers die al hun offertes automatiseren met QuoteFast
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Button href="/register" variant="premium" size="lg" className="shadow-lg">
               Start Gratis Proberen
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -912,7 +948,7 @@ export default function Home() {
           </div>
 
           {/* Trust indicators - Glass styled */}
-          <div className="flex flex-wrap justify-center gap-8 text-white/80 text-sm">
+          <div className="flex flex-wrap justify-center items-center gap-8 text-white/80 text-sm">
             <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg">
               <CheckCircle className="w-4 h-4 text-success" />
               <span>Geen setup kosten</span>
