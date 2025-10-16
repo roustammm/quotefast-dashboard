@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '../../../../contexts/AuthContext';
+import { useAuth } from '@/app/providers';
 import { useToast } from './useToast';
 import { settingsService } from '../../../../lib/settings-service';
 import { NotificationSettings, AppearanceSettings, AIPersonalizationSettings } from '../../../../types/settings';

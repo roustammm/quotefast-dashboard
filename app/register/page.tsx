@@ -11,6 +11,10 @@ import { motion } from 'framer-motion'
 import AnimatedCard from '../../components/ui/AnimatedCard'
 import GradientText from '../../components/ui/GradientText'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
+import BrainNeuronAnimation from '../../components/ui/BrainNeuronAnimation'
+
+// Force dynamic rendering for pages that use auth context
+export const dynamic = 'force-dynamic';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
@@ -67,8 +71,11 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 relative overflow-hidden">
+      {/* Brain Neuron Animation Background */}
+      <BrainNeuronAnimation />
+      
       <PublicNav currentPage="register" />
-      <div className="container mx-auto px-6 py-24">
+      <div className="container mx-auto px-6 py-24 relative z-10">
         <div className="w-full max-w-md mx-auto">
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-8 text-center shadow-2xl">
             <motion.div

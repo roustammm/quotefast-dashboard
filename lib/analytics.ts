@@ -1,7 +1,9 @@
+/* eslint-disable no-console */
 /* Simple Analytics setup voor QuoteFast */
 
 import { useEffect } from 'react'
 
+import { logger } from "@/lib/logger";
 // Analytics configuration
 const GA4_CONFIG = {
   measurementId: process.env.NEXT_PUBLIC_GA_ID,
@@ -24,7 +26,7 @@ export const initializeAnalytics = () => {
 // Page view tracking (simplified)
 export const trackPageView = (pageTitle: string, pageLocation: string) => {
   if (analyticsInstance && typeof window !== 'undefined') {
-    console.log('Page view tracked:', { pageTitle, pageLocation })
+    logger.info(`Page view tracked: ${pageTitle} at ${pageLocation}`)
   }
 }
 
@@ -142,7 +144,7 @@ export const trackEvent = (event: any, params: any = {}) => {
       referrer: document.referrer || ''
     }
     
-    console.log('Event tracked:', eventData)
+    logger.info('Event tracked:', eventData)
   }
 }
 
@@ -182,25 +184,21 @@ const getSessionId = () => {
 // E-commerce tracking for Stripe payments (simplified)
 export const trackPurchase = (transaction: any) => {
   if (analyticsInstance && typeof window !== 'undefined') {
-    console.log('Purchase tracked:', {
-      transaction_id: transaction.id,
-      value: transaction.amount / 100,
-      currency: 'EUR'
-    })
+    logger.info(`Purchase tracked: ${transaction.id} - €${transaction.amount / 100}`)
   }
 }
 
 // A/B Testing tracking (simplified)
 export const trackABTest = (experiment: string, variant: string) => {
   if (analyticsInstance && typeof window !== 'undefined') {
-    console.log('AB test tracked:', { experiment, variant })
+    logger.info(`AB test tracked: ${experiment} - ${variant}`)
   }
 }
 
 // User properties (simplified)
 export const setUserProperties = (properties: any) => {
   if (analyticsInstance && typeof window !== 'undefined') {
-    console.log('User properties set:', properties)
+    logger.info('User properties set:', properties)
   }
 }
 
@@ -231,7 +229,7 @@ export const useAnalytics = () => {
 // Server-side tracking (simplified)
 export const trackServerEvent = async (event: any, params: any = {}) => {
   if (process.env.NODE_ENV === 'production') {
-    console.log('Server event tracked:', { event, params })
+    logger.info(`Server event tracked: ${event} with params: ${JSON.stringify(params)}`)
     return { success: true }
   }
 }

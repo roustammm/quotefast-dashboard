@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Plus, Search, Filter, MoreVertical, Calendar, User, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { logger } from "@/lib/logger";
 
 const projects = [
   {
@@ -90,7 +91,7 @@ export default function ProjectsPage() {
         <button 
           onClick={() => {
             // Hier zou je een modal kunnen openen om een nieuw project aan te maken
-            console.log('Nieuw project aanmaken');
+            logger.info('Nieuw project aanmaken', 'projects');
             // Je kunt hier navigeren naar een project editor of een modal openen
           }}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
@@ -123,7 +124,7 @@ export default function ProjectsPage() {
         <button 
           onClick={() => {
             // Hier zou je een filter modal kunnen openen
-            console.log('Filter modal openen');
+            logger.info('Filter modal openen', 'projects');
           }}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors backdrop-blur-xl ${
             theme === "dark"

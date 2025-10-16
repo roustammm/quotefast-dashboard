@@ -11,6 +11,10 @@ export interface ErrorContext {
   timestamp?: string
   userAgent?: string
   url?: string
+  endpoint?: string
+  method?: string
+  originalError?: string
+  validationErrors?: Record<string, string[]>
   additionalData?: Record<string, any>
 }
 
@@ -75,6 +79,9 @@ export const ErrorCodes = {
   FORM_SUBMISSION_ERROR: 'FORM_SUBMISSION_ERROR',
   FILE_SIZE_TOO_LARGE: 'FILE_SIZE_TOO_LARGE',
   INVALID_FILE_TYPE: 'INVALID_FILE_TYPE',
+
+  // General errors
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
 } as const
 
 export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes]
@@ -277,7 +284,7 @@ export class ErrorHandler {
       // In production, send to error reporting service like Sentry
       if (process.env.NODE_ENV === 'production') {
         // Example: Sentry.captureException(error, { extra: context })
-        console.log('Would send to error reporting service:', { error, context })
+        logger.info('Would send to error reporting service:', 'error-handler', { error, context })
       }
     } catch (reportingError) {
       logger.error('Failed to report error', 'error-handler', { reportingError })

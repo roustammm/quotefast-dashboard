@@ -13,7 +13,12 @@ import { Button } from '@/lib/Button'
 import { memo, useMemo } from 'react'
 
 // Memoized components for better performance
-const FeatureCard = memo(({ icon: Icon, title, description, delay = 0 }) => {
+const FeatureCard = memo(({ icon: Icon, title, description, delay = 0 }: { 
+  icon: React.ComponentType<any>, 
+  title: string, 
+  description: string, 
+  delay?: number 
+}) => {
   return (
   <motion.div
     whileHover={{ scale: 1.05, y: -5 }}
@@ -40,45 +45,39 @@ const FeatureCard = memo(({ icon: Icon, title, description, delay = 0 }) => {
 
 FeatureCard.displayName = 'FeatureCard'
 
-const DashboardCard = memo(({ title, value, change, changeType, progress, icon: Icon, delay = 0 }) => (
-  <motion.div 
-    className="glass-card p-6 rounded-xl border-border"
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay }}
-    viewport={{ once: true }}
-  >
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-sm font-medium text-foreground/80">{title}</h3>
-      <Button variant="glass" size="icon" className="!w-auto !h-auto p-1 hover:bg-accent rounded !border-none">
-        <Icon className="w-4 h-4 text-primary" />
-      </Button>
-    </div>
-    <div className="text-3xl font-bold text-foreground mb-2">{value}</div>
-    <div className="flex items-center gap-2 mb-3">
-      <div className={`modern-glass-button px-2 py-1 text-xs ${
-        changeType === 'positive' ? '' : 'bg-destructive/10 text-destructive'
-      }`}>
-        {changeType === 'positive' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-        {change}
-      </div>
-    </div>
-    <div className="w-full bg-muted rounded-full h-2 mb-2">
-      <motion.div 
-        className={`h-2 rounded-full ${
-          changeType === 'positive' ? 'bg-success-gradient' : 
-          changeType === 'negative' ? 'bg-destructive-gradient' : 'bg-warning-gradient'
-        }`}
-        initial={{ width: 0 }}
-        animate={{ width: `${progress}%` }}
-        transition={{ duration: 1.5, delay: delay + 0.2 }}
-      />
-    </div>
-    <div className="flex justify-between text-xs text-muted-foreground">
-      <span>{progress}%</span>
-      <span>Last updated: Just now</span>
-    </div>
-  </motion.div>
+const DashboardCard = memo(({
+  title,
+  value,
+  growth,
+  icon,
+  progress,
+  trend = "up",
+  delay = 0,
+  description,
+  isLoading = false
+}: {
+  title: string;
+  value: string | number;
+  growth?: string;
+  icon?: React.ReactNode;
+  progress?: number;
+  trend?: "up" | "down" | "neutral";
+  delay?: number;
+  description?: string;
+  isLoading?: boolean;
+}) => {
+  return (
+    <DashboardCard
+      title={title}
+      value={value}
+      growth={growth}
+      icon={icon}
+      progress={progress}
+      trend={trend}
+      delay={delay}
+      description={description}
+      isLoading={isLoading}
+    />
   )
 })
 

@@ -1,4 +1,8 @@
+/* eslint-disable no-console */
+/* eslint-disable no-console */
 /* Simplified email service voor QuoteFast */
+
+import { logger } from './logger';
 
 // Base email template component
 const EmailTemplate = ({ 
@@ -35,6 +39,7 @@ const EmailTemplate = ({
         textAlign: 'center' as const,
         borderRadius: '8px 8px 0 0'
       }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src={logoUrl} 
           alt={companyName}
@@ -88,14 +93,14 @@ const EmailTemplate = ({
 }
 
 // Welcome Email Component
-export const WelcomeEmail = ({ 
-  name, 
-  email, 
+export const WelcomeEmail = ({
+  name,
+  email = 'user@example.com',
   companyName = 'QuoteFast'
-}: { 
-  name: string 
-  email: string 
-  companyName?: string 
+}: {
+  name: string
+  email?: string
+  companyName?: string
 }) => {
   return (
     <EmailTemplate companyName={companyName}>
@@ -406,7 +411,8 @@ export const emailUtils = {
   sendWelcome: async ({ email, name }: { email: string; name: string }) => {
     try {
       const emailComponent = WelcomeEmail({ name })
-      return await sendEmail(email, `Welkom bij QuoteFast, ${name}!`, emailComponent)
+      const result = await sendEmail(email, `Welkom bij QuoteFast, ${name}!`, emailComponent)
+      return result
     } catch (error) {
       console.error('Welcome email error:', error)
       return { error: 'Failed to send welcome email' }
@@ -415,8 +421,14 @@ export const emailUtils = {
 
   sendOffer: async ({ email, name, offerData }: { email: string; name: string; offerData: any }) => {
     try {
-      const emailComponent = OfferEmail({ name, offerData })
-      return await sendEmail(email, `Je offerte van QuoteFast`, emailComponent)
+      const emailComponent = OfferEmail({
+        recipientName: name,
+        offerTitle: offerData.title || 'Offerte',
+        offerAmount: offerData.amount || 0,
+        offerUrl: offerData.url || '#'
+      })
+      const result = await sendEmail(email, `Je offerte van QuoteFast`, emailComponent)
+      return result
     } catch (error) {
       console.error('Offer email error:', error)
       return { error: 'Failed to send offer email' }

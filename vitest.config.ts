@@ -15,11 +15,11 @@
  * - Accessibility testing integration
  */
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+// import react from '@vitejs/plugin-react';
+import * as path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [], // [react()],
   test: {
     // Test environment
     environment: 'jsdom',
@@ -81,8 +81,7 @@ export default defineConfig({
         },
       },
       // Performance optimizations
-      all: false,
-      src: ['.'],
+      enabled: true,
     },
 
     // Global test configuration
@@ -95,7 +94,7 @@ export default defineConfig({
     retry: 2,
 
     // Reporter configuration
-    reporter: ['verbose', 'json', 'html'],
+    reporters: ['verbose', 'json', 'html'],
     outputFile: {
       json: './test-results.json',
       html: './test-results.html',

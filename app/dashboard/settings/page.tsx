@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Save } from "lucide-react";
 import { Toaster } from 'react-hot-toast';
 import ProfileSection from './components/ProfileSection';
@@ -12,9 +13,35 @@ import AIPersonalizationSection from './components/AIPersonalizationSection';
 import SystemSection from './components/SystemSection';
 import { SETTINGS_TABS, SettingsTab } from './utils/constants';
 
+// Force dynamic rendering for pages that use search params
+export const dynamic = 'force-dynamic';
+
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams?.get('tab') as SettingsTab;
+
+  // Set initial tab based on URL parameter or default to 'profile'
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    if (tabFromUrl && SETTINGS_TABS.some(tab => tab.id === tabFromUrl)) {
+      return tabFromUrl;
+    }
+    return 'profile';
+  });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Update URL when tab changes (for shareable links)
+  useEffect(() => {
+    if (activeTab !== 'profile') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', activeTab);
+      window.history.replaceState({}, '', url.toString());
+    } else {
+      // Remove tab parameter when on profile (default)
+      const url = new URL(window.location.href);
+      url.searchParams.delete('tab');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [activeTab]);
 
   // Keyboard shortcuts
   useEffect(() => {

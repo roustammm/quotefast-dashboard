@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { logger } from '@/lib/logger';
 import { 
   Mic, 
   MicOff, 
@@ -21,6 +22,8 @@ interface VoiceInputData {
   images?: File[];
   audioBlob?: Blob;
 }
+
+import Image from 'next/image';
 
 export default function AIVoiceQuoteGenerator() {
   const [isRecording, setIsRecording] = useState(false);
@@ -69,7 +72,7 @@ export default function AIVoiceQuoteGenerator() {
       recognitionRef.current?.start();
       setIsRecording(true);
     } catch (error) {
-      console.error('Microphone access denied:', error);
+      logger.error('Microphone access denied:', 'AIVoiceQuoteGenerator', { error });
       alert('Geef toegang tot je microfoon om spraak te gebruiken');
     }
   };
@@ -107,10 +110,10 @@ export default function AIVoiceQuoteGenerator() {
       const result = await response.json();
       
       // Handle success - redirect to quote page or show modal
-      console.log('Generated quote:', result);
+      logger.info('Generated quote:', 'AIVoiceQuoteGenerator', { result });
       
     } catch (error) {
-      console.error('Error generating quote:', error);
+      logger.error('Error generating quote:', 'AIVoiceQuoteGenerator', { error });
       alert('Er ging iets mis bij het genereren van de offerte');
     } finally {
       setIsProcessing(false);
@@ -153,7 +156,7 @@ export default function AIVoiceQuoteGenerator() {
               AI Offerte Generator
             </h2>
             <p className="text-gray-400">
-              Spreek je offerte in, voeg foto's toe en laat AI het werk doen
+              Spreek je offerte in, voeg foto&apos;s toe en laat AI het werk doen
             </p>
           </div>
 
@@ -204,7 +207,7 @@ export default function AIVoiceQuoteGenerator() {
           {/* Image Upload */}
           <div className="mb-6">
             <label className="mb-2 block text-sm font-medium text-gray-400">
-              Foto's toevoegen
+              Foto&apos;s toevoegen
             </label>
             <div className="grid grid-cols-4 gap-4">
               {/* Upload Button */}
@@ -213,9 +216,9 @@ export default function AIVoiceQuoteGenerator() {
                   type="file"
                   multiple
                   accept="image/*"
-                  capture="environment"
                   onChange={handleImageUpload}
                   className="hidden"
+                  aria-label="Foto's uploaden"
                 />
                 <Camera className="h-6 w-6 text-gray-400 transition-colors group-hover:text-cyan-400" />
               </label>
@@ -223,9 +226,11 @@ export default function AIVoiceQuoteGenerator() {
               {/* Image Previews */}
               {images.map((img, i) => (
                 <div key={i} className="relative h-24 overflow-hidden rounded-xl">
-                  <img
+                  <Image
                     src={URL.createObjectURL(img)}
                     alt={`Upload ${i + 1}`}
+                    width={96}
+                    height={96}
                     className="h-full w-full object-cover"
                   />
                   <button

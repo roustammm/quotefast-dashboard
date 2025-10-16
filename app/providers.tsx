@@ -1,11 +1,14 @@
 /* Complete AppProviders wrapper voor QuoteFast */
 
+/* eslint-disable no-console */
 'use client'
 
 import React, { ReactNode, createContext, useState, useEffect } from 'react'
 import { ThemeProvider as ThemeWrapper } from '@/contexts/ThemeContext'
+import { AIPersonalizationProvider } from '@/contexts/AIPersonalizationContext'
 import { Toaster } from 'react-hot-toast'
 
+import { logger } from "@/lib/logger";
 type User = {
   id: string
   email: string
@@ -51,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           })
         }
       } catch (error) {
-        console.error('Auth initialization error:', error)
+        logger.error('Auth initialization error:', 'auth', error)
         // Create test user for development
         await createTestUser()
       } finally {
@@ -65,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Create a test user for development if needed
   const createTestUser = async () => {
     try {
-      console.log('🔧 Setting up test user for development...')
+      logger.info('🔧 Setting up test user for development...')
       const { authService } = await import('@/lib/auth-service')
 
       // Try to login with test credentials first
@@ -78,12 +81,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           full_name: testResponse.user.name,
           avatar_url: null
         })
-        console.log('✅ Test user logged in successfully!')
+        logger.info('✅ Test user logged in successfully!')
       } else {
-        console.log('ℹ️ Test user not found, you may need to create it in Supabase')
+        logger.info('ℹ️ Test user not found, you may need to create it in Supabase')
       }
     } catch (error) {
-      console.log('ℹ️ Test user setup:', error.message)
+      logger.info('ℹ️ Test user setup:', 'auth', error instanceof Error ? error.message : String(error))
     }
   }
 
@@ -117,7 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await authService.logout()
       setUser(null)
     } catch (error: any) {
-      console.error('Sign out error:', error)
+      logger.error('Sign out error:', error)
       throw new Error(error.message || 'Uitloggen mislukt')
     } finally {
       setLoading(false)
@@ -216,21 +219,23 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ThemeWrapper>
       <AuthProvider>
-        <StandbyProvider>
-          {children}
-          <Toaster 
-            position="top-right"
-            reverseOrder={false}
-            gutter={8}
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-            }}
-          />
-        </StandbyProvider>
+        <AIPersonalizationProvider>
+          <StandbyProvider>
+            {children}
+            <Toaster
+              position="top-right"
+              reverseOrder={false}
+              gutter={8}
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+              }}
+            />
+          </StandbyProvider>
+        </AIPersonalizationProvider>
       </AuthProvider>
     </ThemeWrapper>
   )

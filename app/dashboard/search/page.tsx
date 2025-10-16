@@ -1,20 +1,28 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Search, FileText, Users, Euro, Clock, Filter, SortAsc } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useSearchParams } from "next/navigation";
 
-export default function SearchPage() {
+function SearchPageContent() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchPageInner />
+    </Suspense>
+  );
+}
+
+function SearchPageInner() {
   const { theme } = useTheme();
   const searchParams = useSearchParams();
-  const query = searchParams.get('q') || '';
+  const query = searchParams?.get('q') || '';
   const [searchQuery, setSearchQuery] = useState(query);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Mock search results
-  const mockResults = [
+  const mockResults = useMemo(() => [
     {
       id: 1,
       type: 'offerte',
@@ -51,7 +59,7 @@ export default function SearchPage() {
       status: 'In Progress',
       value: '€8,500'
     }
-  ];
+  ], []);
 
   useEffect(() => {
     if (searchQuery) {
@@ -68,7 +76,7 @@ export default function SearchPage() {
     } else {
       setSearchResults([]);
     }
-  }, [searchQuery]);
+  }, [searchQuery, mockResults]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -191,5 +199,20 @@ export default function SearchPage() {
       )}
     </div>
   );
+}
+
+// Force dynamic rendering for pages that use search params
+export const dynamic = 'force-dynamic';
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Loading search...</div>
+      </div>
+    }>
+      <SearchPageContent />
+    </Suspense>
+  )
 }
 

@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import Link from 'next/link'
-import { motion, MotionProps } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
@@ -45,7 +45,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : (isLink ? Link : 'button');
     const MotionComponent = motion(Comp as React.ElementType);
 
-    const motionProps: MotionProps & { href?: string } = {
+    const motionProps: any = {
       whileHover: { scale: isLoading ? 1 : 1.05 },
       whileTap: { scale: isLoading ? 1 : 0.95 },
       transition: { type: 'spring', stiffness: 400, damping: 17 },

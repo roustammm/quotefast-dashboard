@@ -6,7 +6,7 @@ import PageHeader from "../components/PageHeader";
 import { logger } from '../../../lib/logger';
 import { mockInvoices, getInvoicesStats } from "../../../lib/mockData/invoicesData";
 import { FileText, Euro, CheckCircle, Clock, AlertTriangle, Send } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../../app/providers';
 import { Invoice } from '../../../types/dashboard';
 
 // Lazy load heavy components
@@ -15,6 +15,9 @@ const InvoiceChart = lazy(() => import("../components/InvoiceChart"));
 const PaymentStatusChart = lazy(() => import("../components/PaymentStatusChart"));
 const InvoiceForm = lazy(() => import('../components/InvoiceForm'));
 const InvoiceDetailsModal = lazy(() => import('../components/InvoiceDetailsModal'));
+
+// Force dynamic rendering for pages that use auth context
+export const dynamic = 'force-dynamic';
 
 export default function FacturatiePage() {
   const { theme } = useTheme();

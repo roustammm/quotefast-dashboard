@@ -25,8 +25,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
-import { User, Edit, Upload, Loader2 } from "lucide-react";
-import { useAuth } from "../../../providers";
+import { User, Edit, Upload, Loader2, Calendar, Activity, Shield, Download, Trash2, Eye, EyeOff, Bell, BellOff } from "lucide-react";
+import { useAuth } from "@/app/providers";
 import { useToast } from "../hooks/useToast";
 import { profileSchema } from "../utils/validation";
 import { ProfileFormData } from "../../../../types/settings";
@@ -45,6 +45,8 @@ export default function ProfileSection({ className, onProfileUpdate }: ProfileSe
   // Component state
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof ProfileFormData, string>>>({});
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [showActivityLog, setShowActivityLog] = useState(false);
 
   // Form data with proper initialization
   const [formData, setFormData] = useState<ProfileFormData>({
@@ -59,6 +61,27 @@ export default function ProfileSection({ className, onProfileUpdate }: ProfileSe
     if (!formData.firstName && !formData.lastName) return 'U';
     return `${formData.firstName[0]?.toUpperCase() || ''}${formData.lastName[0]?.toUpperCase() || ''}`.slice(0, 2);
   }, [formData.firstName, formData.lastName]);
+
+  // Mock account statistics (in een echte app zou dit van de API komen)
+  const accountStats = useMemo(() => ({
+    joinDate: 'Januari 2024',
+    lastLogin: new Date().toLocaleDateString('nl-NL'),
+    totalOffers: Math.floor(Math.random() * 150) + 50,
+    totalRevenue: '€' + (Math.floor(Math.random() * 50000) + 10000),
+    accountType: 'Professional',
+    twoFactorEnabled: false,
+    privacyMode: 'standard',
+    activityScore: Math.floor(Math.random() * 100) + 1
+  }), []);
+
+  // Mock activity log (in een echte app zou dit van de API komen)
+  const activityLog = useMemo(() => [
+    { id: 1, action: 'Profiel bijgewerkt', date: '2 uur geleden', type: 'profile' },
+    { id: 2, action: 'Nieuw wachtwoord ingesteld', date: '1 dag geleden', type: 'security' },
+    { id: 3, action: 'Offerte aangemaakt', date: '2 dagen geleden', type: 'business' },
+    { id: 4, action: 'Ingelogd vanaf nieuw apparaat', date: '3 dagen geleden', type: 'login' },
+    { id: 5, action: 'Email notificaties aangepast', date: '1 week geleden', type: 'preferences' }
+  ], []);
 
   // Initialize form data from user with proper cleanup
   useEffect(() => {
@@ -173,6 +196,43 @@ export default function ProfileSection({ className, onProfileUpdate }: ProfileSe
     }
   }, [user, toast]);
 
+  // Handle export profile data
+  const handleExportData = useCallback(() => {
+    const exportData = {
+      profile: formData,
+      accountStats,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `quotefast-profile-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.success('Profielgegevens geëxporteerd');
+  }, [formData, accountStats, toast]);
+
+  // Handle delete account (placeholder)
+  const handleDeleteAccount = useCallback(() => {
+    toast.error('Account verwijderen is nog niet geïmplementeerd');
+  }, [toast]);
+
+  // Toggle privacy settings visibility
+  const togglePrivacySettings = useCallback(() => {
+    setShowPrivacySettings(prev => !prev);
+  }, []);
+
+  // Toggle activity log visibility
+  const toggleActivityLog = useCallback(() => {
+    setShowActivityLog(prev => !prev);
+  }, []);
+
   if (!user) {
     return (
       <Card className={`bg-white/10 backdrop-blur-xl border border-white/20 ${className || ''}`}>
@@ -187,131 +247,320 @@ export default function ProfileSection({ className, onProfileUpdate }: ProfileSe
   }
 
   return (
-    <Card className={`bg-white/10 backdrop-blur-xl border border-white/20 ${className || ''}`}>
-      <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <User className="h-5 w-5" aria-hidden="true" />
-          Profiel Informatie
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Profile Header Section */}
-        <div className="flex items-center gap-6">
-          <div className="relative">
-            <div
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold select-none"
-              role="img"
-              aria-label={`Avatar voor ${user.full_name}`}
-            >
-              {avatarLetters}
+    <div className={`space-y-6 ${className || ''}`}>
+      {/* Main Profile Card */}
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <User className="h-5 w-5" aria-hidden="true" />
+            Profiel Informatie
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Profile Header Section */}
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              <div
+                className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold select-none"
+                role="img"
+                aria-label={`Avatar voor ${user.full_name}`}
+              >
+                {avatarLetters}
+              </div>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 hover:bg-blue-700"
+                onClick={handleAvatarUpload}
+                aria-label="Bewerk profielfoto"
+                title="Bewerk profielfoto"
+              >
+                <Edit className="h-3 w-3" />
+              </Button>
             </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-white text-lg font-semibold truncate">
+                {user.full_name || 'Geen naam ingesteld'}
+              </h3>
+              <p className="text-gray-400 truncate" title={user.email}>
+                {user.email || 'Geen email ingesteld'}
+              </p>
+              <p className="text-gray-500 text-sm">
+                Lid sinds {accountStats.joinDate}
+              </p>
+            </div>
+          </div>
+
+          {/* Form Fields - Using improved form structure */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              id="firstName"
+              label="Voornaam"
+              value={formData.firstName}
+              onChange={(value) => handleInputChange('firstName', value)}
+              error={errors.firstName}
+              disabled={saving}
+              required
+              placeholder="Jan"
+              aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+            />
+
+            <FormField
+              id="lastName"
+              label="Achternaam"
+              value={formData.lastName}
+              onChange={(value) => handleInputChange('lastName', value)}
+              error={errors.lastName}
+              disabled={saving}
+              required
+              placeholder="Jansen"
+              aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+            />
+
+            <FormField
+              id="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={(value) => handleInputChange('email', value)}
+              error={errors.email}
+              disabled={saving}
+              required
+              placeholder="jan.jansen@voorbeeld.nl"
+              aria-describedby={errors.email ? 'email-error' : undefined}
+            />
+
+            <FormField
+              id="phone"
+              label="Telefoon"
+              type="tel"
+              value={formData.phone}
+              onChange={(value) => handleInputChange('phone', value)}
+              error={errors.phone}
+              disabled={saving}
+              placeholder="+31612345678 of 0612345678"
+              aria-describedby={errors.phone ? 'phone-error' : undefined}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-end items-center pt-4 border-t border-white/10">
             <Button
-              size="icon"
-              variant="secondary"
-              className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 hover:bg-blue-700"
-              onClick={handleAvatarUpload}
-              aria-label="Bewerk profielfoto"
-              title="Bewerk profielfoto"
+              variant="outline"
+              onClick={handleReset}
+              disabled={saving || !hasUnsavedChanges}
+              className="border-white/20 text-gray-300 hover:bg-white/10 hover:text-white"
             >
-              <Edit className="h-3 w-3" />
+              Reset
+            </Button>
+
+            <Button
+              onClick={handleSave}
+              disabled={saving || !hasUnsavedChanges}
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Opslaan...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Profiel Opslaan
+                </>
+              )}
             </Button>
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-white text-lg font-semibold truncate">
-              {user.full_name || 'Geen naam ingesteld'}
-            </h3>
-            <p className="text-gray-400 truncate" title={user.email}>
-              {user.email || 'Geen email ingesteld'}
-            </p>
-            <p className="text-gray-500 text-sm">
-              Lid sinds {user.created_at ? new Date(user.created_at).toLocaleDateString('nl-NL') : 'Onbekend'}
-            </p>
+        </CardContent>
+      </Card>
+
+      {/* Account Statistics Card */}
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Activity className="h-5 w-5" aria-hidden="true" />
+            Account Statistieken
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-400">{accountStats.totalOffers}</div>
+              <div className="text-sm text-gray-400">Totaal Offertes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-400">{accountStats.totalRevenue}</div>
+              <div className="text-sm text-gray-400">Totale Omzet</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-400">{accountStats.activityScore}%</div>
+              <div className="text-sm text-gray-400">Activiteit Score</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-400">{accountStats.accountType}</div>
+              <div className="text-sm text-gray-400">Account Type</div>
+            </div>
           </div>
-        </div>
+          <div className="mt-4 pt-4 border-t border-white/10">
+            <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span>Lid sinds {accountStats.joinDate}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                <span>Laatste login: {accountStats.lastLogin}</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Form Fields - Using improved form structure */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            id="firstName"
-            label="Voornaam"
-            value={formData.firstName}
-            onChange={(value) => handleInputChange('firstName', value)}
-            error={errors.firstName}
-            disabled={saving}
-            required
-            placeholder="Jan"
-            aria-describedby={errors.firstName ? 'firstName-error' : undefined}
-          />
+      {/* Privacy Settings Card */}
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5" aria-hidden="true" />
+              Privacy & Beveiliging
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={togglePrivacySettings}
+              className="border-white/20 text-gray-300 hover:bg-white/10"
+            >
+              {showPrivacySettings ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPrivacySettings ? 'Verbergen' : 'Tonen'}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        {showPrivacySettings && (
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div>
+                  <div className="text-white font-medium">Twee-factor authenticatie</div>
+                  <div className="text-sm text-gray-400">Extra beveiliging voor je account</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {accountStats.twoFactorEnabled ? (
+                    <Bell className="h-4 w-4 text-green-400" />
+                  ) : (
+                    <BellOff className="h-4 w-4 text-gray-400" />
+                  )}
+                  <span className="text-sm text-gray-400">
+                    {accountStats.twoFactorEnabled ? 'Ingeschakeld' : 'Uitgeschakeld'}
+                  </span>
+                </div>
+              </div>
 
-          <FormField
-            id="lastName"
-            label="Achternaam"
-            value={formData.lastName}
-            onChange={(value) => handleInputChange('lastName', value)}
-            error={errors.lastName}
-            disabled={saving}
-            required
-            placeholder="Jansen"
-            aria-describedby={errors.lastName ? 'lastName-error' : undefined}
-          />
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div>
+                  <div className="text-white font-medium">Privacy modus</div>
+                  <div className="text-sm text-gray-400">Beheer zichtbaarheid van profiel</div>
+                </div>
+                <span className="text-sm text-gray-400 capitalize">{accountStats.privacyMode}</span>
+              </div>
+            </div>
 
-          <FormField
-            id="email"
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(value) => handleInputChange('email', value)}
-            error={errors.email}
-            disabled={saving}
-            required
-            placeholder="jan.jansen@voorbeeld.nl"
-            aria-describedby={errors.email ? 'email-error' : undefined}
-          />
+            <div className="flex gap-3 pt-4 border-t border-white/10">
+              <Button variant="outline" className="border-white/20 text-gray-300 hover:bg-white/10">
+                <Shield className="h-4 w-4 mr-2" />
+                Privacy Instellingen
+              </Button>
+              <Button variant="outline" className="border-red-500/20 text-red-400 hover:bg-red-500/10">
+                <Download className="h-4 w-4 mr-2" />
+                Exporteer Gegevens
+              </Button>
+            </div>
+          </CardContent>
+        )}
+      </Card>
 
-          <FormField
-            id="phone"
-            label="Telefoon"
-            type="tel"
-            value={formData.phone}
-            onChange={(value) => handleInputChange('phone', value)}
-            error={errors.phone}
-            disabled={saving}
-            placeholder="+31612345678 of 0612345678"
-            aria-describedby={errors.phone ? 'phone-error' : undefined}
-          />
-        </div>
+      {/* Activity Log Card */}
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity className="h-5 w-5" aria-hidden="true" />
+              Recente Activiteit
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleActivityLog}
+              className="border-white/20 text-gray-300 hover:bg-white/10"
+            >
+              {showActivityLog ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showActivityLog ? 'Verbergen' : 'Tonen'}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        {showActivityLog && (
+          <CardContent>
+            <div className="space-y-3">
+              {activityLog.map((activity) => (
+                <div key={activity.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                  <div className={`w-2 h-2 rounded-full ${
+                    activity.type === 'security' ? 'bg-red-400' :
+                    activity.type === 'login' ? 'bg-blue-400' :
+                    activity.type === 'business' ? 'bg-green-400' :
+                    'bg-gray-400'
+                  }`} />
+                  <div className="flex-1">
+                    <div className="text-white text-sm">{activity.action}</div>
+                    <div className="text-xs text-gray-400">{activity.date}</div>
+                  </div>
+                  <div className={`px-2 py-1 rounded text-xs ${
+                    activity.type === 'security' ? 'bg-red-400/20 text-red-400' :
+                    activity.type === 'login' ? 'bg-blue-400/20 text-blue-400' :
+                    activity.type === 'business' ? 'bg-green-400/20 text-green-400' :
+                    'bg-gray-400/20 text-gray-400'
+                  }`}>
+                    {activity.type}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        )}
+      </Card>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-end items-center pt-4 border-t border-white/10">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={saving || !hasUnsavedChanges}
-            className="border-white/20 text-gray-300 hover:bg-white/10 hover:text-white"
-          >
-            Reset
-          </Button>
-
-          <Button
-            onClick={handleSave}
-            disabled={saving || !hasUnsavedChanges}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Opslaan...
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4 mr-2" />
-                Profiel Opslaan
-              </>
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Danger Zone Card */}
+      <Card className="bg-red-900/20 backdrop-blur-xl border border-red-500/20">
+        <CardHeader>
+          <CardTitle className="text-red-400 flex items-center gap-2">
+            <Trash2 className="h-5 w-5" aria-hidden="true" />
+            Gevaarlijke Acties
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              onClick={handleExportData}
+              className="border-blue-500/20 text-blue-400 hover:bg-blue-500/10"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Exporteer Gegevens
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleDeleteAccount}
+              className="border-red-500/20 text-red-400 hover:bg-red-500/10"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Account Verwijderen
+            </Button>
+          </div>
+          <p className="text-sm text-gray-400 mt-3">
+            Deze acties kunnen niet ongedaan worden gemaakt. Wees voorzichtig.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -352,10 +601,10 @@ function FormField({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-invalid={!!error ? "true" : "false"}
         placeholder={placeholder}
         disabled={disabled}
         required={required}
-        aria-invalid={!!error}
         aria-describedby={ariaDescribedBy}
         className={`
           w-full px-3 py-2 bg-white/10 border rounded-xl text-white placeholder-gray-400

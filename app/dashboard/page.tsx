@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 "use client";
 import DashboardCard from "./components/DashboardCard";
 import { Zap, FileText, Users, Euro, TrendingUp, Target, BarChart3, Sparkles, AlertCircle, Loader2, ArrowRight } from "lucide-react";
@@ -6,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { customersApi, invoicesApi } from "@/lib/api-service";
 import { DashboardData } from "@/types/dashboard";
+import { logger } from "@/lib/logger";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 
@@ -77,6 +79,9 @@ const DashboardSkeleton = () => (
   </div>
 );
 
+// Force dynamic rendering for pages that use auth context
+export const dynamic = 'force-dynamic';
+
 export default function DashboardPage() {
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
@@ -107,19 +112,19 @@ export default function DashboardPage() {
 
         // Controleer op fouten
         if (customersResponse.error) {
-          console.warn('Customers API error, using mock data:', customersResponse.error);
+          logger.warn('Customers API error, using mock data', 'dashboard', customersResponse.error);
           throw new Error('API error');
         }
 
         if (invoicesResponse.error) {
-          console.warn('Invoices API error, using mock data:', invoicesResponse.error);
+          logger.warn('Invoices API error, using mock data', 'dashboard', invoicesResponse.error);
           throw new Error('API error');
         }
 
         activeCustomers = customersResponse.data?.length || 0;
         invoices = invoicesResponse.data || [];
       } catch (apiError) {
-        console.log('Using mock data for dashboard due to API unavailability');
+        logger.info('Using mock data for dashboard due to API unavailability', 'dashboard');
         // Import mock data als fallback
         const { mockInvoices } = await import('@/lib/mockData/invoicesData');
         const { mockCustomers } = await import('@/lib/mockData/customersData');

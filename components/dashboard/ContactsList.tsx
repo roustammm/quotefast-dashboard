@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
-import { 
-  Mail, 
-  Phone, 
-  MoreVertical, 
-  FileText, 
-  Edit, 
+import Image from 'next/image';
+import {
+  Mail,
+  Phone,
+  MoreVertical,
+  FileText,
+  Edit,
   Trash2,
-  MessageSquare 
+  MessageSquare
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -44,9 +45,11 @@ export default function ContactCard({ contact, index }: ContactCardProps) {
         <div className="relative">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 font-semibold text-white">
             {contact.avatar ? (
-              <img 
-                src={contact.avatar} 
+              <Image
+                src={contact.avatar}
                 alt={contact.name}
+                width={48}
+                height={48}
                 className="h-full w-full rounded-full object-cover"
               />
             ) : (

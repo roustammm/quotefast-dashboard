@@ -2,6 +2,8 @@
  * Performance optimization utilities for QuoteFast Dashboard
  */
 
+import { logger } from '@/lib/logger';
+
 // Image optimization
 export const optimizeImage = (src: string, width: number, height?: number) => {
   const params = new URLSearchParams({
@@ -154,9 +156,9 @@ export const registerServiceWorker = async () => {
   
   try {
     const registration = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service Worker registered:', registration);
+    logger.info('Service Worker registered:', 'PerformanceOptimizer', { registration });
   } catch (error) {
-    console.error('Service Worker registration failed:', error);
+    logger.error('Service Worker registration failed:', 'PerformanceOptimizer', { error });
   }
 };
 
@@ -168,13 +170,13 @@ export const startPerformanceMonitoring = () => {
   const observer = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       if (entry.entryType === 'largest-contentful-paint') {
-        console.log('LCP:', entry.startTime);
+        logger.info('LCP:', 'PerformanceOptimizer', { value: entry.startTime });
       }
       if (entry.entryType === 'first-input') {
-        console.log('FID:', entry.processingStart - entry.startTime);
+        logger.info('FID:', 'PerformanceOptimizer', { value: (entry as any).processingStart - entry.startTime });
       }
       if (entry.entryType === 'layout-shift') {
-        console.log('CLS:', (entry as any).value);
+        logger.info('CLS:', 'PerformanceOptimizer', { value: (entry as any).value });
       }
     }
   });
@@ -185,7 +187,7 @@ export const startPerformanceMonitoring = () => {
   setInterval(() => {
     const memory = getMemoryUsage();
     if (memory && memory.used > 100) { // Alert if memory usage > 100MB
-      console.warn('High memory usage detected:', memory);
+      logger.warn('High memory usage detected:', 'PerformanceOptimizer', { memory });
     }
   }, 30000); // Check every 30 seconds
 };

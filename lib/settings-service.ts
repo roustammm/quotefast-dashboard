@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { NotificationSettings, AppearanceSettings, AIPersonalizationSettings } from '../types/settings';
+import { logger } from '@/lib/logger';
 
 const supabase = createClient();
 
@@ -20,7 +21,7 @@ export const settingsService = {
         .single();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = not found (ok voor nieuwe users)
-        logger.error('Error fetching notification settings:', 'service', error);
+        logger.error('Error fetching notification settings:', 'SettingsService', { error });
         return { data: null, error: error.message };
       }
 
@@ -36,7 +37,7 @@ export const settingsService = {
         error: null,
       };
     } catch (error: any) {
-      logger.error('Unexpected error in getNotificationSettings:', 'service', error);
+      logger.error('Unexpected error in getNotificationSettings:', 'SettingsService', { error });
       return { data: null, error: error.message || 'Onbekende fout' };
     }
   },
@@ -58,13 +59,13 @@ export const settingsService = {
         });
 
       if (error) {
-        logger.error('Error updating notification settings:', 'service', error);
+        logger.error('Error updating notification settings:', 'SettingsService', { error });
         return { data: false, error: error.message };
       }
 
       return { data: true, error: null };
     } catch (error: any) {
-      logger.error('Unexpected error in updateNotificationSettings:', 'service', error);
+      logger.error('Unexpected error in updateNotificationSettings:', 'SettingsService', { error });
       return { data: false, error: error.message || 'Onbekende fout' };
     }
   },
@@ -79,7 +80,7 @@ export const settingsService = {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        logger.error('Error fetching appearance settings:', 'service', error);
+        logger.error('Error fetching appearance settings:', 'SettingsService', error);
         return { data: null, error: error.message };
       }
 
@@ -92,7 +93,7 @@ export const settingsService = {
         error: null,
       };
     } catch (error: any) {
-      logger.error('Unexpected error in getAppearanceSettings:', 'service', error);
+      logger.error('Unexpected error in getAppearanceSettings:', 'SettingsService', error);
       return { data: null, error: error.message || 'Onbekende fout' };
     }
   },
@@ -114,13 +115,13 @@ export const settingsService = {
         });
 
       if (error) {
-        logger.error('Error updating appearance settings:', 'service', error);
+        logger.error('Error updating appearance settings:', 'SettingsService', error);
         return { data: false, error: error.message };
       }
 
       return { data: true, error: null };
     } catch (error: any) {
-      logger.error('Unexpected error in updateAppearanceSettings:', 'service', error);
+      logger.error('Unexpected error in updateAppearanceSettings:', 'SettingsService', error);
       return { data: false, error: error.message || 'Onbekende fout' };
     }
   },
@@ -135,7 +136,7 @@ export const settingsService = {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        logger.error('Error fetching AI personalization settings:', 'service', error);
+        logger.error('Error fetching AI personalization settings:', 'SettingsService', error);
         return { data: null, error: error.message };
       }
 
@@ -148,7 +149,7 @@ export const settingsService = {
         error: null,
       };
     } catch (error: any) {
-      logger.error('Unexpected error in getAIPersonalizationSettings:', 'service', error);
+      logger.error('Unexpected error in getAIPersonalizationSettings:', 'SettingsService', error);
       return { data: null, error: error.message || 'Onbekende fout' };
     }
   },
@@ -170,13 +171,13 @@ export const settingsService = {
         });
 
       if (error) {
-        logger.error('Error updating AI personalization settings:', 'service', error);
+        logger.error('Error updating AI personalization settings:', 'SettingsService', error);
         return { data: false, error: error.message };
       }
 
       return { data: true, error: null };
     } catch (error: any) {
-      logger.error('Unexpected error in updateAIPersonalizationSettings:', 'service', error);
+      logger.error('Unexpected error in updateAIPersonalizationSettings:', 'SettingsService', error);
       return { data: false, error: error.message || 'Onbekende fout' };
     }
   },

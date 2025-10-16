@@ -1,7 +1,6 @@
 /* Complete Supabase setup voor QuoteFast */
 
 import { createClient } from '@supabase/supabase-js'
-// import { Database } from '../types/supabase' // Type not found, using any for now
 
 // Environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -9,7 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 // Create Supabase client
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
@@ -18,7 +17,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 })
 
 // Admin client for server-side operations
-export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceKey, {
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,
@@ -158,14 +157,14 @@ export const dbUtils = {
   inviteTeamMember: async (organizationId: string, email: string, role: string) => {
     // Note: getUserByEmail is not available in current Supabase version
     // Using alternative approach - this would need to be implemented differently
-    const { data: { users }, error } = await supabase.auth.admin.listUsers()
+    const { data: { users }, error: listUsersError } = await supabase.auth.admin.listUsers()
     const user = users?.find(u => u.email === email)
-    
+
     if (!user) {
       return { error: { message: 'User not found' } }
     }
 
-    const { data, error } = await supabase
+    const { data, error: insertError } = await supabase
       .from('team_members')
       .insert({
         user_id: user.id,
@@ -175,7 +174,7 @@ export const dbUtils = {
         joined_at: new Date().toISOString()
       })
 
-    return { data, error }
+    return { data, error: insertError }
   }
 }
 

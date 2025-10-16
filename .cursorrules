@@ -1,25 +1,264 @@
-# Cursor Rules for QuoteFast Dashboard
+# QuoteFast Dashboard - Cursor AI Rules
 
-## Environment Files
-- You can read and analyze .env.local and .env files for development purposes
-- Never commit actual API keys or sensitive data to version control
-- Always use placeholder values in documentation and examples
-- When creating environment files, use .env.example as a template
+## 🎯 Project Overview
+QuoteFast Dashboard is een moderne SaaS platform voor offerte en factuur beheer met krachtige AI-integratie. Het platform is gebouwd met Next.js 14, React 18, TypeScript, en Supabase, met Google Gemini AI voor intelligente content generatie.
 
-## Security Guidelines
-- Treat all environment variables as sensitive
-- Use placeholder values like "your_api_key_here" in examples
-- Never log or expose actual API keys in code
-- Always validate environment variables before use
+## 🛠 Tech Stack
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time, Storage)
+- **AI Integration**: Google Gemini AI 2.5 Pro
+- **Styling**: Tailwind CSS, CSS Modules, Framer Motion
+- **Deployment**: Hugging Face Spaces, Netlify Ready
 
-## Development Workflow
-- Use .env.local for local development
-- Use .env.example as a template for team members
-- Keep .env and .env.local in .gitignore for security
-- Document required environment variables in README.md
+## 💻 Development Guidelines
 
-## File Access Rules
-- Allow reading of .env.local for development setup
-- Allow reading of .env for configuration analysis
-- Block committing of actual environment files
-- Allow creation of .env.example templates
+### Code Style
+- **TypeScript**: Strict mode ingeschakeld, gebruik altijd types
+- **Componenten**: Functionele componenten met hooks, geen class components
+- **Styling**: Tailwind CSS utility-first approach
+- **File Naming**: PascalCase voor componenten, camelCase voor utilities
+- **Imports**: Gebruik absolute imports met `@/` prefix
+
+### Project Structure
+```
+app/                    # Next.js 13+ app directory
+├── api/               # API routes
+├── auth/              # Authentication pages
+├── dashboard/         # Dashboard pages en componenten
+└── components/        # Herbruikbare componenten
+
+components/            # Shared componenten
+├── ui/               # Basis UI componenten (buttons, cards, etc.)
+└── dashboard/        # Dashboard specifieke componenten
+
+lib/                  # Utilities en services
+├── supabase/         # Supabase client en utilities
+├── gemini-service.ts # AI integration
+└── api-service.ts    # API calls
+
+types/                # TypeScript type definities
+specs/                # Specificatie documenten
+```
+
+## 🤖 AI Integration Rules
+
+### Gemini AI Usage
+- Gebruik altijd de bestaande `gemini-service.ts` voor AI calls
+- Implementeer proper error handling voor AI responses
+- Rate limiting: Maximaal 10 requests per minuut per gebruiker
+- Context window: Gebruik relevante context voor betere responses
+
+### AI-Powered Features
+- **Code Assistance**: Gebruik GeminiCodingAssistant component voor development hulp
+- **Content Generation**: Automatische offerte templates via AI
+- **Performance Monitoring**: AI-gedreven performance optimalisatie suggesties
+
+## 🔐 Authentication & Security
+
+### Supabase Auth
+- Altijd Row Level Security (RLS) gebruiken
+- Gebruik `supabase.auth` voor alle auth operaties
+- Implementeer proper session management
+- JWT tokens veilig opslaan (httpOnly cookies)
+
+### Security Best Practices
+- Environment variables nooit in client-side code
+- Input validation op alle API endpoints
+- CSRF protection voor state-changing operations
+- Rate limiting voor API endpoints
+
+## 📊 Performance Guidelines
+
+### Core Web Vitals
+- **LCP**: < 2.5s (Large screens)
+- **FID**: < 100ms
+- **CLS**: < 0.1
+- Gebruik Next.js Image component voor alle afbeeldingen
+
+### Optimization Techniques
+- Code splitting met dynamic imports
+- Lazy loading voor zware componenten
+- Memoization voor expensive calculations
+- Image optimization met next/image
+
+## 🧪 Testing Strategy
+
+### Test Coverage
+- **Unit Tests**: Minimaal 80% coverage voor nieuwe code
+- **Integration Tests**: API endpoints en critical paths
+- **E2E Tests**: User workflows (toekomstig)
+
+### Testing Tools
+- **Vitest**: Voor unit en integration tests
+- **React Testing Library**: Voor component testing
+- **MSW**: Voor API mocking
+- **Accessibility Testing**: Gebruik `@testing-library/jest-dom` voor ARIA assertions
+
+## 🚀 Deployment Rules
+
+### Environment Setup
+- **Development**: `npm run dev` met hot reload
+- **Production**: `npm run build && npm run start`
+- **Environment Variables**: Gebruik .env.local voor development
+
+### Deployment Platforms
+1. **Hugging Face Spaces** (Primary)
+   - Git-based deployment
+   - Automatische builds op main branch push
+
+2. **Netlify** (Alternative)
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+
+## 📝 Documentation Standards
+
+### Code Comments
+- JSDoc comments voor alle public functies
+- Inline comments voor complexe logica
+- TODO comments voor toekomstige verbeteringen
+
+### README Updates
+- Update README bij significante changes
+- Document nieuwe features en breaking changes
+- Houd deployment guides up-to-date
+
+## 🔧 Development Workflow
+
+### Git Strategy
+- **Main**: Productie branch (protected)
+- **Develop**: Development branch
+- **Feature branches**: Voor nieuwe features (`feature/feature-name`)
+- **Hotfix branches**: Voor urgente fixes (`hotfix/issue-description`)
+
+### Commit Convention
+```
+feat: nieuwe feature toevoegen
+fix: bug fix
+docs: documentatie updates
+style: styling wijzigingen
+refactor: code refactoring
+test: test toevoegingen
+chore: maintenance taken
+```
+
+### Pull Request Process
+1. Feature branch aanmaken
+2. Code review door minimaal 1 andere developer
+3. Automated tests passeren
+4. Merge naar develop branch
+5. Release naar main na approval
+
+## 🎨 UI/UX Guidelines
+
+### Design System
+- **Colors**: Consistent color palette met CSS custom properties
+- **Typography**: Inter font family met proper hierarchy
+- **Spacing**: 8px grid system
+- **Animations**: Subtiele micro-interactions met Framer Motion
+
+### Accessibility
+- **WCAG 2.1 AA**: Alle componenten moeten toegankelijk zijn
+- **Keyboard Navigation**: Volledige keyboard support
+- **Screen Reader**: Proper ARIA labels en semantic HTML
+- **Color Contrast**: Voldoende contrast ratios
+
+#### ARIA Best Practices
+- **ARIA Attributes**: Altijd strings gebruiken, nooit booleans
+  - ✅ `aria-invalid="true"` of `aria-invalid="false"`
+  - ❌ `aria-invalid={!!error}` (boolean)
+- **Form Validation**: Gebruik `aria-invalid` met `aria-describedby` voor error messages
+- **Required Fields**: Altijd `aria-required="true"` voor verplichte velden
+- **Labels**: Gebruik `htmlFor` en `id` voor proper label association
+- **Error Messages**: Koppel errors aan inputs met `aria-describedby`
+- **Loading States**: Gebruik `aria-live="polite"` voor status updates
+- **Focus Management**: Implementeer proper focus traps en restoration
+
+## 🔍 Code Quality Rules
+
+### ESLint Configuration
+- **TypeScript**: Strict rules ingeschakeld
+- **React**: Hooks en JSX best practices
+- **Import**: Proper import organization
+- **No-console**: Verboden in productie code
+
+### Prettier Setup
+- **Single Quotes**: Voor strings
+- **Trailing Commas**: ES5 style
+- **Print Width**: 100 karakters
+- **Tab Width**: 2 spaces
+
+## 🚨 Error Handling
+
+### Error Boundaries
+- Implementeer error boundaries voor alle major componenten
+- Gebruik AppError class voor consistente error handling
+- Log errors naar monitoring service in productie
+
+### User Feedback
+- Toast notifications voor user actions
+- Loading states voor async operations
+- Proper error messages in gebruikers taal
+
+## 🔄 API Guidelines
+
+### RESTful Design
+- **GET**: Voor data retrieval
+- **POST**: Voor data creation
+- **PUT/PATCH**: Voor data updates
+- **DELETE**: Voor data removal
+
+### Response Format
+```typescript
+{
+  success: boolean,
+  data?: any,
+  error?: string,
+  message?: string
+}
+```
+
+## 📱 Responsive Design
+
+### Breakpoints
+- **Mobile**: < 768px
+- **Tablet**: 768px - 1024px
+- **Desktop**: > 1024px
+
+### Mobile-First
+- Ontwikkel mobile-first, dan enhance voor larger screens
+- Touch-friendly interactions (44px minimum touch targets)
+- Proper viewport meta tag
+
+## 🎯 Feature Development Process
+
+### Spec-Driven Development
+1. **Problem Definition**: Duidelijke probleemstelling
+2. **Specification**: Gedetailleerde requirements
+3. **Planning**: Task breakdown en timeline
+4. **Implementation**: TDD approach
+5. **Review**: Code review en testing
+6. **Deployment**: Zero-downtime deployment
+
+### AI Collaboration
+- **Qwen3**: Voor strategic planning en probleem analyse
+- **DeepSeek**: Voor code implementatie en bug fixes
+- **Gemini**: Voor code review en optimalisatie
+- **Claude**: Voor architectuur en complexe redenering
+
+## 📋 Maintenance Tasks
+
+### Regular Updates
+- **Dependencies**: Maandelijkse security updates
+- **Performance**: Wekelijkse performance audits
+- **Security**: Continue vulnerability scanning
+- **Documentation**: Bijhouden van changes
+
+### Monitoring
+- **Error Tracking**: Sentry of vergelijkbaar
+- **Performance**: Google Analytics + Core Web Vitals
+- **User Analytics**: Gebruikers gedrag tracking
+- **API Monitoring**: Response times en error rates
+
+---
+
+*Deze regels zorgen voor consistente, kwalitatieve code en een optimale development ervaring met AI-ondersteuning.*

@@ -1,11 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react'
 
-export default function ResetPassword() {
+function ResetPasswordContent() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordInner />
+    </Suspense>
+  );
+}
+
+function ResetPasswordInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -19,11 +27,13 @@ export default function ResetPassword() {
 
   useEffect(() => {
     // Check if we have the necessary tokens in the URL
-    const accessToken = searchParams.get('access_token')
-    const refreshToken = searchParams.get('refresh_token')
-    
-    if (!accessToken || !refreshToken) {
-      setError('Invalid reset link. Please request a new password reset.')
+    if (searchParams) {
+      const accessToken = searchParams.get('access_token')
+      const refreshToken = searchParams.get('refresh_token')
+
+      if (!accessToken || !refreshToken) {
+        setError('Invalid reset link. Please request a new password reset.')
+      }
     }
   }, [searchParams])
 
@@ -157,5 +167,20 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Force dynamic rendering for pages that use search params
+export const dynamic = 'force-dynamic';
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }

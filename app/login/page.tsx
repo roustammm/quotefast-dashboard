@@ -5,6 +5,10 @@ import Link from 'next/link'
 import { useAuth } from '@/app/providers'
 import { useRouter } from 'next/navigation'
 import ErrorMessage from '../../components/ui/ErrorMessage'
+import BrainNeuronAnimation from '../../components/ui/BrainNeuronAnimation'
+
+// Force dynamic rendering for pages that use auth context
+export const dynamic = 'force-dynamic';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -48,8 +52,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center px-6">
-      <div className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-8 text-center shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center px-6 relative overflow-hidden">
+      {/* Brain Neuron Animation Background */}
+      <BrainNeuronAnimation />
+      
+      <div className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-8 text-center shadow-2xl relative z-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Welkom terug 👋</h1>
           <p className="text-gray-300">Log in om verder te gaan</p>

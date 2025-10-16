@@ -14,7 +14,7 @@
  * - Accessibility testing enabled
  */
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 // Global test cleanup
@@ -81,7 +81,7 @@ Object.defineProperty(window, 'sessionStorage', {
 });
 
 // Global test utilities
-global.testUtils = {
+(globalThis as any).testUtils = {
   // Helper to create mock user for testing
   createMockUser: (overrides = {}) => ({
     id: '123',
@@ -126,10 +126,10 @@ console.error = (...args) => {
 };
 
 // Accessibility testing helpers
-global.a11y = {
+(global as any).a11y = {
   // Helper to check for common accessibility issues
   checkAccessibility: (container: HTMLElement) => {
-    const issues = [];
+    const issues: string[] = [];
 
     // Check for missing alt text on images
     const images = container.querySelectorAll('img');

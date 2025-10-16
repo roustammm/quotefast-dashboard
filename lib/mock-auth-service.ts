@@ -1,5 +1,6 @@
 import { User } from "../types/user";
 
+import { logger } from "@/lib/logger";
 export interface AuthResponse {
   user: User | null;
   error: string | null;
@@ -11,7 +12,7 @@ export const mockAuthService = {
   currentUser: null as User | null,
 
   register: async (email: string, password: string, name: string, company?: string): Promise<AuthResponse> => {
-    console.log("Mock: Registering user", { email, name, company });
+    logger.info("Mock: Registering user", "AuthService", { email, name, company });
     
     if (mockAuthService.users.has(email)) {
       return {
@@ -31,7 +32,7 @@ export const mockAuthService = {
     mockAuthService.users.set(email, user);
     mockAuthService.currentUser = user;
 
-    console.log("Mock: User registered successfully", user);
+    logger.info("Mock: User registered successfully", "AuthService", { user });
     
     return {
       user,
@@ -41,7 +42,7 @@ export const mockAuthService = {
   },
 
   login: async (email: string, password: string): Promise<AuthResponse> => {
-    console.log("Mock: Logging in user", { email });
+    logger.info("Mock: Logging in user", "AuthService", { email });
     
     const user = mockAuthService.users.get(email);
     
@@ -55,7 +56,7 @@ export const mockAuthService = {
 
     mockAuthService.currentUser = user;
 
-    console.log("Mock: User logged in successfully", user);
+    logger.info("Mock: User logged in successfully", "AuthService", { user });
     
     return {
       user,
@@ -65,13 +66,13 @@ export const mockAuthService = {
   },
 
   logout: async (): Promise<{ error: string | null }> => {
-    console.log("Mock: Logging out user");
+    logger.info("Mock: Logging out user", "AuthService");
     mockAuthService.currentUser = null;
     return { error: null };
   },
 
   getCurrentUser: async (): Promise<AuthResponse> => {
-    console.log("Mock: Getting current user");
+    logger.info("Mock: Getting current user", "AuthService");
     
     if (mockAuthService.currentUser) {
       return {
@@ -89,7 +90,7 @@ export const mockAuthService = {
   },
 
   updateUser: async (userId: string, userData: Partial<User>): Promise<AuthResponse> => {
-    console.log("Mock: Updating user", { userId, userData });
+    logger.info("Mock: Updating user", "AuthService", { userId, userData });
     
     if (!mockAuthService.currentUser || mockAuthService.currentUser.id !== userId) {
       return {
@@ -103,7 +104,7 @@ export const mockAuthService = {
     mockAuthService.currentUser = updatedUser;
     mockAuthService.users.set(updatedUser.email, updatedUser);
 
-    console.log("Mock: User updated successfully", updatedUser);
+    logger.info("Mock: User updated successfully", "AuthService", { user: updatedUser });
     
     return {
       user: updatedUser,
@@ -113,24 +114,24 @@ export const mockAuthService = {
   },
 
   resetPassword: async (email: string): Promise<{ error: string | null }> => {
-    console.log("Mock: Resetting password for", email);
+    logger.info("Mock: Resetting password for", "AuthService", { email });
     
     if (!mockAuthService.users.has(email)) {
       return { error: "Emailadres niet gevonden" };
     }
 
-    console.log("Mock: Password reset email sent (simulated)");
+    logger.info("Mock: Password reset email sent (simulated)", "AuthService");
     return { error: null };
   },
 
   updatePassword: async (password: string): Promise<{ error: string | null }> => {
-    console.log("Mock: Updating password");
+    logger.info("Mock: Updating password", "AuthService");
     
     if (!mockAuthService.currentUser) {
       return { error: "Geen gebruiker ingelogd" };
     }
 
-    console.log("Mock: Password updated successfully (simulated)");
+    logger.info("Mock: Password updated successfully (simulated)", "AuthService");
     return { error: null };
   }
 };

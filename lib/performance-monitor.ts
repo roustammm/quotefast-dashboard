@@ -3,6 +3,8 @@
  * Tracks and reports performance metrics
  */
 
+import { logger } from '@/lib/logger';
+
 interface PerformanceMetric {
   name: string;
   value: number;
@@ -149,7 +151,7 @@ class PerformanceMonitor {
     
     // Only log in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('📊 Performance Metrics:', {
+      logger.info('📊 Performance Metrics:', 'PerformanceMonitor', {
         coreWebVitals,
         averagePageLoad: avgPageLoad,
         totalMetrics: this.metrics.length

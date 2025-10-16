@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useAuth } from './AuthContext'
+import { useAuth } from '@/app/providers'
 import { OnboardingData } from '../lib/onboarding'
 
 interface AIPersonalizationContextType {

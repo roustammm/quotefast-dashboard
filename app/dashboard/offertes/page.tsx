@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
 import { useTheme } from "@/contexts/ThemeContext";
-import { useAIPersonalization } from "@/contexts/AIPersonalizationContext";
 import { getPersonalizedTemplates } from "@/lib/aiPersonalization";
 import DashboardCard from "../components/DashboardCard";
 import { logger } from '@/lib/logger';
@@ -174,32 +173,32 @@ const FiltersModal = ({ isOpen, onClose, onApply }: {
             className="glass-card-premium w-full max-w-md max-h-[80vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 p-4 border-b border-border/50 bg-background/80 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Filters</h3>
-                <button onClick={onClose} className="p-1 hover:bg-accent rounded-full">
-                  <ChevronDown className="h-5 w-5" />
-                </button>
+              <div className="sticky top-0 p-4 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Filters</h3>
+                  <button onClick={onClose} className="p-1 hover:bg-accent rounded-full" aria-label="Sluit filters">
+                    <ChevronDown className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
-            </div>
             
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
-                <select className="w-full p-2 border border-border rounded-lg bg-background">
-                  <option>Alle</option>
-                  <option>Concept</option>
-                  <option>Verzonden</option>
-                  <option>Geaccepteerd</option>
-                  <option>Verlopen</option>
+                <label htmlFor="status-filter" className="block text-sm font-medium mb-2">Status</label>
+                <select id="status-filter" className="w-full p-2 border border-border rounded-lg bg-background">
+                  <option value="">Alle</option>
+                  <option value="draft">Concept</option>
+                  <option value="sent">Verzonden</option>
+                  <option value="accepted">Geaccepteerd</option>
+                  <option value="expired">Verlopen</option>
                 </select>
               </div>
               
               <div>
                 <label className="block text-sm font-medium mb-2">Datum bereik</label>
                 <div className="flex gap-2">
-                  <input type="date" className="flex-1 p-2 border border-border rounded-lg bg-background" />
-                  <input type="date" className="flex-1 p-2 border border-border rounded-lg bg-background" />
+                  <input type="date" id="date-from" className="flex-1 p-2 border border-border rounded-lg bg-background" aria-label="Vanaf datum" />
+                  <input type="date" id="date-to" className="flex-1 p-2 border border-border rounded-lg bg-background" aria-label="Tot datum" />
                 </div>
               </div>
               
@@ -208,6 +207,7 @@ const FiltersModal = ({ isOpen, onClose, onApply }: {
                   onClick={() => onApply({})}
                   whileHover={{ scale: 1.02 }}
                   className="modern-glass-button flex-1 px-4 py-2 rounded-lg"
+                  aria-label="Filters toepassen"
                 >
                   Toepassen
                 </motion.button>
@@ -215,6 +215,7 @@ const FiltersModal = ({ isOpen, onClose, onApply }: {
                   onClick={onClose}
                   whileHover={{ scale: 1.02 }}
                   className="glass-card flex-1 px-4 py-2 rounded-lg text-muted-foreground hover:bg-accent"
+                  aria-label="Filters annuleren"
                 >
                   Annuleren
                 </motion.button>
@@ -227,9 +228,14 @@ const FiltersModal = ({ isOpen, onClose, onApply }: {
   );
 };
 
+export const dynamic = 'force-dynamic'
+
 export default function OffertesPage() {
   const { theme } = useTheme();
-  const { onboardingData } = useAIPersonalization();
+  
+  // Use mock data for static generation
+  const onboardingData = null;
+  
   const [offers, setOffers] = useState(mockOffers);
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -255,15 +261,12 @@ export default function OffertesPage() {
   }, []);
 
   // Debounced search
-  const debouncedSearch = useCallback(
-    useMemo(() => {
-      const handler = setTimeout(() => {
-        // Search logic hier
-      }, 300);
-      return () => clearTimeout(handler);
-    }, [searchTerm]),
-    [searchTerm]
-  );
+  const debouncedSearch = useCallback(() => {
+    const handler = setTimeout(() => {
+      // Search logic hier
+    }, 300);
+    return () => clearTimeout(handler);
+  }, []);
 
   useEffect(() => {
     debouncedSearch();
@@ -327,6 +330,7 @@ export default function OffertesPage() {
             }
           }}
           className="rounded border-gray-300 text-primary focus:ring-primary"
+          aria-label="Selecteer alle offertes"
         />
       ),
       cell: ({ row }: { row: any }) => (
@@ -341,6 +345,7 @@ export default function OffertesPage() {
             }
           }}
           className="rounded border-gray-300 text-primary focus:ring-primary"
+          aria-label={`Selecteer offerte ${row.original.title}`}
         />
       ),
       enableSorting: false,
@@ -354,6 +359,7 @@ export default function OffertesPage() {
           <button
             onClick={column.getToggleSortingHandler()}
             className="p-1 hover:bg-accent rounded"
+            aria-label={`Sorteer op ID ${column.getIsSorted() === 'asc' ? 'oplopend' : column.getIsSorted() === 'desc' ? 'aflopend' : ''}`}
           >
             <ChevronDown className={`h-4 w-4 ${column.getIsSorted() === 'asc' ? 'rotate-180' : ''}`} />
           </button>
@@ -380,6 +386,7 @@ export default function OffertesPage() {
           <button
             onClick={column.getToggleSortingHandler()}
             className="p-1 hover:bg-accent rounded"
+            aria-label={`Sorteer op bedrag ${column.getIsSorted() === 'asc' ? 'oplopend' : column.getIsSorted() === 'desc' ? 'aflopend' : ''}`}
           >
             <ChevronDown className={`h-4 w-4 ${column.getIsSorted() === 'asc' ? 'rotate-180' : ''}`} />
           </button>
@@ -423,6 +430,7 @@ export default function OffertesPage() {
           <button
             onClick={column.getToggleSortingHandler()}
             className="p-1 hover:bg-accent rounded"
+            aria-label={`Sorteer op aanmaakdatum ${column.getIsSorted() === 'asc' ? 'oplopend' : column.getIsSorted() === 'desc' ? 'aflopend' : ''}`}
           >
             <ChevronDown className={`h-4 w-4 ${column.getIsSorted() === 'asc' ? 'rotate-180' : ''}`} />
           </button>
@@ -730,7 +738,7 @@ export default function OffertesPage() {
                   AI Aanbevolen Templates
             </h3>
                 <p className="text-sm text-muted-foreground">
-                  Voor {onboardingData.companyName} • {onboardingData.industry}
+                  Voor jouw bedrijf • Alle sectoren
                 </p>
               </div>
           </div>
@@ -759,6 +767,7 @@ export default function OffertesPage() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       className="text-primary hover:text-primary/80 transition-colors text-sm font-medium"
+                      aria-label={`Gebruik template ${template.name}`}
                     >
                       Gebruik Template →
                     </motion.button>
@@ -809,6 +818,7 @@ export default function OffertesPage() {
               whileHover={{ scale: 1.05 }}
               className="modern-glass-button p-2 rounded-lg"
               onClick={() => toast('Chart interactie', { duration: 2000 })}
+              aria-label="Chart opties"
             >
               <ChevronDown className="h-4 w-4" />
             </motion.button>
@@ -840,6 +850,7 @@ export default function OffertesPage() {
               whileHover={{ scale: 1.05 }}
               className="modern-glass-button p-2 rounded-lg"
               onClick={() => toast('Tijdslijn interactie', { duration: 2000 })}
+              aria-label="Tijdslijn opties"
             >
               <ChevronDown className="h-4 w-4" />
             </motion.button>
@@ -929,6 +940,7 @@ export default function OffertesPage() {
               disabled={currentPage === 1}
               whileHover={{ scale: 1.05 }}
               className="modern-glass-button p-2 rounded-lg disabled:opacity-50"
+              aria-label="Vorige pagina"
             >
               Vorige
             </motion.button>
@@ -943,6 +955,8 @@ export default function OffertesPage() {
                     page === currentPage ? 'bg-primary text-primary-foreground shadow-md' : ''
                   }`}
                   whileHover={{ scale: 1.05 }}
+                  aria-label={`Ga naar pagina ${page}`}
+                  aria-current={page === currentPage ? 'page' : undefined}
                 >
                   {page}
                 </motion.button>
@@ -954,6 +968,7 @@ export default function OffertesPage() {
               disabled={currentPage === totalPages}
               whileHover={{ scale: 1.05 }}
               className="modern-glass-button p-2 rounded-lg disabled:opacity-50"
+              aria-label="Volgende pagina"
             >
               Volgende
             </motion.button>
