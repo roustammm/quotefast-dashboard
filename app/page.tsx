@@ -13,10 +13,10 @@ import { Button } from '@/lib/Button'
 import { memo, useMemo } from 'react'
 
 // Memoized components for better performance
-const FeatureCard = memo(({ icon: Icon, title, description, delay = 0 }) => (
-  <motion.div 
+const FeatureCard = memo(({ icon: Icon, title, description, delay = 0 }) => {
+  return (
+  <motion.div
     whileHover={{ scale: 1.05, y: -5 }}
-    transition={{ duration: 0.3 }}
     className="glass-card p-8 rounded-2xl border-border hover:shadow-lg"
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -35,7 +35,10 @@ const FeatureCard = memo(({ icon: Icon, title, description, delay = 0 }) => (
       {description}
     </p>
   </motion.div>
-))
+  )
+})
+
+FeatureCard.displayName = 'FeatureCard'
 
 const DashboardCard = memo(({ title, value, change, changeType, progress, icon: Icon, delay = 0 }) => (
   <motion.div 
@@ -76,7 +79,10 @@ const DashboardCard = memo(({ title, value, change, changeType, progress, icon: 
       <span>Last updated: Just now</span>
     </div>
   </motion.div>
-))
+  )
+})
+
+DashboardCard.displayName = 'DashboardCard'
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme()

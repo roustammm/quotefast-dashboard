@@ -401,6 +401,29 @@ export const NewsletterEmail = ({
   )
 }
 
+// Email utilities object
+export const emailUtils = {
+  sendWelcome: async ({ email, name }: { email: string; name: string }) => {
+    try {
+      const emailComponent = WelcomeEmail({ name })
+      return await sendEmail(email, `Welkom bij QuoteFast, ${name}!`, emailComponent)
+    } catch (error) {
+      console.error('Welcome email error:', error)
+      return { error: 'Failed to send welcome email' }
+    }
+  },
+
+  sendOffer: async ({ email, name, offerData }: { email: string; name: string; offerData: any }) => {
+    try {
+      const emailComponent = OfferEmail({ name, offerData })
+      return await sendEmail(email, `Je offerte van QuoteFast`, emailComponent)
+    } catch (error) {
+      console.error('Offer email error:', error)
+      return { error: 'Failed to send offer email' }
+    }
+  }
+}
+
 // Simplified email service functions
 export const sendEmail = async (to: string, subject: string, react: React.ReactNode, options: any = {}) => {
   try {
@@ -408,8 +431,8 @@ export const sendEmail = async (to: string, subject: string, react: React.ReactN
     console.log('Email would be sent to:', to)
     console.log('Subject:', subject)
     console.log('Options:', options)
-    
-    return { success: true, messageId: 'mock-' + Date.now() }
+
+    return { success: true, messageId: 'mock-' + Date.now(), data: { id: 'mock-' + Date.now() } }
   } catch (error) {
     console.error('Email service error:', error)
     throw error
